@@ -100,18 +100,30 @@ class UserResource extends Resource
                                                 ? new HtmlString('<span style="color:#00B5D8">El campo solo se actualizará si ingresas un nuevo valor.</span>')
                                                 : null) // Muestra la leyenda en modo edición
                                         ,
+                                        Forms\Components\Select::make('center_id')
+                                            ->relationship('center', 'name', function ($query) {
+                                                $query->where('active', true);  // Filtro para que solo se muestren países activos
+                                            })
+                                            ->searchable()
+                                            ->label("Centro")
+                                            ->preload(),
+
                                         Forms\Components\Toggle::make('active')
                                             ->inline(false)
                                             ->label("¿Activo?")
                                             ->required(),
-                                        Forms\Components\Toggle::make('can_appointment')
+                                        Forms\Components\Toggle::make('can_show_general_resource')
                                             ->inline(false)
-                                            ->label("¿Permir cita?")
+                                            ->label("¿Permir ver recursos generales?")
                                             ->required(),
-                                        Forms\Components\Toggle::make('can_admin_panel')
-                                            ->inline(false)
-                                            ->label("¿Permir Ingresar administración?")
-                                            ->required(),
+                                        // Forms\Components\Toggle::make('can_appointment')
+                                        //     ->inline(false)
+                                        //     ->label("¿Permir cita?")
+                                        //     ->required(),
+                                        // Forms\Components\Toggle::make('can_admin_panel')
+                                        //     ->inline(false)
+                                        //     ->label("¿Permir Ingresar administración?")
+                                        //     ->required(),
 
 
                                     ]),
@@ -197,6 +209,10 @@ class UserResource extends Resource
                     ->sortable()
                     ->label("NIF/CIF")
                     ->searchable(),
+                Tables\Columns\TextColumn::make('center.name')
+                    ->sortable()
+                    ->label("Centro")
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('country.name')
                     ->sortable()
                     ->label("País")
@@ -204,12 +220,15 @@ class UserResource extends Resource
                 Tables\Columns\IconColumn::make('active')
                     ->boolean()
                     ->label("¿Activo?"),
-                Tables\Columns\IconColumn::make('can_appointment')
+                Tables\Columns\IconColumn::make('can_show_general_resource')
                     ->boolean()
-                    ->label("¿Permir cita?"),
-                Tables\Columns\IconColumn::make('can_admin_panel')
-                    ->boolean()
-                    ->label("¿Permir Administración?"),
+                    ->label("¿Permir ver recursos generales?"),
+                // Tables\Columns\IconColumn::make('can_appointment')
+                //     ->boolean()
+                //     ->label("¿Permir cita?"),
+                // Tables\Columns\IconColumn::make('can_admin_panel')
+                //     ->boolean()
+                //     ->label("¿Permir Administración?"),
 
                 Tables\Columns\TextColumn::make('state.name')
                     ->sortable()
@@ -246,18 +265,24 @@ class UserResource extends Resource
                         '1' => 'Activo',
                         '0' => 'No activo',
                     ]),
-                SelectFilter::make('can_appointment')
-                    ->label("¿Permir cita?")
+                SelectFilter::make('can_show_general_resource')
+                    ->label("¿Permir ver recursos generales?")
                     ->options([
                         '1' => 'Si',
                         '0' => 'No',
                     ]),
-                SelectFilter::make('can_admin_panel')
-                    ->label("¿Permir Ingresar administración?")
-                    ->options([
-                        '1' => 'Si',
-                        '0' => 'No',
-                    ]),
+                // SelectFilter::make('can_appointment')
+                //     ->label("¿Permir cita?")
+                //     ->options([
+                //         '1' => 'Si',
+                //         '0' => 'No',
+                //     ]),
+                // SelectFilter::make('can_admin_panel')
+                //     ->label("¿Permir Ingresar administración?")
+                //     ->options([
+                //         '1' => 'Si',
+                //         '0' => 'No',
+                //     ]),
 
                 SelectFilter::make('country_id')
                     ->relationship(name: 'country', titleAttribute: 'name')

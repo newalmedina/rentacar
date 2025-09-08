@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Brand;
+use App\Models\Center;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,10 +18,15 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
+        $center = Center::create([
+            'name' => 'Newal Car Sharing',
+        ]);
         \App\Models\User::factory()->create([
             'name' => 'Administrador',
             'email' => 'el.solitions@gmail.com',
             'can_admin_panel' => true,
+            'can_show_general_resource' => true,
+            'center_id' =>  $center->id,
             'password' => Hash::make("EithanSteven15*"),
         ]);
 

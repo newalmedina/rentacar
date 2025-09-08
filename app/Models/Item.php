@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Item extends Model
@@ -30,6 +31,11 @@ class Item extends Model
         return $this->belongsTo(Brand::class);  // An item belongs to one brand
     }
 
+    // Relación con Center
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
     // Optional: Relationship with Supplier (for products)
     public function supplier()
     {
@@ -83,5 +89,16 @@ class Item extends Model
     public function scopeShowBookingOthers($query)
     {
         return $query->where('show_booking_others', true);
+    }
+    // Boot method para asignar center_id automáticamente
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->center_id) && Auth::check()) {
+                $model->center_id = Auth::user()->center_id;
+            }
+        });
     }
 }

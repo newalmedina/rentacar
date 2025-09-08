@@ -19,12 +19,12 @@ class OtherExpenseItemResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard'; // Ícono de carpeta
 
-    protected static ?string $navigationLabel = 'Gastos Extra Item'; // Nombre que aparece en el menú de navegación
+    protected static ?string $navigationLabel = 'Gastos Items'; // Nombre que aparece en el menú de navegación
 
 
-    protected static ?string $label = 'Gasto Extra'; // Nombre singular
+    protected static ?string $label = 'Gasto Item'; // Nombre singular
 
-    protected static ?string $pluralLabel = 'Gastos Extra Items'; // Nombre plural
+    protected static ?string $pluralLabel = 'Gastos  Items'; // Nombre plural
     protected static ?string $navigationGroup = 'Tablas de sistemas';
     protected static ?int $navigationSort = 8;
 

@@ -96,6 +96,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class, 'assigned_user_id');
     }
 
+    // Relación con Center
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
 
     // app/Models/User.php
 

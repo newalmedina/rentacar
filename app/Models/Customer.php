@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Customer extends Model
 {
@@ -26,6 +27,12 @@ class Customer extends Model
     {
         return $query->where('active', true);
     }
+    // Relación con Center
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
+
     public function getFullAddressAttribute()
     {
         $parts = [
@@ -38,5 +45,16 @@ class Customer extends Model
 
         // Filtramos nulos/vacíos y unimos con coma
         return implode(', ', array_filter($parts));
+    }
+    // Boot method para asignar center_id automáticamente
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->center_id) && Auth::check()) {
+                $model->center_id = Auth::user()->center_id;
+            }
+        });
     }
 }

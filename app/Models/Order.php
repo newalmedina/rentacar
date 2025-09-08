@@ -36,6 +36,11 @@ class Order extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+    // Relación con Center
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
 
 
     public function orderDetails(): HasMany
@@ -185,5 +190,17 @@ class Order extends Model
     public function scopePending($query)
     {
         return $query->where('status', "pending");
+    }
+
+    // Boot method para asignar center_id automáticamente
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->center_id) && Auth::check()) {
+                $model->center_id = Auth::user()->center_id;
+            }
+        });
     }
 }
