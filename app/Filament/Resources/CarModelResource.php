@@ -61,13 +61,6 @@ class CarModelResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull(),
 
-                        // Slug (opcional)
-                        // Forms\Components\TextInput::make('slug')
-                        //     ->label('Slug')
-                        //     ->maxLength(255)
-                        //     ->helperText('Se generará automáticamente si está vacío.')
-                        //     ->columnSpanFull(),
-
                         // Descripción
                         Forms\Components\Textarea::make('description')
                             ->label('Descripción')

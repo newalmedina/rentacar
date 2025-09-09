@@ -53,70 +53,75 @@ class CenterResource extends Resource
                         Section::make('Información general')
                             ->columnSpan(9)
                             ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Nombre')
-                                    ->required()
-                                    ->maxLength(255),
+                                Grid::make(2) // aquí definimos que todo adentro tendrá 2 columnas
+                                    ->schema([
+                                        Forms\Components\TextInput::make('name')
+                                            ->label('Nombre')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('nif')
+                                            ->label('NIF/CIF')->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('email')
+                                            ->label('Correo')->required()
+                                            ->email()
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('email')
-                                    ->label('Correo')
-                                    ->email()
-                                    ->maxLength(255),
+                                        Forms\Components\TextInput::make('phone')
+                                            ->label('Teléfono')
+                                            ->tel()
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('phone')
-                                    ->label('Teléfono')
-                                    ->tel()
-                                    ->maxLength(255),
+                                        Forms\Components\TextInput::make('address')
+                                            ->label('Dirección')
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('address')
-                                    ->label('Dirección')
-                                    ->maxLength(255),
+                                        Forms\Components\TextInput::make('postal_code')
+                                            ->label('Código postal')
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('postal_code')
-                                    ->label('Código postal')
-                                    ->maxLength(255),
+                                        Forms\Components\Select::make('country_id')
+                                            ->label('País')
+                                            ->options(fn(): Collection => Country::where('is_active', 1)->pluck('name', 'id'))
+                                            ->searchable()
+                                            ->preload()
+                                            ->live()
+                                            ->afterStateUpdated(function (Set $set) {
+                                                $set('state_id', null);
+                                                $set('city_id', null);
+                                            }),
 
-                                Forms\Components\Select::make('country_id')
-                                    ->label('País')
-                                    ->options(fn(): Collection => Country::where('is_active', 1)->pluck('name', 'id'))
-                                    ->searchable()
-                                    ->preload()
-                                    ->live()
-                                    ->afterStateUpdated(function (Set $set) {
-                                        $set('state_id', null);
-                                        $set('city_id', null);
-                                    }),
+                                        Forms\Components\Select::make('state_id')
+                                            ->label('Estado')
+                                            ->options(fn(Get $get): Collection => State::where('country_id', $get('country_id'))->pluck('name', 'id'))
+                                            ->searchable()
+                                            ->preload()
+                                            ->live()
+                                            ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
 
-                                Forms\Components\Select::make('state_id')
-                                    ->label('Estado')
-                                    ->options(fn(Get $get): Collection => State::where('country_id', $get('country_id'))->pluck('name', 'id'))
-                                    ->searchable()
-                                    ->preload()
-                                    ->live()
-                                    ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
+                                        Forms\Components\Select::make('city_id')
+                                            ->label('Ciudad')
+                                            ->options(fn(Get $get): Collection => City::where('state_id', $get('state_id'))->pluck('name', 'id'))
+                                            ->searchable()
+                                            ->preload(),
 
-                                Forms\Components\Select::make('city_id')
-                                    ->label('Ciudad')
-                                    ->options(fn(Get $get): Collection => City::where('state_id', $get('state_id'))->pluck('name', 'id'))
-                                    ->searchable()
-                                    ->preload(),
+                                        Forms\Components\TextInput::make('bank_name')
+                                            ->label('Entidad bancaria')
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('bank_name')
-                                    ->label('Entidad bancaria')
-                                    ->maxLength(255),
+                                        Forms\Components\TextInput::make('bank_number')
+                                            ->label('Número de cuenta')
+                                            ->maxLength(255),
 
-                                Forms\Components\TextInput::make('bank_number')
-                                    ->label('Número de cuenta')
-                                    ->maxLength(255),
 
-                                Forms\Components\TextInput::make('nif')
-                                    ->label('NIF/CIF')
-                                    ->maxLength(255),
 
-                                Forms\Components\Toggle::make('active')
-                                    ->label('¿Activo?')
-                                    ->required(),
+                                        Forms\Components\Toggle::make('active')
+                                            ->label('¿Activo?')
+                                            ->required()
+                                            ->columnSpanFull(), // este ocupa toda la fila
+                                    ]),
                             ]),
+
                     ]),
             ]);
     }

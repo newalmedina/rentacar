@@ -78,12 +78,12 @@ class ModelVersionResource extends Resource
                             ->maxLength(255)
                             ->columnSpanFull(),
 
-                        TextInput::make('slug')
-                            ->label('Slug')
-                            ->disabled()
-                            ->maxLength(255)
-                            ->helperText('Se generará automáticamente si está vacío.')
-                            ->columnSpanFull(),
+                        // TextInput::make('slug')
+                        //     ->label('Slug')
+                        //     ->disabled()
+                        //     ->maxLength(255)
+                        //     ->helperText('Se generará automáticamente si está vacío.')
+                        //     ->columnSpanFull(),
 
                         Textarea::make('description')
                             ->label('Descripción')
