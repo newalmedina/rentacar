@@ -23,12 +23,15 @@ use App\Filament\Pages\Backups;
 use App\Filament\Pages\CalendarPage;
 use App\Filament\Pages\Profile;
 use App\Filament\Resources\BrandResource;
+use App\Filament\Resources\CarModelResource;
 use App\Filament\Resources\CategoryResource;
+use App\Filament\Resources\CenterResource;
 use App\Filament\Resources\CityResource;
 use App\Filament\Resources\CmsContentResource;
 use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\ItemResource;
+use App\Filament\Resources\ModelVersionResource;
 use App\Filament\Resources\OtherExpenseItemResource;
 use App\Filament\Resources\OtherExpenseResource;
 use App\Filament\Resources\SaleResource;
@@ -37,6 +40,7 @@ use App\Filament\Resources\SupplierResource;
 use App\Filament\Resources\UnitOfMeasureResource;
 use App\Filament\Resources\UserResource;
 use App\Http\Middleware\AuthenticateAndCheckActive;
+use App\Models\ModelVersion;
 use App\Models\OtherExpenseItem;
 use App\Models\Setting;
 use Filament\Http\Middleware\Authenticate;
@@ -99,7 +103,10 @@ class AdminPanelProvider extends PanelProvider
                 CustomerResource::class,
                 ItemResource::class,
                 CategoryResource::class,
+                CenterResource::class,
                 BrandResource::class,
+                CarModelResource::class,
+                ModelVersionResource::class,
                 // SupplierResource::class,
                 // UnitOfMeasureResource::class,
                 CountryResource::class,
@@ -140,7 +147,7 @@ class AdminPanelProvider extends PanelProvider
                 GastosPieChart::class,
                 GastosPercentPieChart::class,
                 ProductosMasVendido::class,
-                ProductosMasVendidoPorcentaje::class,   
+                ProductosMasVendidoPorcentaje::class,
                 // ProductosMenosVendido::class,
                 // ProductosMenosVendidoPorcentaje::class,
                 // VentasVsGastosPorDiaChart::class

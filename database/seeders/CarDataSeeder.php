@@ -64,6 +64,7 @@ class CarDataSeeder extends Seeder
                         ModelVersion::firstOrCreate(
                             [
                                 'model_id' => $carModel->id,
+                                'brand_id' => $brand->id,
                                 'name' => $style,
                             ],
                             [

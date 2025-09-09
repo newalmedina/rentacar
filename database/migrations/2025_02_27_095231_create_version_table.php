@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('model_versions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('model_id')->constrained('models')->onDelete('cascade');
+            $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
             $table->string('slug');
             $table->string('name');
             $table->text('description')->nullable();
