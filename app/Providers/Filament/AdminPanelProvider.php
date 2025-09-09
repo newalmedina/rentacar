@@ -102,7 +102,6 @@ class AdminPanelProvider extends PanelProvider
                 OtherExpenseResource::class,
                 CustomerResource::class,
                 ItemResource::class,
-                CategoryResource::class,
                 CenterResource::class,
                 BrandResource::class,
                 CarModelResource::class,
