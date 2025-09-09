@@ -30,7 +30,15 @@ class Item extends Model
     {
         return $this->belongsTo(Brand::class);  // An item belongs to one brand
     }
+    public function carModel()
+    {
+        return $this->belongsTo(CarModel::class, 'model_id'); // un item pertenece a un modelo
+    }
 
+    public function modelVersion()
+    {
+        return $this->belongsTo(ModelVersion::class, 'car_version_id'); // un item pertenece a una versión
+    }
     // Relación con Center
     public function center()
     {

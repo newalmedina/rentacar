@@ -140,9 +140,9 @@ class AdminPanelProvider extends PanelProvider
                 GastosPieChart::class,
                 GastosPercentPieChart::class,
                 ProductosMasVendido::class,
-                ProductosMasVendidoPorcentaje::class,
-                    // ProductosMenosVendido::class,
-                    // ProductosMenosVendidoPorcentaje::class,
+                ProductosMasVendidoPorcentaje::class,   
+                // ProductosMenosVendido::class,
+                // ProductosMenosVendidoPorcentaje::class,
                 // VentasVsGastosPorDiaChart::class
             ])
             ->middleware([

@@ -17,6 +17,18 @@ class CreateItemsTable extends Migration
 
             // Product-specific fields
             $table->foreignId('brand_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('model_id')
+                ->nullable()
+                ->constrained('models')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreignId('car_version_id')
+                ->nullable()
+                ->constrained('model_versions')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+
             $table->foreignId('supplier_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('price', 10, 2)->nullable(); // Price for both product and service
             $table->decimal('amount', 10, 2)->nullable(); // For products

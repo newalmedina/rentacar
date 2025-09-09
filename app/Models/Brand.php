@@ -21,4 +21,8 @@ class Brand extends Model
     {
         return $this->items()->doesntExist();
     }
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
 }
