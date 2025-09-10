@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Exports\UserExport;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
-
+use App\Models\Center;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
 use App\Models\City;
 use App\Models\State;
@@ -21,6 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Tables\Actions\BulkAction;
@@ -100,6 +101,14 @@ class UserResource extends Resource
                                                 ? new HtmlString('<span style="color:#00B5D8">El campo solo se actualizará si ingresas un nuevo valor.</span>')
                                                 : null) // Muestra la leyenda en modo edición
                                         ,
+                                        Select::make('center_id')
+                                            ->label('Centro')
+                                            ->options(function () {
+                                                return Center::all()->pluck('display_name', 'id');
+                                            })
+                                            ->searchable()
+                                            ->preload(),
+
                                         Forms\Components\Select::make('center_id')
                                             ->relationship('center', 'name', function ($query) {
                                                 $query->where('active', true);  // Filtro para que solo se muestren países activos

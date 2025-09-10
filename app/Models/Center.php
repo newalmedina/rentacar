@@ -29,7 +29,10 @@ class Center extends Model
     {
         return $this->belongsTo(City::class);
     }
-
+    public function getDisplayNameAttribute()
+    {
+        return "{$this->name} ({$this->nif})";
+    }
     /**
      * Devuelve la dirección completa en un solo string.
      */

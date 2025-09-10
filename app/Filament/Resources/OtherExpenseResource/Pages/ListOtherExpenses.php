@@ -12,15 +12,15 @@ class ListOtherExpenses extends ListRecords
 {
     use ExposesTableToWidgets;
 
-    protected static string $resource = OtherExpenseResource::class;    
-    
+    protected static string $resource = OtherExpenseResource::class;
+
     protected function getHeaderWidgets(): array
     {
         return [
             OtherExpenseStats::class,
         ];
     }
-    
+
     protected function getHeaderActions(): array
     {
         return [

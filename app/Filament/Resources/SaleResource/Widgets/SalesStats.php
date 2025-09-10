@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SaleResource\Widgets;
 
+
 use App\Filament\Resources\SaleResource\Pages\ListSales;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;

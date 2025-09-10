@@ -95,7 +95,7 @@ class AdminPanelProvider extends PanelProvider
                 'dark' => Color::Slate,
             ])
             ->defaultAvatarProvider(AutenticatedUserAvatar::class)
-            //   ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            //->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->resources([
                 // CmsContentResource::class,
                 UserResource::class,

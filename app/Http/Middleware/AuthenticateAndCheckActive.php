@@ -39,6 +39,18 @@ class AuthenticateAndCheckActive extends FilamentAuthenticate
 
             abort(403, 'Tu cuenta está desactivada.');
         }
+
+        $center = $user->center;
+
+        if (!$user->center_id) {
+            $guard->logout();
+            abort(403, 'No tienes un centro asignado. Contacta con la administración.');
+        } elseif (! $center->active) {
+            $guard->logout();
+            abort(403, 'El centro asignado no está activo. Contacta con la administración.');
+        }
+
+        // ✅ VERIFICACIÓN DE ACCESO AL PANEL ADMIN
         // Nueva verificación:
         if ($panel->getId() == "admin" && !$user->can_admin_panel) {
             abort(403, 'No tienes permiso para acceder al panel de administración.');
