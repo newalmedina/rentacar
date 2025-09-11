@@ -203,6 +203,7 @@ class CenterResource extends Resource
                                 ->options([
                                     'clients' => 'Clientes',
                                     'expenses' => 'Gastos Items',
+                                    'category' => 'Categorías',
                                 ])
                                 // ->required()
                                 ->columnSpanFull(),
@@ -222,16 +223,32 @@ class CenterResource extends Resource
                         }
 
 
+                        // Importar clientes
                         if (in_array('clients', $data['import_options'])) {
-                            // Lógica para importar clientesif ($centerId) {
-                            // Obtener todos los clientes por defecto
-                            $defaultCustomers = Customer::where('default', 1)->get();
+                            $defaultCustomers = \App\Models\Customer::where('default', 1)->get();
 
                             foreach ($defaultCustomers as $customer) {
-                                // Replicar cada registro
-                                $newCustomer = $customer->replicate();
-                                $newCustomer->center_id = $centerId; // Asignar al centro del usuario
-                                $newCustomer->save();
+                                \App\Models\Customer::firstOrCreate(
+                                    [
+                                        'center_id' => $centerId,
+                                        'name' => $customer->name, // O el campo que quieras que sea único
+                                        'email' => $customer->email,
+                                    ],
+                                    [
+                                        'phone' => $customer->phone,
+                                        'address' => $customer->address,
+                                        'postal_code' => $customer->postal_code,
+                                        'country_id' => $customer->country_id,
+                                        'state_id' => $customer->state_id,
+                                        'city_id' => $customer->city_id,
+                                        'allow_appointment' => $customer->allow_appointment,
+                                        'has_home' => $customer->has_home,
+                                        'bank_name' => $customer->bank_name,
+                                        'bank_number' => $customer->bank_number,
+                                        'nif' => $customer->nif,
+                                        'active' => $customer->active,
+                                    ]
+                                );
                             }
 
                             Notification::make()
@@ -240,18 +257,46 @@ class CenterResource extends Resource
                                 ->send();
                         }
 
+                        // Importar items de gastos
                         if (in_array('expenses', $data['import_options'])) {
                             $defaultItems = \App\Models\OtherExpenseItem::where('default', 1)->get();
 
                             foreach ($defaultItems as $item) {
-                                // Replicar cada registro
-                                $newItem = $item->replicate();
-                                $newItem->center_id = $centerId; // Asignar al centro del usuario
-                                $newItem->save();
+                                \App\Models\OtherExpenseItem::firstOrCreate(
+                                    [
+                                        'center_id' => $centerId,
+                                        'name' => $item->name,
+                                    ],
+                                    [
+                                        'default' => $item->default,
+                                    ]
+                                );
                             }
 
                             Notification::make()
                                 ->title('Items importados correctamente')
+                                ->success()
+                                ->send();
+                        }
+
+                        // Importar categorías
+                        if (in_array('category', $data['import_options'])) {
+                            $defaultCategories = \App\Models\Category::where('default', 1)->get();
+
+                            foreach ($defaultCategories as $category) {
+                                \App\Models\Category::firstOrCreate(
+                                    [
+                                        'center_id' => $centerId,
+                                        'name' => $category->name,
+                                    ],
+                                    [
+                                        'description' => $category->description,
+                                    ]
+                                );
+                            }
+
+                            Notification::make()
+                                ->title('Categorías importadas correctamente')
                                 ->success()
                                 ->send();
                         }

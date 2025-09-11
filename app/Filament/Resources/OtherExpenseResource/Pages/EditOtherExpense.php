@@ -6,6 +6,7 @@ use App\Filament\Resources\OtherExpenseResource;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditOtherExpense extends EditRecord
 {
@@ -16,6 +17,16 @@ class EditOtherExpense extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $user = Auth::user();
+
+        if (isset($this->record) && $user && $this->record->center_id !== $user->center_id) {
+            abort(403, 'No tienes permisos para editar este registro.');
+        }
+
+        return parent::mutateFormDataBeforeFill($data);
     }
     protected function getCancelFormAction(): Action
     {

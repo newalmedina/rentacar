@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Exports\CategoryExport;
 use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -25,7 +26,7 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'fas-list';
     protected static ?string $navigationGroup = 'Tablas de sistemas';
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 9;
     public static function getModelLabel(): string
     {
         return 'Categoría';
@@ -35,6 +36,21 @@ class CategoryResource extends Resource
     {
         return 'Categorías';
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+        // Obtener el ID del panel actual
+
+        $query->where('center_id', $user->center?->id);
+
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form

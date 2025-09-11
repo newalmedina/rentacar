@@ -22,45 +22,43 @@ class ItemExport implements FromCollection, WithHeadings, WithMapping
         return $this->query->get();  // Ejecución de la consulta
     }
 
-     // Mapear cada fila de la colección para modificar los datos
-     public function map($item): array
-     {
-         return [
-             $item->name,  
-             $item->type,  
-             $item->description,  
-             $item->category?->name,  
-             $item->price,  
-             $item->taxes,  
-             $item->taxes_amount,  
-             $item->total_price,  
-             $item->brand?->name,  
-             $item->supplier?->name,  
-             $item->unitOfMeasure?->name,  
-             $item->amount,  
-             $item->active,  
-         ];
-     }
- 
-     // Definir los encabezados que aparecerán en el archivo exportado
-     public function headings(): array
-     {
-         return [
-             'Nombre',
-             'Tipo',
-             'Descripción',
-             'Categoría',
-             'Precio',
-             'Iva %',
-             'Impuestos',
-             'Precio total',
-             'Marca',
-             'Suplidor',
-             'Unidades Medidas',
-             'Cantidad',
-             'Activo',
-         ];
-     }
+    // Mapear cada fila de la colección para modificar los datos
+    public function map($item): array
+    {
+        return [
+            $item->name,
+            //  $item->type,  
+            $item->description,
+            $item->category?->name,
+            $item->price,
+            //  $item->taxes,  
+            //  $item->taxes_amount,  
+            //  $item->total_price,  
+            //  $item->brand?->name,  
+            //  $item->supplier?->name,  
+            //  $item->unitOfMeasure?->name,  
+            //  $item->amount,  
+            $item->active,
+        ];
+    }
+
+    // Definir los encabezados que aparecerán en el archivo exportado
+    public function headings(): array
+    {
+        return [
+            'Nombre',
+            // 'Tipo',
+            'Descripción',
+            'Categoría',
+            'Precio',
+            // 'Iva %',
+            // 'Impuestos',
+            // 'Precio total',
+            // 'Marca',
+            // 'Suplidor',
+            // 'Unidades Medidas',
+            // 'Cantidad',
+            'Activo',
+        ];
+    }
 }
-
-

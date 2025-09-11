@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category; // Asegúrate de importar tu modelo Category
+use App\Models\Category; // Asegúrate de tener el modelo Category
 use Illuminate\Database\Seeder;
 
 class CategoryDataSeeder extends Seeder
@@ -12,63 +12,38 @@ class CategoryDataSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-        // Array con las categorías
+        // Categorías para alquiler de coches y servicios extra
         $categories = [
             [
-                'name' => 'Corte de Cabello',
-                'description' => 'Servicios profesionales de corte y estilizado para todo tipo de cabello.',
+                'name' => 'Confort y Pasajero',
+                'description' => 'Servicios adicionales para la comodidad de los pasajeros, como sillas de bebé o GPS.',
             ],
             [
-                'name' => 'Peinados y Estilizados',
-                'description' => 'Peinados para ocasiones especiales, eventos y el día a día.',
+                'name' => 'Combustible y Mantenimiento',
+                'description' => 'Gastos relacionados con combustible, revisiones, cambios de aceite y limpieza del vehículo.',
             ],
             [
-                'name' => 'Manicura',
-                'description' => 'Cuidado y embellecimiento de las uñas con diversos estilos y tratamientos.',
+                'name' => 'Seguros y Protección',
+                'description' => 'Opciones de seguros adicionales y protecciones especiales para el coche y conductor.',
             ],
             [
-                'name' => 'Pedicura',
-                'description' => 'Tratamientos especializados para el cuidado y estética de los pies.',
+                'name' => 'Penalizaciones y Extras Contractuales',
+                'description' => 'Multas, penalizaciones por retraso o daños menores al vehículo.',
             ],
             [
-                'name' => 'Trenzas y Peinados Étnicos',
-                'description' => 'Trenzas, cornrows y estilos tradicionales y modernos para todo tipo de cabello.',
-            ],
-            [
-                'name' => 'Uñas Acrílicas y Gel',
-                'description' => 'Aplicación de uñas acrílicas, gel y diseños personalizados para uñas largas y resistentes.',
-            ],
-            [
-                'name' => 'Decoración de Uñas',
-                'description' => 'Diseños artísticos, nail art, esmaltes especiales y accesorios para uñas.',
-            ],
-            [
-                'name' => 'Extensiones de Cabello',
-                'description' => 'Colocación de extensiones para dar volumen y longitud al cabello.',
-            ],
-            [
-                'name' => 'Alisados y Rizos',
-                'description' => 'Tratamientos para alisar o definir rizos de forma profesional y duradera.',
-            ],
-            [
-                'name' => 'Tintura y Coloración',
-                'description' => 'Cambio de color, mechas y reflejos para personalizar tu look.',
-            ],
-            [
-                'name' => 'Otros',
-                'description' => 'Servicios adicionales como asesorías, cuidado facial básico y otras atenciones personalizadas.',
+                'name' => 'Accesorios y Servicios Opcionales',
+                'description' => 'Portaequipajes, cadenas de nieve, WiFi portátil, kits de emergencia y otros extras.',
             ],
         ];
 
-
-        // Recorrer el array y crear las categorías
+        // Crear o actualizar categorías evitando duplicados
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category['name'],
-                'description' => $category['description'],
-            ]);
+            Category::firstOrCreate(
+                ['name' => $category['name']], // condición única
+                ['description' => $category['description']] // campos a rellenar si no existe
+            );
         }
     }
 }

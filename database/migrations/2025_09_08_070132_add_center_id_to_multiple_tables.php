@@ -14,6 +14,7 @@ return new class extends Migration
         'users',
         'other_expenses',
         'owners',
+        'categories',
     ];
 
     public function up(): void

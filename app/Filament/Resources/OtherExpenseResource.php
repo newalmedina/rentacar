@@ -44,27 +44,16 @@ class OtherExpenseResource extends Resource
     // protected static ?string $navigationLabel = 'Ciudadedsadss';
     public static function getModelLabel(): string
     {
-        return 'Otros gasto';
+        return 'Gasto';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Otros gastos';
+        return 'Gastos';
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-
-        $query = parent::getEloquentQuery();
-
-        $user = Auth::user();
-        // Obtener el ID del panel actual
-
-        $query->where('center_id', $user->center?->id);
 
 
-        return $query;
-    }
 
     public static function form(Form $form): Form
     {
@@ -194,10 +183,13 @@ class OtherExpenseResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $user = Auth::user();
+        $centerId = $user?->center?->id;
         return $table
             ->query(
                 OtherExpense::query()
                     // Usamos 'withSum' para calcular la suma de los precios en los detalles relacionados
+                    ->when($centerId, fn($query) => $query->where('center_id', $centerId))
                     ->withSum('details', 'price')  // 'details' es la relación, 'price' es el campo a sumar
             )
             ->columns([

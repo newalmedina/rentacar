@@ -31,15 +31,15 @@ class ItemResource extends Resource
 
     protected static ?string $navigationIcon = 'fas-box';
     protected static ?string $navigationGroup = 'Tablas de sistemas';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 7;
     public static function getModelLabel(): string
     {
-        return 'Item';
+        return 'Servicio';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Items';
+        return 'Servicios';
     }
 
     public static function getEloquentQuery(): Builder
@@ -86,100 +86,25 @@ class ItemResource extends Resource
                         Section::make('Información general')
                             ->columnSpan(9) // Ocupa 10 columnas de las 12 disponibles
                             ->schema([
-                                // Campo Tipo
-                                Forms\Components\Select::make('type')
-                                    ->label("Tipo")
-                                    ->required()
-                                    ->options([
-                                        'product' => 'Producto',
-                                        'service' => 'Servicio',
-                                    ])
-                                    // ->afterStateUpdated(function ($state, $get, $set) {
-                                    //     // Si 'type' es 'service', establece los campos a null
-                                    //     if ($state === 'service') {
-                                    //         // Actualiza los campos a null cuando el 'type' es 'service'
-                                    //         $set('brand_id', null);
-                                    //         $set('supplier_id', null);
-                                    //         $set('unit_of_measure_id', null);
-                                    //         $set('amount', null);
-                                    //     }
-                                    // })
-                                    ->reactive(),
-
 
                                 // Campo Nombre
                                 Forms\Components\TextInput::make('name')
                                     ->label("Nombre")
                                     ->required()
-                                    ->hidden(fn($get) => empty($get('type')))
+
                                     ->maxLength(255),
-                                // Campo Marca (Solo visible cuando 'type' es 'product')
 
-                                // Forms\Components\Grid::make(2)
-                                //     ->schema([
-                                //         Forms\Components\TextInput::make('time_formatted')
-                                //             ->label('Duración (HH:MM)')
-                                //             ->placeholder('Ej. 01:30')
-                                //             ->mask('99:99')
-                                //             ->helperText('Introduce el tiempo en horas:minutos')
-                                //             // ->dehydrated(false) // ⚠️ Muy importante para que no intente guardar en la BD
-                                //             // ->required(fn($get) => $get('type') === 'service')
-                                //             ->hidden(fn($get) => $get('type') !== 'service')
-                                //             ->afterStateHydrated(function ($state, callable $set, $get) {
-                                //                 $minutes = $get('time');
-                                //                 if ($minutes !== null) {
-                                //                     $hours = floor($minutes / 60);
-                                //                     $mins = $minutes % 60;
-                                //                     $set('time_formatted', sprintf('%02d:%02d', $hours, $mins));
-                                //                 }
-                                //             })
-                                //             ->afterStateUpdated(function ($state, callable $set) {
-                                //                 if (preg_match('/^(\d{1,2}):(\d{2})$/', $state, $matches)) {
-                                //                     $hours = (int) $matches[1];
-                                //                     $minutes = (int) $matches[2];
-                                //                     $set('time', $hours * 60 + $minutes);
-                                //                 } else {
-                                //                     $set('time', null);
-                                //                 }
-                                //             }),
-
-                                //         Forms\Components\TextInput::make('time')
-                                //             ->label('Tiempo en minutos')
-                                //             ->numeric()
-                                //             ->hidden()
-                                //             // ->dehydrated()
-                                //             ->disabled(),
-
-
-
-
-                                //     ])
-                                //     ->visible(fn($get) => $get('type') === 'service'),
-
-                                // ->required(),
-                                // Campo Descripción
                                 Forms\Components\Textarea::make('description')
                                     ->label("Descripción")
-                                    ->hidden(fn($get) => empty($get('type')))
+
                                     ->columnSpanFull(),
 
                                 Forms\Components\Toggle::make('active')
                                     ->inline(false)
                                     ->label("¿Activo?")
-                                    ->hidden(fn($get) => empty($get('type')))
+
                                     ->required(),
                                 // Campo Activo
-                                Forms\Components\Toggle::make('show_booking')
-                                    ->inline(false)
-                                    ->label("Mostrar en reservas")
-                                    ->hidden(fn($get) => empty($get('type')))
-                                    ->required(),
-
-                                Forms\Components\Toggle::make('show_booking_others')
-                                    ->inline(false)
-                                    ->label("Mostrar en reservas de otros")
-                                    ->hidden(fn($get) => empty($get('type')))
-                                    ->required(),
 
 
                                 // Campo Categoría (Solo visible cuando 'type' es 'service')
@@ -188,7 +113,7 @@ class ItemResource extends Resource
                                         $query->where('active', true);
                                     })
                                     ->searchable()
-                                    ->hidden(fn($get) => empty($get('type')))
+
                                     ->label("Categoría")
                                     ->preload(),
 
@@ -196,7 +121,7 @@ class ItemResource extends Resource
                                 Forms\Components\TextInput::make('price')
                                     ->label("Precio")
                                     ->numeric()
-                                    ->hidden(fn($get) => empty($get('type')))
+
                                     ->prefix('€')
                                     ->reactive()
                                     //->debounce(500)
@@ -209,7 +134,7 @@ class ItemResource extends Resource
                                 /* Forms\Components\TextInput::make('taxes')
                                     ->label("IVA")
                                     ->prefix('%')
-                                    ->hidden(fn($get) => empty($get('type')))
+                                    
                                     ->numeric()
                                     ->reactive()
                                     //->debounce(500)
@@ -221,7 +146,7 @@ class ItemResource extends Resource
                                 /*  Forms\Components\TextInput::make('taxes_amount')
                                     ->label("Monto de Impuestos")
                                     ->disabled()
-                                    ->hidden(fn($get) => empty($get('type')))
+                                    
                                     ->numeric()
                                     //->debounce(500)
                                     ->debounce(750)
@@ -237,7 +162,7 @@ class ItemResource extends Resource
                                 /*Forms\Components\TextInput::make('total_price')
                                     ->label("Precio Total")
                                     ->disabled()
-                                    ->hidden(fn($get) => empty($get('type')))
+                                    
                                     ->numeric()
                                     ->default(fn($get) => round($get('price') + (($get('price') * $get('taxes')) / 100), 2))
                                     ->prefix('€')
@@ -306,13 +231,7 @@ class ItemResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label("nombre")
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('time')
-                //     ->label('Tiempo')
-                //     ->formatStateUsing(
-                //         fn($state) => ($state !== null && $state > 0)
-                //             ? sprintf('%02d:%02d h', floor($state / 60), $state % 60)
-                //             : ''
-                //     ),
+
 
 
                 Tables\Columns\TextColumn::make('price')
@@ -322,60 +241,25 @@ class ItemResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 2) . '€')
                     ->sortable(),
 
-                /*Tables\Columns\TextColumn::make('taxes')
-                    ->label("IVA %")
-                    ->searchable()
-                    ->numeric()
-                    ->formatStateUsing(fn($state) => number_format($state, 2))
-                    ->sortable(),*/
-                /*Tables\Columns\TextColumn::make('taxes_amount')  // Utilizando el atributo taxes_amount
-                    ->label("Impuestos")
-                    // ->searchable()
-                    ->formatStateUsing(fn($state) => number_format($state, 2) . '€')  // Formateamos el valor con dos decimales
-                    ->sortable(),*/
+
 
                 Tables\Columns\TextColumn::make('total_price')  // Utilizando el atributo total_price
                     ->label("Precio Total")
                     // ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 2) . '€')  // Formateamos el valor con dos decimales
                     ->sortable(),
-                Tables\Columns\TextColumn::make('amount')
-                    ->label("cantidad")
-                    ->numeric()
-                    ->searchable()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('category.name')
                     ->sortable()
                     ->label("Categoría")
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    // ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\IconColumn::make('active')
                     ->label("¿Activo?")
 
                     ->boolean(),
-                Tables\Columns\IconColumn::make('show_booking')
-                    ->label("Mostrar en reservas")
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('show_booking_others')
-                    ->label("Mostrar en reservas de otros")
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('brand.name')
-                    ->label("Marca")
-                    // ->numeric()
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('unitOfMeasure.name')
-                    ->label("Unidad medida")
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('supplier.name')
-                    ->numeric()
-                    ->label("Proveedor")
-                    ->searchable()
-                    ->sortable()->toggleable(isToggledHiddenByDefault: true),
+
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->label("Fecha creación")
@@ -396,39 +280,39 @@ class ItemResource extends Resource
                         '1' => 'Activo',
                         '0' => 'No activo',
                     ]),
-                SelectFilter::make('show_booking')
-                    ->label("Mostrar en reservas")
-                    ->options([
-                        '1' => 'Mostrar',
-                        '0' => 'No mostrar',
-                    ]),
-                SelectFilter::make('show_booking_others')
-                    ->label("Mostrar en reservas de otros")
-                    ->options([
-                        '1' => 'Mostrar',
-                        '0' => 'No mostrar',
-                    ]),
-                SelectFilter::make('type')
-                    ->label("Tipo")
-                    ->options([
-                        'service' => 'Servicios',
-                        'product' => 'Productos',
-                    ]),
+                // SelectFilter::make('show_booking')
+                //     ->label("Mostrar en reservas")
+                //     ->options([
+                //         '1' => 'Mostrar',
+                //         '0' => 'No mostrar',
+                //     ]),
+                // SelectFilter::make('show_booking_others')
+                //     ->label("Mostrar en reservas de otros")
+                //     ->options([
+                //         '1' => 'Mostrar',
+                //         '0' => 'No mostrar',
+                //     ]),
+                // SelectFilter::make('type')
+                //     ->label("Tipo")
+                //     ->options([
+                //         'service' => 'Servicios',
+                //         'product' => 'Productos',
+                //     ]),
                 SelectFilter::make('category_id')
                     ->relationship(name: 'category', titleAttribute: 'name')
                     ->searchable()
                     ->label("Categoría")
                     ->preload(),
-                SelectFilter::make('brand_id')
-                    ->relationship(name: 'brand', titleAttribute: 'name')
-                    ->searchable()
-                    ->label("Marca")
-                    ->preload(),
-                SelectFilter::make('supplier_id')
-                    ->relationship(name: 'supplier', titleAttribute: 'name')
-                    ->searchable()
-                    ->label("Proveedor")
-                    ->preload(),
+                // SelectFilter::make('brand_id')
+                //     ->relationship(name: 'brand', titleAttribute: 'name')
+                //     ->searchable()
+                //     ->label("Marca")
+                //     ->preload(),
+                // SelectFilter::make('supplier_id')
+                //     ->relationship(name: 'supplier', titleAttribute: 'name')
+                //     ->searchable()
+                //     ->label("Proveedor")
+                //     ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->label('')->tooltip('Editar'),

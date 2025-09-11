@@ -102,6 +102,7 @@ class AdminPanelProvider extends PanelProvider
             ->resources([
                 // CmsContentResource::class,
                 UserResource::class, //$user->can_show_general_resource ==true
+                CategoryResource::class,
                 OtherExpenseResource::class,
                 CustomerResource::class,
                 OwnerResource::class,
