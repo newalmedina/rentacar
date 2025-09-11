@@ -50,7 +50,7 @@ class ItemResource extends Resource
         $user = Auth::user();
         // Obtener el ID del panel actual
 
-        $query->where('center_id', $user->center?->id);
+        $query->where('center_id', $user->center?->id)->where("type", "service");
 
 
         return $query;
@@ -64,14 +64,9 @@ class ItemResource extends Resource
                         Section::make()
                             ->columnSpan(3) // Ocupa 2 columnas de las 12 disponibles
                             ->schema([
-                                // FileUpload::make('image')
-                                //     ->image()
-                                //     ->directory('items')
-                                //     ->visibility('public')
-                                //     ->label('Imagen'),
                                 FileUpload::make('image')
                                     ->image()
-                                    ->directory('items')
+                                    ->directory('services')
                                     ->visibility('public')
                                     ->label('Imagen')
                                     ->helperText('Resolución recomendada: 1000 × 667 píxeles')
@@ -84,135 +79,47 @@ class ItemResource extends Resource
                             ]),
 
                         Section::make('Información general')
-                            ->columnSpan(9) // Ocupa 10 columnas de las 12 disponibles
+                            ->columnSpan(9)
                             ->schema([
+                                Grid::make(12)->schema([
+                                    // Fila 1
+                                    Forms\Components\TextInput::make('name')
+                                        ->label("Nombre")
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->columnSpan(6), // mitad del ancho
+                                    Forms\Components\Toggle::make('active')
+                                        ->inline(false)
+                                        ->label("¿Activo?")
+                                        ->required()
+                                        ->columnSpan(6), // mitad del ancho
 
-                                // Campo Nombre
-                                Forms\Components\TextInput::make('name')
-                                    ->label("Nombre")
-                                    ->required()
+                                    // Fila 2
+                                    Forms\Components\Select::make('category_id')
+                                        ->relationship('category', 'name', function ($query) {
+                                            $query->where('active', true);
+                                        })
+                                        ->searchable()
+                                        ->label("Categoría")
+                                        ->preload()
+                                        ->columnSpan(6),
+                                    Forms\Components\TextInput::make('price')
+                                        ->label("Precio")
+                                        ->numeric()
+                                        ->prefix('€')
+                                        ->reactive()
+                                        ->debounce(750)
+                                        ->afterStateUpdated(fn($state, $get, $set) => self::updateCalculatedFields($get, $set))
+                                        ->columnSpan(6),
 
-                                    ->maxLength(255),
-
-                                Forms\Components\Textarea::make('description')
-                                    ->label("Descripción")
-
-                                    ->columnSpanFull(),
-
-                                Forms\Components\Toggle::make('active')
-                                    ->inline(false)
-                                    ->label("¿Activo?")
-
-                                    ->required(),
-                                // Campo Activo
-
-
-                                // Campo Categoría (Solo visible cuando 'type' es 'service')
-                                Forms\Components\Select::make('category_id')
-                                    ->relationship('category', 'name', function ($query) {
-                                        $query->where('active', true);
-                                    })
-                                    ->searchable()
-
-                                    ->label("Categoría")
-                                    ->preload(),
-
-                                // Campo Precio (Solo visible cuando 'type' es 'service')
-                                Forms\Components\TextInput::make('price')
-                                    ->label("Precio")
-                                    ->numeric()
-
-                                    ->prefix('€')
-                                    ->reactive()
-                                    //->debounce(500)
-                                    ->debounce(750)
-                                    ->afterStateUpdated(fn($state, $get, $set) => self::updateCalculatedFields($get, $set)),
+                                    // Fila 3
+                                    Forms\Components\Textarea::make('description')
+                                        ->label("Descripción")
+                                        ->columnSpanFull(), // ocupa todo el ancho
+                                ])
+                            ])
 
 
-
-                                // Campo IVA (Solo visible cuando 'type' es 'service')
-                                /* Forms\Components\TextInput::make('taxes')
-                                    ->label("IVA")
-                                    ->prefix('%')
-                                    
-                                    ->numeric()
-                                    ->reactive()
-                                    //->debounce(500)
-                                    ->debounce(750)
-                                    ->afterStateUpdated(fn($state, $get, $set) => self::updateCalculatedFields($get, $set)),*/
-
-                                // 🔹 Campo calculado: Monto de impuestos
-                                // 🔹 Campo calculado: Monto de impuestos
-                                /*  Forms\Components\TextInput::make('taxes_amount')
-                                    ->label("Monto de Impuestos")
-                                    ->disabled()
-                                    
-                                    ->numeric()
-                                    //->debounce(500)
-                                    ->debounce(750)
-                                    ->default(fn($get) => round(($get('price') * $get('taxes')) / 100, 2))
-                                    ->prefix('€')
-                                    ->afterStateHydrated(function ($get, $set) {
-                                        if ($get('price') && $get('taxes')) {
-                                            $set('taxes_amount', round(($get('price') * $get('taxes')) / 100, 2));
-                                        }
-                                    }),*/
-
-                                // 🔹 Campo calculado: Precio total
-                                /*Forms\Components\TextInput::make('total_price')
-                                    ->label("Precio Total")
-                                    ->disabled()
-                                    
-                                    ->numeric()
-                                    ->default(fn($get) => round($get('price') + (($get('price') * $get('taxes')) / 100), 2))
-                                    ->prefix('€')
-                                    ->afterStateHydrated(function ($get, $set) {
-                                        if ($get('price') && $get('taxes')) {
-                                            $set('total_price', round($get('price') + (($get('price') * $get('taxes')) / 100), 2));
-                                        }
-                                    }),
-
-
-                                // Campo Marca (Solo visible cuando 'type' es 'product')
-                                Forms\Components\Select::make('brand_id')
-                                    ->relationship('brand', 'name', function ($query) {
-                                        $query->where('active', true);
-                                    })
-                                    ->searchable()
-                                    ->label("Marca")
-                                    ->preload()
-                                    ->reactive()
-                                    ->hidden(fn($get) => $get('type') === 'service' || empty($get('type'))), // Solo visible para 'product'
-
-                                // Campo Suplidor (Solo visible cuando 'type' es 'product')
-                                Forms\Components\Select::make('supplier_id')
-                                    ->relationship('supplier', 'name', function ($query) {
-                                        $query->where('active', true);
-                                    })
-                                    ->searchable()
-                                    ->label("Suplidor")
-                                    ->preload()
-                                    ->reactive()
-                                    ->hidden(fn($get) => $get('type') === 'service' || empty($get('type'))), // Solo visible para 'product'*/
-
-                                // Campo Unidad de medida (Solo visible cuando 'type' es 'product')
-                                Forms\Components\Select::make('unit_of_measure_id')
-                                    ->relationship('unitOfMeasure', 'name', function ($query) {
-                                        $query->where('active', true);
-                                    })
-                                    ->searchable()
-                                    ->label("Unidad de medida")
-                                    ->preload()
-                                    ->reactive()
-                                    ->hidden(fn($get) => $get('type') === 'service' || empty($get('type'))), // Solo visible para 'product'
-
-                                // Campo Cantidad (Solo visible cuando 'type' es 'product')
-                                Forms\Components\TextInput::make('amount')
-                                    ->label("Cantidad")
-                                    ->numeric()
-                                    ->reactive()
-                                    ->hidden(fn($get) => $get('type') === 'service' || empty($get('type'))), // Solo visible para 'product'
-                            ]),
                     ]),
             ]);
     }

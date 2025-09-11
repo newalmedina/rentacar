@@ -24,7 +24,10 @@ class Item extends Model
     {
         return $this->belongsTo(UnitOfMeasure::class);  // An item belongs to one unit of measure
     }
-
+    public function owner()
+    {
+        return $this->belongsTo(Owner::class);
+    }
     // Optional: Relationship with Brand (for products)
     public function brand()
     {
@@ -106,6 +109,14 @@ class Item extends Model
         static::creating(function ($model) {
             if (empty($model->center_id) && Auth::check()) {
                 $model->center_id = Auth::user()->center_id;
+            }
+        });
+        static::saving(function ($model) {
+
+
+            // Si es propio, el propietario se setea a null
+            if (!$model->gestion) {
+                $model->owner_id = null;
             }
         });
     }

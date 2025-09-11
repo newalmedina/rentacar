@@ -10,8 +10,13 @@ class CreateItemsTable extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['product', 'service']); // To differentiate between product and service
+            $table->enum('type', ['product', 'service', 'vehicle'])->default("service"); // To differentiate between product and service
             $table->string('name');
+            $table->text('matricula')->nullable();
+            $table->decimal('kilometros', 10, 2)->nullable(); // Kilómetros del vehículo
+            $table->foreignId('owner_id')->nullable()->constrained('owners')->onUpdate('cascade')->onDelete('set null'); // Relación con owners
+            $table->boolean('gestion')->default(true);
+
             $table->text('description')->nullable();
             $table->boolean('active')->default(true);
             // Product-specific fields

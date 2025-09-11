@@ -40,6 +40,7 @@ use App\Filament\Resources\StateResource;
 use App\Filament\Resources\SupplierResource;
 use App\Filament\Resources\UnitOfMeasureResource;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\VehicleResource;
 use App\Http\Middleware\AuthenticateAndCheckActive;
 use App\Models\ModelVersion;
 use App\Models\OtherExpenseItem;
@@ -103,6 +104,7 @@ class AdminPanelProvider extends PanelProvider
                 // CmsContentResource::class,
                 UserResource::class, //$user->can_show_general_resource ==true
                 CategoryResource::class,
+                VehicleResource::class,
                 OtherExpenseResource::class,
                 CustomerResource::class,
                 OwnerResource::class,
@@ -201,20 +203,24 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Perfil')
                     ->url(route('filament.admin.pages.profile')) // Aquí también agregamos la URL
                     ->icon('heroicon-o-user'),
-                'personal' => MenuItem::make()
-                    ->label('Ir a al panel trabajador')
-                    ->url(url('/personal')) // tu landing page
-                    ->icon('heroicon-o-briefcase'), // ícono opcional
-                // ->openUrlInNewTab(), // opcional: abre en nueva pestaña
-                'home' => MenuItem::make()
-                    ->label('Ir a la Home')
-                    ->url(url('/')) // tu landing page
-                    ->icon('heroicon-o-globe-alt') // ícono globo terrestre
-                    ->openUrlInNewTab(), // opcional: abre en nueva pestaña
+                // 'personal' => MenuItem::make()
+                //     ->label('Ir a al panel trabajador')
+                //     ->url(url('/personal')) // tu landing page
+                //     ->icon('heroicon-o-briefcase'), // ícono opcional
+                // // ->openUrlInNewTab(), // opcional: abre en nueva pestaña
+                // 'home' => MenuItem::make()
+                //     ->label('Ir a la Home')
+                //     ->url(url('/')) // tu landing page
+                //     ->icon('heroicon-o-globe-alt') // ícono globo terrestre
+                //     ->openUrlInNewTab(), // opcional: abre en nueva pestaña
 
             ]);
             // Personalización según centro
             $user = auth()->user();
+            Filament::getCurrentPanel()
+                ->brandLogo(asset('img/logo.png'))
+                ->brandLogoHeight('15rem')
+                ->brandName("Car sharingg");
 
             if ($user && $user->center) {
                 $center = $user->center;
