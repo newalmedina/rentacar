@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use App\Exports\CustomerExport;
-use App\Filament\Resources\CustomerResource\Pages;
-use App\Filament\Resources\CustomerResource\RelationManagers;
+use App\Exports\OwnerExport;
+use App\Filament\Resources\OwnerResource\Pages;
+use App\Filament\Resources\OwnerResource\RelationManagers;
 use App\Models\City;
-use App\Models\Customer;
+use App\Models\Owner;
 use App\Models\State;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -27,9 +27,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
-class CustomerResource extends Resource
+class OwnerResource extends Resource
 {
-    protected static ?string $model = Customer::class;
+    protected static ?string $model = Owner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
@@ -38,12 +38,12 @@ class CustomerResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return 'Cliente';
+        return 'Protietario';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Clientes';
+        return 'Propietarios';
     }
 
     public static function getEloquentQuery(): Builder
@@ -71,7 +71,7 @@ class CustomerResource extends Resource
                             ->schema([
                                 FileUpload::make('image')
                                     ->image()
-                                    ->directory('customers')
+                                    ->directory('owners')
                                     ->visibility('public')
                                     ->label('Imagen'),
                                 // Placeholder::make('created_at')
@@ -121,7 +121,7 @@ class CustomerResource extends Resource
                                     ]),
 
                                 Forms\Components\TextInput::make('identification')
-                                    ->label('NIF/CIF')
+                                ->label('NIF/CIF')
                                     ->columnSpan([
                                         'default' => 1,
                                         'md' => 2,
@@ -276,10 +276,10 @@ class CustomerResource extends Resource
                         $fileName = $modelLabel . '-' . now()->format('d-m-Y') . '.xlsx'; // Ejemplo: "Marcas-2025-03-14.xlsx"
 
                         // Preparamos la consulta para exportar
-                        $query = \App\Models\Customer::whereIn('id', $records->pluck('id'));
+                        $query = \App\Models\Owner::whereIn('id', $records->pluck('id'));
 
                         // Llamamos al método Excel::download() y pasamos el nombre dinámico del archivo
-                        return Excel::download(new CustomerExport($query), $fileName);
+                        return Excel::download(new OwnerExport($query), $fileName);
                     }),
             ]);
     }
@@ -294,9 +294,9 @@ class CustomerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCustomers::route('/'),
-            'create' => Pages\CreateCustomer::route('/create'),
-            'edit' => Pages\EditCustomer::route('/{record}/edit'),
+            'index' => Pages\ListOwners::route('/'),
+            'create' => Pages\CreateOwner::route('/create'),
+            'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];
     }
 }

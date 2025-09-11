@@ -50,7 +50,10 @@ class UserResource extends Resource
         return 'Usuarios';
     }
 
-
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can_show_general_resource == true;
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -143,7 +146,7 @@ class UserResource extends Resource
                                         'md' => 2,  // Pantalla mediana o superior: 2 columnas
                                     ])
                                     ->schema([
-                                        Forms\Components\TextInput::make('identification'),
+                                        Forms\Components\TextInput::make('identification')->label('NIF/CIF'),
                                         Forms\Components\Radio::make('gender')
                                             ->label('Género')
                                             ->options([

@@ -13,6 +13,7 @@ return new class extends Migration
         'other_expense_items',
         'users',
         'other_expenses',
+        'owners',
     ];
 
     public function up(): void

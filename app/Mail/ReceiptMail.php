@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Barryvdh\DomPDF\PDF;
+use Illuminate\Support\Facades\Auth;
 
 class ReceiptMail extends Mailable
 {
@@ -29,6 +30,7 @@ class ReceiptMail extends Mailable
     public function build()
     {
         return $this->subject("Recibo para la orden {$this->order->code}")
+            ->from(config('mail.from.address'), Auth::user()->center->name)
             ->view('emails.receipt') // Puedes crear esta vista o usar texto plano
             ->attachData($this->pdf->output(), "{$this->order->code}.pdf", [
                 'mime' => 'application/pdf',

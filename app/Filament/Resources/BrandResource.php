@@ -43,6 +43,10 @@ class BrandResource extends Resource
         return 'Marcas';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can_show_general_resource == true;
+    }
     public static function form(Form $form): Form
     {
         return $form

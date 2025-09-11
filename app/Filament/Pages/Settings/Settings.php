@@ -95,7 +95,7 @@ class Settings extends BaseSettings
                                             ->extraAttributes([
                                                 'style' => 'background-color: #6B21A8; color: white;' // púrpura y texto blanco
                                             ])
-                                            ->visible(fn() => auth()->check() && auth()->user()->email === 'el.solitions@gmail.com')
+                                            ->visible(fn() => auth()->check() && auth()->user()?->can_show_general_resource == true)
                                             //  ->visible(false)
 
                                             ->form([

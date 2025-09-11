@@ -7,6 +7,7 @@ use App\Models\Setting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class OrderDeletedMail extends Mailable
@@ -25,6 +26,7 @@ class OrderDeletedMail extends Mailable
     public function build()
     {
         return $this->subject('Orden eliminada')
+            ->from(config('mail.from.address'), Auth::user()->center->name)
             ->view('emails.order_deleted');
     }
 }

@@ -17,7 +17,7 @@ class ListOtherExpenses extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            OtherExpenseStats::class,
+            //  OtherExpenseStats::class,
         ];
     }
 

@@ -14,7 +14,6 @@ class CreateItemsTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('active')->default(true);
-
             // Product-specific fields
             $table->foreignId('brand_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('model_id')

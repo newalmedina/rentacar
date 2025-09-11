@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('other_expense_items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('default')->default(0);
             $table->timestamps();
         });
     }

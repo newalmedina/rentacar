@@ -6,7 +6,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class CustomerExport implements FromCollection, WithHeadings, WithMapping
+class OwnerExport implements FromCollection, WithHeadings, WithMapping
 {
 
     protected $query;

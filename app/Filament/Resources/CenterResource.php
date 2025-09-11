@@ -7,8 +7,10 @@ use App\Models\Center;
 use App\Models\Country;
 use App\Models\State;
 use App\Models\City;
+use App\Models\Customer;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
@@ -18,6 +20,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Filament\Tables\Actions\Action as TableAction;
+use Filament\Forms\Components\Markdown;
+use Filament\Forms\Components\Placeholder;
+use Filament\Notifications\Notification;
 
 class CenterResource extends Resource
 {
@@ -30,6 +36,11 @@ class CenterResource extends Resource
 
     protected static ?string $label = 'Centro';
     protected static ?string $pluralLabel = 'Centros';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can_show_general_resource == true;
+    }
 
     public static function form(Form $form): Form
     {
@@ -173,6 +184,83 @@ class CenterResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
+                TableAction::make('importDefaultData')
+                    ->label('')
+                    ->color('warning')
+                    ->icon('heroicon-o-server')
+                    // Cambia el icono aquí
+                    ->modalHeading('Importación de datos')
+                    ->tooltip('Importación de datos generales')
+                    ->modalWidth('md')
+                    ->form([
+                        Placeholder::make('notice')
+                            ->content('<⚠️ Vas a importar los datos por defecto a este centro')
+                            ->columnSpanFull(),
+
+                        Grid::make(12)->schema([
+                            CheckboxList::make('import_options')
+                                ->label('Selecciona qué importar')
+                                ->options([
+                                    'clients' => 'Clientes',
+                                    'expenses' => 'Gastos Items',
+                                ])
+                                // ->required()
+                                ->columnSpanFull(),
+                        ]),
+                    ])
+                    ->action(function (array $data) {
+                        $user = auth()->user();
+                        $centerId = $user?->center?->id;
+
+                        if (!$centerId) {
+                            Notification::make()
+                                ->title('Error')
+                                ->danger()
+                                ->body('No tienes un centro asignado.')
+                                ->send();
+                            return;
+                        }
+
+
+                        if (in_array('clients', $data['import_options'])) {
+                            // Lógica para importar clientesif ($centerId) {
+                            // Obtener todos los clientes por defecto
+                            $defaultCustomers = Customer::where('default', 1)->get();
+
+                            foreach ($defaultCustomers as $customer) {
+                                // Replicar cada registro
+                                $newCustomer = $customer->replicate();
+                                $newCustomer->center_id = $centerId; // Asignar al centro del usuario
+                                $newCustomer->save();
+                            }
+
+                            Notification::make()
+                                ->title('Clientes importados correctamente')
+                                ->success()
+                                ->send();
+                        }
+
+                        if (in_array('expenses', $data['import_options'])) {
+                            $defaultItems = \App\Models\OtherExpenseItem::where('default', 1)->get();
+
+                            foreach ($defaultItems as $item) {
+                                // Replicar cada registro
+                                $newItem = $item->replicate();
+                                $newItem->center_id = $centerId; // Asignar al centro del usuario
+                                $newItem->save();
+                            }
+
+                            Notification::make()
+                                ->title('Items importados correctamente')
+                                ->success()
+                                ->send();
+                        }
+
+                        Notification::make()
+                            ->title('Importación completada')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make()->label('')->tooltip('Editar'),
                 Tables\Actions\DeleteAction::make()->label('')->tooltip('Eliminar'),
             ])

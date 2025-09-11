@@ -27,6 +27,10 @@ class AuthenticationLogResource extends Resource
     {
         return 'Logs autenticación';
     }
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can_show_general_resource === true;
+    }
 
     public static function getPluralModelLabel(): string
     {

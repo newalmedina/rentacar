@@ -34,6 +34,7 @@ use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ModelVersionResource;
 use App\Filament\Resources\OtherExpenseItemResource;
 use App\Filament\Resources\OtherExpenseResource;
+use App\Filament\Resources\OwnerResource;
 use App\Filament\Resources\SaleResource;
 use App\Filament\Resources\StateResource;
 use App\Filament\Resources\SupplierResource;
@@ -62,6 +63,7 @@ use Filament\Facades\Filament;
 use Filament\Navigation\MenuItem;
 use Filament\Pages\Auth\PasswordReset\RequestPasswordReset;
 use Filament\Support\Enums\MaxWidth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Outerweb\FilamentSettings\Filament\Plugins\FilamentSettingsPlugin;
@@ -73,6 +75,7 @@ class AdminPanelProvider extends PanelProvider
 
     public function panel(Panel $panel): Panel
     {
+
         $panel
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->default()
@@ -98,39 +101,40 @@ class AdminPanelProvider extends PanelProvider
             //->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->resources([
                 // CmsContentResource::class,
-                UserResource::class,
+                UserResource::class, //$user->can_show_general_resource ==true
                 OtherExpenseResource::class,
                 CustomerResource::class,
+                OwnerResource::class,
                 ItemResource::class,
-                CenterResource::class,
-                BrandResource::class,
-                CarModelResource::class,
-                ModelVersionResource::class,
+                CenterResource::class, //$user->can_show_general_resource ==true
+                BrandResource::class, //$user->can_show_general_resource ==true
+                CarModelResource::class, //$user->can_show_general_resource ==true
+                ModelVersionResource::class, //$user->can_show_general_resource ==true
                 // SupplierResource::class,
                 // UnitOfMeasureResource::class,
-                CountryResource::class,
-                StateResource::class,
-                CityResource::class,
-                SaleResource::class,
+                CountryResource::class, //$user->can_show_general_resource ==true
+                StateResource::class, //$user->can_show_general_resource ==true
+                CityResource::class, //$user->can_show_general_resource ==true
+                //SaleResource::class,
                 OtherExpenseItemResource::class,
             ])
             // ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->plugins([
-                FilamentSettingsPlugin::make()
-                    ->pages([
-                        Settings::class,
-                    ]),
-                FilamentAuthenticationLogPlugin::make(),
-                // FilamentSpatieLaravelBackupPlugin::make()
+                // FilamentSettingsPlugin::make()
+                //     ->pages([
+                //         Settings::class,
+                //     ]),
+                // FilamentAuthenticationLogPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make()
-                    ->usingPage(Backups::class)->authorize(fn(): bool => auth()->user()->email === 'el.solitions@gmail.com'),
+                    ->usingPage(Backups::class)->authorize(fn(): bool => auth()->user()?->can_show_general_resource == true),
                 FilamentFullCalendarPlugin::make()->config(
                     []
                 ),
             ])
             ->pages([
                 Pages\Dashboard::class,
-                Profile::class
+                Profile::class,
+                \App\Filament\Pages\Configuration::class, // <-- aquí tu página
             ])
             // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -168,19 +172,19 @@ class AdminPanelProvider extends PanelProvider
             ]);
 
 
-        if (Schema::hasTable('settings')) {
-            $settings = Setting::first();
+        // if (Schema::hasTable('settings')) {
+        //     $settings = Setting::first();
 
-            if ($settings && $settings->general) {
-                $generalSettings = $settings->general;
-                if (!empty($generalSettings->image) && $generalSettings->image != "[]") {
-                    $panel->brandLogo(Storage::url(str_replace('"', '', $generalSettings->image)))
-                        ->brandLogoHeight('3rem');
-                } elseif (!empty($generalSettings->brand_name)) {
-                    return $panel->brandName(str_replace('"', '', $generalSettings->brand_name));
-                }
-            }
-        }
+        //     if ($settings && $settings->general) {
+        //         $generalSettings = $settings->general;
+        //         if (!empty($generalSettings->image) && $generalSettings->image != "[]") {
+        //             $panel->brandLogo(Storage::url(str_replace('"', '', $generalSettings->image)))
+        //                 ->brandLogoHeight('3rem');
+        //         } elseif (!empty($generalSettings->brand_name)) {
+        //             return $panel->brandName(str_replace('"', '', $generalSettings->brand_name));
+        //         }
+        //     }
+        // }
 
 
 
@@ -208,6 +212,23 @@ class AdminPanelProvider extends PanelProvider
                     ->openUrlInNewTab(), // opcional: abre en nueva pestaña
 
             ]);
+            // Personalización según centro
+            $user = auth()->user();
+
+            if ($user && $user->center) {
+                $center = $user->center;
+
+                if (!empty($center->image)) {
+                    Filament::getCurrentPanel()
+                        ->brandLogo(\Storage::url($center->image))
+                        ->brandLogoHeight('3rem');
+                } elseif (!empty($center->name)) {
+                    Filament::getCurrentPanel()
+                        ->brandName($center->name);
+                    // Título dinámico de la página
+
+                }
+            }
         });
     }
 }

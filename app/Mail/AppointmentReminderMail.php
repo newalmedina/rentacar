@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Appointment;
+use Illuminate\Support\Facades\Auth;
 
 class AppointmentReminderMail extends Mailable
 {
@@ -25,6 +26,7 @@ class AppointmentReminderMail extends Mailable
         $subject = "Recordatorio: tu cita es en {$this->hoursBefore} horas";
 
         return $this->subject($subject)
+            ->from(config('mail.from.address'), Auth::user()->center->name)
             ->view('emails.appointment_reminder');
     }
 }

@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrador',
             'email' => 'el.solitions@gmail.com',
             'can_admin_panel' => true,
-            'can_show_general_resource' => true,
+            'can_show_general_resource' => false,
             'center_id' =>  $center->id,
             'password' => Hash::make("EithanSteven15*"),
         ]);
@@ -40,11 +40,11 @@ class DatabaseSeeder extends Seeder
         $this->call(BrandDataSeeder::class);
         $this->call(SupplierDataSeeder::class);
         $this->call(SettingDataSeeder::class);
-        $this->call(CustomerSeeder::class);
-        $this->call(OtherExpenseItemSeeder::class);
         $this->call(InsertItemsSeeder::class);
         $this->call(OrderSeeder::class);
         $this->call(OtherExpenseSeeder::class);*/
+        $this->call(OtherExpenseItemSeeder::class);
+        $this->call(CustomerSeeder::class);
         $this->call(WorldTableSeeder::class);
     }
 }

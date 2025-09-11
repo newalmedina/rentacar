@@ -29,8 +29,10 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\DateFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class OtherExpenseResource extends Resource
 {
@@ -48,6 +50,20 @@ class OtherExpenseResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return 'Otros gastos';
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+        // Obtener el ID del panel actual
+
+        $query->where('center_id', $user->center?->id);
+
+
+        return $query;
     }
 
     public static function form(Form $form): Form
