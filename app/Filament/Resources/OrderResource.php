@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\OrderDetailExport;
+use App\Exports\OrderExport;
 use App\Exports\OtherExpenseExport;
 use App\Exports\SaleDetailExport;
 use App\Exports\SaleExport;
-use App\Filament\Resources\SaleResource\Pages;
-use App\Filament\Resources\SaleResource\RelationManagers;
+use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Mail\OrderDeletedMail;
 use App\Mail\ReceiptMail;
 use App\Models\Customer;
@@ -33,7 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
-class SaleResource extends Resource
+class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
@@ -43,12 +45,12 @@ class SaleResource extends Resource
     // protected static ?string $navigationLabel = 'Ciudadedsadss';
     public static function getModelLabel(): string
     {
-        return 'Venta';
+        return 'Orden';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Ventas';
+        return 'Ordenes';
     }
 
 
@@ -86,20 +88,40 @@ class SaleResource extends Resource
                     ->searchable()
                     ->label("Código")
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_renting')
+                    ->boolean()
+                    ->label('Alquiler'),
+                Tables\Columns\IconColumn::make('invoiced')
+                    ->boolean()
+                    ->label('Facturado'),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
-                    ->label("Fecha")
+                    ->label("Fecha factura")
+                    ->formatStateUsing(function ($state) {
+                        return Carbon::parse($state)->format('d-m-Y');
+                    }),
+                Tables\Columns\TextColumn::make('start_date')
+                    ->date()
+                    ->label("Fecha inicio")
+                    ->formatStateUsing(function ($state) {
+                        return Carbon::parse($state)->format('d-m-Y');
+                    })
+
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('end_date')
+                    ->date()
+                    ->label("Fecha fin")
                     ->formatStateUsing(function ($state) {
                         return Carbon::parse($state)->format('d-m-Y');
                     })
 
                     ->sortable(),
                 //Tables\Columns\TextColumn::make('type'),
-                Tables\Columns\TextColumn::make('assignedUser.name')
-                    ->numeric()
-                    ->label("Vendedor")
-                    ->searchable()
-                    ->sortable(),
+                // Tables\Columns\TextColumn::make('assignedUser.name')
+                //     ->numeric()
+                //     ->label("Vendedor")
+                //     ->searchable()
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('customer.name')
                     ->numeric()
                     ->label("Cliente")
@@ -131,20 +153,22 @@ class SaleResource extends Resource
                     ->money('EUR')
                     ->sortable(),
 
-                //Tables\Columns\TextColumn::make('status'),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'invoiced' => 'success',
-                        default => 'gray',
+                        'Pendiente'  => 'secondary',  // gris claro
+                        'En curso'   => 'info',
+                        'Completado' => 'success',
+                        default      => 'gray',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'pending' => 'Pendiente',
-                        'invoiced' => 'Facturado',
-                        default => ucfirst($state),
+                        'Pendiente'  => 'Pendiente',
+                        'En curso'   => 'En curso',
+                        'Completado' => 'Completado',
+                        default      => ucfirst($state),
                     }),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->label("Fecha creación")
@@ -158,37 +182,59 @@ class SaleResource extends Resource
             ->filters([
                 Filter::make('created_at')
                     ->form([
-                        DatePicker::make('date_from')->label("Fecha inicio"),
-                        DatePicker::make('date_until')->label("Fecha fin"),
-                        Select::make('assigned_user_ids')
-                            ->label('Vendedores')
-                            ->options(
-                                User::all()->pluck('name', 'id')
-                            )
-                            ->searchable()
-                            ->preload()
-                            ->multiple()
-                            ->native(false)
-                            ->placeholder('Selecciona vendedor (s)'),
+                        DatePicker::make('date_from')->label("Fecha facturacion inicio"),
+                        DatePicker::make('date_until')->label("Fecha facturacion fin"),
+                        // Select::make('assigned_user_ids')
+                        //     ->label('Vendedores')
+                        //     ->options(
+                        //         User::all()->pluck('name', 'id')
+                        //     )
+                        //     ->searchable()
+                        //     ->preload()
+                        //     ->multiple()
+                        //     ->native(false)
+                        //     ->placeholder('Selecciona vendedor (s)'),
                         Select::make('customer_ids')
                             ->label('Clientes')
                             ->options(
-                                Customer::active()->pluck('name', 'id')
+                                Customer::active()->myCenter()->pluck('name', 'id')
                             )
                             ->searchable()
                             ->preload()
                             ->multiple()
                             ->native(false)
                             ->placeholder('Selecciona cliente(s)'),
-                        TextInput::make('observations')->label("Observaciones"),
+                        Select::make('is_renting')
+                            ->label('Alquiler')
+                            ->options([
+                                'all' => 'Todos',
+                                'only' => 'Solo alquileres',
+                                'not' => 'No alquileres',
+                            ])
+                            ->default('all')
+                            ->native(false),
+
+                        Select::make('invoiced')
+                            ->label('Facturado')
+                            ->options([
+                                'all' => 'Todos',
+                                'only' => 'Solo facturados',
+                                'not' => 'No facturados',
+                            ])
+                            ->default('all')
+                            ->native(false),
+
+                        // TextInput::make('observations')->label("Observaciones"),
                         Select::make('status')
                             ->label('Estado')
                             ->options([
-                                'pending' => 'Pendiente',
-                                'invoiced' => 'Facturado',
+                                'Pendiente' => 'Pendiente',
+                                'En curso'  => 'En curso',
+                                'Completado' => 'Completado',
                             ])
                             ->native(false)
                             ->placeholder('Selecciona estado'),
+
                         /* Select::make('items')
                             ->label('Items')
                             ->multiple()
@@ -210,13 +256,29 @@ class SaleResource extends Resource
                             $filter['observations'] = $data['observations'];  // Fecha inicio
                         }
                         if (isset($data['status'])) {
-                            $filter['status'] = $data['status'] == "invoiced" ? "Facturado" : "Pendiente";  // Fecha inicio
+                            $filter['status'] = $data['status']; // ya es texto legible
                         }
 
                         if (!empty($data['customer_ids']) && is_array($data['customer_ids'])) {
                             $names = Customer::whereIn('id', $data['customer_ids'])->pluck('name')->toArray();
                             $filter["customer_ids"] = 'Clientes: ' . implode(', ', $names);
                         }
+
+                        if (isset($data['is_renting']) && $data['is_renting'] !== 'all') {
+                            $filter['is_renting'] = match ($data['is_renting']) {
+                                'only' => 'Solo alquileres',
+                                'not' => 'No alquiler',
+                                default => 'Todos',
+                            };
+                        }
+                        if (isset($data['invoiced']) && $data['invoiced'] !== 'all') {
+                            $filter['invoiced'] = match ($data['invoiced']) {
+                                'only' => 'Solo facturados',
+                                'not' => 'No facturados',
+                                default => 'Todos',
+                            };
+                        }
+
                         if (!empty($data['assigned_user_ids']) && is_array($data['assigned_user_ids'])) {
                             $names = Customer::whereIn('id', $data['assigned_user_ids'])->pluck('name')->toArray();
                             $filter["assigned_user_ids"] = 'Vendedores: ' . implode(', ', $names);
@@ -224,10 +286,27 @@ class SaleResource extends Resource
                         return $filter;
                     })
                     ->query(function ($query, array $data) {
+                        $query->myCenter();
                         // Aplica el filtro en la consulta
                         if (!empty($data['customer_ids']) && is_array($data['customer_ids'])) {
                             $names = Customer::whereIn('id', $data['customer_ids'])->pluck('name')->toArray();
                         }
+                        if (isset($data['is_renting']) && $data['is_renting'] !== 'all') {
+                            if ($data['is_renting'] === 'only') {
+                                $query->where('is_renting', true);
+                            } elseif ($data['is_renting'] === 'not') {
+                                $query->where('is_renting', false);
+                            }
+                        }
+
+                        if (isset($data['invoiced']) && $data['invoiced'] !== 'all') {
+                            if ($data['invoiced'] === 'only') {
+                                $query->where('invoiced', true);
+                            } elseif ($data['invoiced'] === 'not') {
+                                $query->where('invoiced', false);
+                            }
+                        }
+
                         if (!empty($data['assigned_user_ids']) && is_array($data['assigned_user_ids'])) {
                             $names = User::whereIn('id', $data['assigned_user_ids'])->pluck('name')->toArray();
                         }
@@ -241,8 +320,32 @@ class SaleResource extends Resource
                             $query->where('observations', 'like', '%' . $data['observations'] . '%');
                         }
                         if (isset($data['status']) && !empty($data['status'])) {
-                            $query->where('status',  $data['status']);
+                            $status = $data['status'];
+
+                            $query->where(function ($query) use ($status) {
+                                $now = now();
+
+                                if ($status === 'Pendiente') {
+                                    $query->where('is_renting', true)
+                                        ->where(function ($q) use ($now) {
+                                            $q->whereNull('start_date')
+                                                ->orWhereNull('end_date')
+                                                ->orWhere('start_date', '>', $now);
+                                        });
+                                } elseif ($status === 'En curso') {
+                                    $query->where('is_renting', true)
+                                        ->where('start_date', '<=', $now)
+                                        ->where('end_date', '>=', $now);
+                                } elseif ($status === 'Completado') {
+                                    $query->where('is_renting', true)
+                                        ->where('end_date', '<', $now);
+                                } else {
+                                    // Por si acaso no filtra nada
+                                    $query->whereNull('id'); // o alguna condición vacía
+                                }
+                            });
                         }
+
                         if (isset($data['items'])) {
                             if (count($data['items']) > 0) {
                                 $query->whereHas('details.item', function ($query) use ($data) {
@@ -270,7 +373,7 @@ class SaleResource extends Resource
                     ->icon('heroicon-o-document-text')  // Ícono de recibo/factura
                     ->color('secondary')            // Azul, por ejemplo
                     ->tooltip('Generar Factura')
-                    ->visible(fn($record) => $record->status === 'invoiced')
+                    ->visible(fn($record) => $record->invoiced == 1)
                     ->action(function ($record) {
                         // Aquí va la lógica para generar la factura
                         // $record->generateInvoice();
@@ -287,7 +390,7 @@ class SaleResource extends Resource
                     ->icon('heroicon-o-envelope')
                     ->color('primary') // azul
                     ->tooltip('Enviar la factura por correo electrónico')
-                    ->visible(fn($record) => $record->status === 'invoiced')
+                    ->visible(fn($record) => $record->invoiced == 1)
                     ->modalHeading('Enviar factura por correo electrónico')
                     ->form([
                         Forms\Components\Select::make('email_option')
@@ -348,7 +451,7 @@ class SaleResource extends Resource
                     ->icon('heroicon-o-currency-dollar')
                     ->color('warning') // amarillo
                     ->tooltip('Generar factura')
-                    ->visible(fn($record) => $record->status !== 'invoiced')
+                    ->visible(fn($record) => $record->invoiced == 0)
                     ->requiresConfirmation()
                     ->modalHeading('Confirmar facturación')
                     ->action(function ($record) {
@@ -367,7 +470,7 @@ class SaleResource extends Resource
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger') // rojo
                     ->tooltip('Revertir la facturación')
-                    ->visible(fn($record) => $record->status === 'invoiced')
+                    ->visible(fn($record) => $record->invoiced == 1)
                     ->requiresConfirmation()
                     ->modalHeading('Confirmar reversión de facturación')
                     ->action(function ($record) {
@@ -410,7 +513,7 @@ class SaleResource extends Resource
                             $query = \App\Models\Order::whereIn('id', $records->pluck('id'));
 
                             // Llamamos al método Excel::download() y pasamos el nombre dinámico del archivo
-                            return Excel::download(new SaleExport($query), $fileName);
+                            return Excel::download(new OrderExport($query), $fileName);
                         }),
                     BulkAction::make('exportDetail')->label('Exportar detalle ' . self::getPluralModelLabel())->icon('heroicon-m-arrow-down-tray')
                         ->action(function ($records) {
@@ -423,7 +526,7 @@ class SaleResource extends Resource
                             $query = \App\Models\OrderDetail::whereIn('order_id', $records->pluck('id'));
 
                             // Llamamos al método Excel::download() y pasamos el nombre dinámico del archivo
-                            return Excel::download(new SaleDetailExport($query), $fileName);
+                            return Excel::download(new OrderDetailExport($query), $fileName);
                         }),
                 ]),
             ]);
@@ -439,9 +542,9 @@ class SaleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSales::route('/'),
-            'create' => Pages\CreateSale::route('/create'),
-            'edit' => Pages\EditSale::route('/{record}/edit'),
+            'index' => Pages\ListOrders::route('/'),
+            'create' => Pages\CreateOrder::route('/create'),
+            'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }

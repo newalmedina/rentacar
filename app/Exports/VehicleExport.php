@@ -35,6 +35,7 @@ class VehicleExport implements FromCollection, WithHeadings, WithMapping
             $vehicle->carModel?->name,
             $vehicle->modelVersion?->name,
             $vehicle->gestion ? 'Sí' : 'No',
+            $vehicle->year,
             $vehicle->owner?->name ?? 'N/A',
             $vehicle->description,
         ];
@@ -52,6 +53,7 @@ class VehicleExport implements FromCollection, WithHeadings, WithMapping
             'Modelo',
             'Versión',
             'Vehículo gestión',
+            'Año',
             'Propietario',
             'Descripción',
         ];

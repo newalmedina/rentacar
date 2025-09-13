@@ -17,12 +17,12 @@ return new class extends Migration
             $table->date('date');
             $table->text('observations')->nullable();
             $table->enum('type', ['sale', 'purchase', 'quote'])->default('sale');
-
+            $table->boolean('invoiced')->default(false);
             $table->foreignId('customer_id')
                 ->constrained()
                 ->onDelete('restrict');
 
-            $table->enum('status', ['pending', 'invoiced'])->default('pending');
+            //$table->enum('status', ['pending', 'invoiced'])->default('pending');
 
             // Campos de tracking
             $table->foreignId('created_by')
@@ -34,6 +34,9 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
+            $table->boolean('is_renting')->default(false);
 
             $table->timestamps();
             $table->softDeletes();

@@ -32,6 +32,7 @@ use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ModelVersionResource;
+use App\Filament\Resources\OrderResource;
 use App\Filament\Resources\OtherExpenseItemResource;
 use App\Filament\Resources\OtherExpenseResource;
 use App\Filament\Resources\OwnerResource;
@@ -120,6 +121,7 @@ class AdminPanelProvider extends PanelProvider
                 CityResource::class, //$user->can_show_general_resource ==true
                 //SaleResource::class,
                 OtherExpenseItemResource::class,
+                OrderResource::class,
             ])
             // ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->plugins([
@@ -148,12 +150,12 @@ class AdminPanelProvider extends PanelProvider
                 VentasMensualesChart::class,
                 OtherExpensesChart::class,
                 GananciasMensualesChart::class,
-                VentasPorVendedorPieChart::class,
-                VentasPorVendedorPercentPieChart::class,
-                GastosPieChart::class,
-                GastosPercentPieChart::class,
-                ProductosMasVendido::class,
-                ProductosMasVendidoPorcentaje::class,
+                // VentasPorVendedorPieChart::class,
+                // VentasPorVendedorPercentPieChart::class,
+                // GastosPieChart::class,
+                // GastosPercentPieChart::class,
+                // ProductosMasVendido::class,
+                // ProductosMasVendidoPorcentaje::class,
                 // ProductosMenosVendido::class,
                 // ProductosMenosVendidoPorcentaje::class,
                 // VentasVsGastosPorDiaChart::class

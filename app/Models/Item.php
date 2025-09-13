@@ -102,6 +102,48 @@ class Item extends Model
         return $query->where('show_booking_others', true);
     }
     // Boot method para asignar center_id automáticamente
+    public function scopeMyCenter($query)
+    {
+        $centerId = Auth::check() ? Auth::user()->center_id : null;
+
+        if ($centerId) {
+            return $query->where('center_id', $centerId);
+        }
+
+        // Si no hay usuario autenticado, devuelve todo o vacío
+        return $query->whereRaw('1=0'); // Ningún resultado
+    }
+    public function getFullNameAttribute(): string
+    {
+        if ($this->type === 'vehicle') {
+            $parts = [];
+
+            if ($this->matricula) {
+                $parts[] = $this->matricula . " - ";
+            }
+
+            if ($this->brand) {
+                $parts[] = $this->brand->name;
+            }
+
+            if ($this->carModel) {
+                $parts[] = $this->carModel->name;
+            }
+
+            if ($this->modelVersion) {
+                $parts[] = $this->modelVersion->name;
+            }
+            if ($this->year) {
+                $parts[] = '(' . $this->year . ')';
+            }
+
+            return implode(' ', $parts);
+        }
+
+        return $this->name ?? '';
+    }
+
+    // Boot method para asignar center_id automáticamente
     protected static function boot(): void
     {
         parent::boot();

@@ -27,6 +27,18 @@ class Category extends Model
         return $this->belongsTo(Center::class);
     }
 
+    public function scopeMyCenter($query)
+    {
+        $centerId = Auth::check() ? Auth::user()->center_id : null;
+
+        if ($centerId) {
+            return $query->where('center_id', $centerId);
+        }
+
+        // Si no hay usuario autenticado, devuelve todo o vacío
+        return $query->whereRaw('1=0'); // Ningún resultado
+    }
+
     protected static function boot(): void
     {
         parent::boot();

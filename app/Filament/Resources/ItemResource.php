@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -95,13 +96,14 @@ class ItemResource extends Resource
                                         ->columnSpan(6), // mitad del ancho
 
                                     // Fila 2
-                                    Forms\Components\Select::make('category_id')
-                                        ->relationship('category', 'name', function ($query) {
-                                            $query->where('active', true);
-                                        })
+                                    Select::make('category_id')
+                                        ->label('Categoría')
                                         ->searchable()
-                                        ->label("Categoría")
                                         ->preload()
+                                        ->options(function () {
+                                            return \App\Models\Category::myCenter()->pluck('name', 'id')->toArray();
+                                        })
+                                        ->required()
                                         ->columnSpan(6),
                                     Forms\Components\TextInput::make('price')
                                         ->label("Precio")
@@ -206,10 +208,11 @@ class ItemResource extends Resource
                 //         'product' => 'Productos',
                 //     ]),
                 SelectFilter::make('category_id')
-                    ->relationship(name: 'category', titleAttribute: 'name')
+                    ->label('Categoría')
+                    ->options(fn() => \App\Models\Category::myCenter()->pluck('name', 'id')->toArray())
                     ->searchable()
-                    ->label("Categoría")
                     ->preload(),
+
                 // SelectFilter::make('brand_id')
                 //     ->relationship(name: 'brand', titleAttribute: 'name')
                 //     ->searchable()

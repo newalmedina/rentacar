@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class SaleExport implements FromCollection, WithHeadings, WithMapping
+class OrderExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $query;
 
@@ -28,14 +28,19 @@ class SaleExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $item->code, // Código
+            $item->is_renting, // Código
+
             $item->date ? Carbon::parse($item->date)->format('d-m-Y') : null, // Fecha formateada
+            $item->start_date ? Carbon::parse($item->start_date)->format('d-m-Y H:i') : null, // Fecha formateada
+            $item->end_date ? Carbon::parse($item->end_date)->format('d-m-Y H:i') : null, // Fecha formateada
             $item->customer->name ?? null, // Cliente (relación)
             $item->products, // Producto (atributo calculado que concatena productos)
             $item->observations ?? null, // Observaciones (campo en tu modelo)
             $item->subtotal, // Subtotal (atributo calculado o columna selectSub)
             $item->impuestos, // Impuestos (atributo calculado o columna selectSub)
             $item->total, // Total (atributo calculado o columna selectSub)
-            ucfirst($item->status == "pending" ? "Pendiente" : "Facturado"), // Estado (campo status con primera letra mayúscula)
+            $item->invoiced, // Código
+            $item->status, // Estado (campo status con primera letra mayúscula)
         ];
     }
 
@@ -45,13 +50,17 @@ class SaleExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'Código',
+            'Es un alquiler',
             'Fecha',
+            'Fecha Ini. Alquiler',
+            'Fecha Fin. Alquiler',
             'Cliente',
             'Productos',
             'observaciones',
             'Subtotal',
             'Impuestos',
             'total',
+            'Facturado',
             'estado',
 
         ];

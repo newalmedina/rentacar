@@ -27,6 +27,7 @@ class VentasStats extends BaseWidget
         // Función para obtener suma total de ventas entre fechas
         $getVentas = fn($start, $end = null) => Order::sales()
             ->invoiced()
+            ->myCenter()
             ->when($end, fn($q) => $q->whereBetween('date', [$start, $end]))
             ->when(!$end, fn($q) => $q->whereDate('date', $start))
             ->get()

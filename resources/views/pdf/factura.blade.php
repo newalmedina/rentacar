@@ -49,7 +49,11 @@
         <b style="font-size: 16px;">FACTURA Nº:   {{ $order->code }}</b>
         <p for="">Fecha factura: {{ $order->date->format("d/m/Y") }}</p>
         <p for="">Fecha vencimiento: {{ $order->date->format("d/m/Y") }}</p>
-
+        @if ($order->is_renting)
+        <p>Fecha inicio alquiler: {{ \Carbon\Carbon::parse($order->start_date)->format('d/m/Y H:i') }}</p>
+        <p>Fecha fin alquiler: {{ \Carbon\Carbon::parse($order->end_date)->format('d/m/Y H:i') }}</p>
+        
+        @endif
       </td>
       <td style="width: 50%; text-align: right;">
 
@@ -115,6 +119,12 @@
             <tr>
               <td class="text-left" style="font-size: 11px;">
                 {{ ucfirst($detail->product_name_formatted) }}
+                @if ($order->is_renting && $detail->item && $detail->item->type == "vehicle")
+                  <br>
+                  <span class="text-gray-600 text-xs">
+                      Kilómetros recorridos: {{ number_format($detail->total_kilometers, 0, ',', '.') }} km
+                  </span>
+                @endif
               </td>
             
               <td class="text-right nobreak">{{ number_format($detail->price, 2) }} €</td>

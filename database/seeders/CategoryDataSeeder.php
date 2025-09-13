@@ -42,7 +42,7 @@ class CategoryDataSeeder extends Seeder
         foreach ($categories as $category) {
             Category::firstOrCreate(
                 ['name' => $category['name']], // condición única
-                ['description' => $category['description']] // campos a rellenar si no existe
+                ['description' => $category['description'], "default" => true] // campos a rellenar si no existe
             );
         }
     }

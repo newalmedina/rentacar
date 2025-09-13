@@ -1,22 +1,28 @@
 <div class="grid grid-cols-10 gap-4">
     @if(!empty($order->code))
-    <div class="col-span-12 w-full mb-3">
-        <h2 class="text-2xl font-semibold mb-2">
-            Código: <b>{{ $order->code }}</b>
-        </h2>
-
-        @if($order->appointment)
-            <div class="w-full bg-gray-50 p-4 rounded shadow-sm">
-                <strong class="block mb-2 text-lg">Datos de cita asociada:</strong>
-                <div class="flex flex-wrap gap-4">
-                    <span class="px-3 py-1 bg-white rounded shadow text-sm">📅 {{ $order->appointment->date?->format('d/m/Y') ?? '-' }}</span>
-                    <span class="px-3 py-1 bg-white rounded shadow text-sm">⏰ {{ $order->appointment->start_time?->format('H:i') ?? '-' }} - {{ $order->appointment->end_time?->format('H:i') ?? '-' }}</span>
-                    <span class="px-3 py-1 bg-white rounded shadow text-sm">👤 {{ $order->appointment->requester_name ?? '-' }}</span>
-                    <span class="px-3 py-1 bg-white rounded shadow text-sm">✉️ {{ $order->appointment->requester_email ?? '-' }}</span>
-                </div>
+        <div class="col-span-12 w-full mb-3">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between w-full">
+                <h2 class="text-2xl font-semibold mb-2 md:mb-0">
+                    Código: <b>{{ $order->code }}</b>
+                </h2>
+        
+                @if (!empty($order->id))
+                    <div class="flex gap-4 items-center">
+                        {{-- Badge de facturación --}}
+                        <x-filament::badge
+                            :color="$order->invoiced ? 'success' : 'warning'"
+                            class="text-[18px] font-bold px-6 py-3 text-center leading-snug h-[50px] flex items-center justify-center"
+                        >
+                            <b>{{ $order->invoiced ? 'Facturado' : 'Pendiente Facturar' }}</b>
+                        </x-filament::badge>
+        
+                        {{-- Badge de estado si aplica --}}
+                 
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
+        </div>
+             
 @endif
 
 
@@ -24,107 +30,89 @@
 
        <div >
 
-            @if (empty($order->id))
-                <x-filament::button color="primary"   class="mr-5 mb-3" wire:click="saveForm(0)">
-                    Guardar
-                </x-filament::button>
-                <x-filament::button color="success"  class="mr-5 mb-3" wire:click="saveForm(1)">
-                    Guardar y facturar
-                </x-filament::button>
-
-            @elseif ($order->status === 'pending')
-                <x-filament::button color="primary"   class="mr-5 mb-3" wire:click="saveForm(0)">
-                    Guardar
-                </x-filament::button>
-                <x-filament::button color="success"  class="mr-5 mb-3" wire:click="saveForm(1)">
-                    Guardar y facturar
-                </x-filament::button>
-            @else
-            <!-- 1. Generar Factura -->
-            <x-filament::button class="mr-5 mb-3"
-                icon="heroicon-o-document-text"
-                color="secondary"
-                wire:click="generateReceipt"
-            >
-                Generar Factura
+        @if (empty($order->id) || !$order->invoiced)
+            <x-filament::button color="primary" class="mr-5 mb-3" wire:click="saveForm(0)">
+                Guardar
             </x-filament::button>
-
-            <!-- 2. Enviar recibo por e-mail -->
+            <x-filament::button color="success" class="mr-5 mb-3" wire:click="saveForm(1)">
+                Guardar y facturar
+            </x-filament::button>
+        @endif
             
-            <x-filament::modal  id="send-invoiced-modal" width="sm" :close-by-clicking-away="false">
-                <x-slot name="trigger">
-                    <x-filament::button class="mr-5 mb-3"
-                        icon="heroicon-o-envelope"
-                        color="primary"
+        @if (!empty($order->id) && $order->invoiced)
+    <!-- 1. Generar Factura -->
+    <x-filament::button class="mr-5 mb-3"
+        icon="heroicon-o-document-text"
+        color="secondary"
+        wire:click="generateReceipt"
+    >
+        Generar Factura
+    </x-filament::button>
+
+    <!-- 2. Enviar recibo por e-mail -->
+    <x-filament::modal id="send-invoiced-modal" width="sm" :close-by-clicking-away="false">
+        <x-slot name="trigger">
+            <x-filament::button class="mr-5 mb-3"
+                icon="heroicon-o-envelope"
+                color="primary"
+            >
+                Enviar factura por email
+            </x-filament::button>
+        </x-slot>
+
+        <x-slot name="header">
+            Enviar factura por email
+        </x-slot>
+
+        <hr>
+
+        <div class="mb-5 mt-5 text-left">
+            <div class="grid grid-cols-1 gap-4">
+                <x-filament::input.wrapper>
+                    <x-filament::input.select 
+                        wire:model="recipientType"
+                        wire:change="changeRecipientType"
                     >
-                        Enviar factura por email
-                    </x-filament::button>
+                        <option value="same">Mismo cliente</option>
+                        <option value="other">Otro email</option>
+                    </x-filament::input.select>
+                </x-filament::input.wrapper>   
 
-                </x-slot>
-                <x-slot name="header">
-                    Enviar factura por email
-                </x-slot>
-                <hr>
-                <div class="mb-5 mt-5 text-left">
-                    <div class="grid grid-cols-1 gap-4">
-                        <x-filament::input.wrapper>
-                            <x-filament::input.select 
-                                    wire:model="recipientType"
-                                    wire:change="changeRecipientType"
-                            >
-                                <option value="same">Mismo cliente</option>
-                                <option value="other">Otro email</option>
-                            </x-filament::input.select>
-                        </x-filament::input.wrapper>   
-            
-                        <x-filament::input.wrapper :valid="! $errors->has('frecipientEmail')">
-                            <x-filament::input 
-                                type="email" 
-                                wire:model.defer="recipientEmail" 
-                                :readonly="$recipientType === 'same'" 
-                                placeholder="Email del destinatario"
-                            />
-                            
-                        </x-filament::input.wrapper>
-                        @error('recipientEmail') 
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                            @enderror
-                    </div>
-                </div>
-                
+                <x-filament::input.wrapper :valid="! $errors->has('recipientEmail')">
+                    <x-filament::input 
+                        type="email" 
+                        wire:model.defer="recipientEmail" 
+                        :readonly="$recipientType === 'same'" 
+                        placeholder="Email del destinatario"
+                    />
+                </x-filament::input.wrapper>
 
-                <hr>
+                @error('recipientEmail') 
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
 
-                <x-slot name="footerActions">
+        <hr>
 
-                    <div class="flex justify-between w-full">
-                        <x-filament::button color="gray" wire:click="closeModalsendInvoiceEmail" size="sm" class="">
-                        Cerrar
-                        </x-filament::button>
-                        <x-filament::button wire:click='sendInvoiceEmail' size="sm" class="">
-                        Enviar factura
-                        </x-filament::button>
-                    </div>
-
-
-                </x-slot>
-                {{-- Modal content --}}
-            </x-filament::modal>
-            {{--
-            <!-- 3. Enviar recibo por WhatsApp -->
-            <x-filament::button class="mr-5 mb-3"
-                icon="heroicon-o-chat-bubble-left-right"
-                color="success"
-                wire:click="sendReceiptByWhatsapp"
-            >
-                Enviar recibo por WhatsApp
-            </x-filament::button>
-            --}}
-
-                <x-filament::button color="warning"   class="mr-5 mb-3"  icon="heroicon-o-arrow-uturn-left" wire:click="revertStatus(0)">
-                    Revertir facturación
+        <x-slot name="footerActions">
+            <div class="flex justify-between w-full">
+                <x-filament::button color="gray" wire:click="closeModalsendInvoiceEmail" size="sm">
+                    Cerrar
                 </x-filament::button>
-            @endif
+                <x-filament::button wire:click="sendInvoiceEmail" size="sm">
+                    Enviar factura
+                </x-filament::button>
+            </div>
+        </x-slot>
+    </x-filament::modal>
+
+    <!-- 3. Revertir facturación -->
+    <x-filament::button color="warning" class="mr-5 mb-3" icon="heroicon-o-arrow-uturn-left" wire:click="revertStatus(0)">
+        Revertir facturación
+    </x-filament::button>
+@endif
+
        </div>
        <div>
             <x-filament::button color="gray"  onclick="cancelBtnAction()"  class="" >
@@ -157,15 +145,32 @@
 
             </div>
             @if (!empty($order->id))
-                <div class="w-full md:w-auto justify-self-center md:justify-self-end">
+            <div class="flex flex-wrap items-center gap-4 justify-center md:justify-end w-full">
+                      
+                @if ($order->status)
+                    @php
+                        $bgColor = $order->status_color ?? '#adb5bd';
+                    @endphp
+
                     <x-filament::badge
-                        :color="$order->status === 'pending' ? 'warning' : 'success'"
-                        class="text-[28px] font-bold px-6 py-3 text-center leading-snug h-[70px] flex items-center justify-center md:w-auto w-full"
+                        :color="null"
+                        class="text-[18px] font-bold px-6 py-3 text-center leading-snug h-[50px] flex items-center justify-center border"
+                        style="
+                            background-color: {{ $bgColor }}1a;  /* 10% opacidad */
+                            color: {{ $bgColor }};
+                            border-color: {{ $bgColor }};
+                        "
                     >
-                    <b>  {{$order->status=="pending"?"Pendiente":"Facturado"}}</b>
+                        <b>Alquiler {{ $order->status }}</b>
                     </x-filament::badge>
-                </div>
             @endif
+            
+            </div>
+        @endif
+        
+        
+        
+
         </div>
     </div>
 
@@ -295,7 +300,7 @@
             </div>
         </x-filament::section>
             
-        <x-filament::section collapsible>
+        <x-filament::section collapsible class="mb-4">
             <x-slot name="heading">
                 Productos Seleccionados
             </x-slot>
@@ -314,9 +319,9 @@
                         <tr>
                             <th class="px-1 py-2 text-left text-black dark:text-white"></th>
                             <th class="px-1 py-2 text-left text-black dark:text-white">Nombre</th>
-                            <th class="px-1 py-2 text-left text-black dark:text-white">Precio Unidad</th>
-                            <th class="px-1 py-2 text-left text-black dark:text-white">Cantidad</th>
                             <th class="px-1 py-2 text-left text-black dark:text-white">Precio</th>
+                            <th class="px-1 py-2 text-left text-black dark:text-white">Cantidad</th>
+                            <th class="px-1 py-2 text-left text-black dark:text-white">Importe</th>
                             <th class="px-1 py-2 text-left text-black dark:text-white">Iva</th>
                             <th class="px-1 py-2 text-left text-black dark:text-white">Total</th>
                             @if (!$order->disabled_sales)
@@ -340,7 +345,7 @@
                                     <div class="flex items-center">
                                         @if ($product["item_type"] == "service")
                                             <div class="w-4 h-4 rounded bg-yellow-400 border border-yellow-600 mr-2"></div>
-                                        @elseif ($product["item_type"] == "product")
+                                        @elseif ($product["item_type"] == "vehicle")
                                             <div class="w-4 h-4 rounded bg-blue-500 border border-blue-700 mr-2"></div>
                                         @elseif ($product["item_type"] =="manual_product")
                                             <div class="w-4 h-4 rounded bg-fuchsia-500 border border-fuchsia-700 mr-2"></div>
@@ -366,13 +371,24 @@
     
                                 <td class="px-2 py-2 text-black dark:text-white" style="width: 120px !important;">
                                     <x-filament::input.wrapper>
-                                        <x-filament::input
-                                            :disabled="$order->disabled_sales"
-                                            wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.quantity"
-                                            type="number"
-                                            min="1"
-                                        />
+                                        @if ($product["item_type"] === 'vehicle')
+                                            <x-filament::input
+                                                type="number"
+                                                min="1"
+                                                wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.quantity"
+                                                disabled
+                                            />
+                                        @else
+                                            <x-filament::input
+                                                type="number"
+                                                min="1"
+                                                wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.quantity"
+                                                :disabled="$order->disabled_sales"
+                                            />
+                                        @endif
                                     </x-filament::input.wrapper>
+
+                                    
                                 </td>
     
                                 <td class="px-2 py-2 text-black dark:text-white">{{ $product["price"] }} €</td>
@@ -409,6 +425,71 @@
                 </table>
             </div>
         </x-filament::section>
+
+        @if ($form["is_renting"])
+            <x-filament::section collapsible class="mb-4">
+                <x-slot name="heading">
+                    Información Vehículos
+                </x-slot>
+                @foreach ($selectedProducts as $key => $product)
+                    @if ($product["item_type"] == "vehicle")
+                  
+                        <div class="grid grid-cols-4 gap-4 mt-4">
+                            <div class="col-span-1   mb-2">
+                                <x-filament-forms::field-wrapper.label >
+                                    Vehículo
+                                 </x-filament-forms::field-wrapper.label> <br>
+                               {{ $product["item_name"]  }} 
+                               
+                            </div>
+                            <div class="col-span-1 mb-2">
+                                <x-filament-forms::field-wrapper.label >
+                                   Kms inicial
+                                </x-filament-forms::field-wrapper.label>
+                                <x-filament::input.wrapper>
+                                    <x-filament::input
+                                        type="number"
+                                        min="1"
+                                        step="0.1"
+                                        wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.start_kilometers"
+                                        :disabled="$order->disabled_sales"
+                                        placeholder="Kilometraje inicial (ej. 123456.7)"
+                                    />
+                                </x-filament::input.wrapper>
+                            </div>
+                            
+                            <div class="col-span-1 mb-2">
+                                <x-filament-forms::field-wrapper.label >
+                                    Kms final
+                                 </x-filament-forms::field-wrapper.label>
+                                <x-filament::input.wrapper>
+                                    <x-filament::input
+                                        type="number"
+                                        min="1"
+                                        step="0.1"
+                                        wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.end_kilometers"
+                                        :disabled="$order->disabled_sales"
+                                        placeholder="Kilometraje final (ej. 123789.0)"
+                                    />
+                                </x-filament::input.wrapper>
+                            </div>
+                            <div class="col-span-1   mb-2" style="text-align:right">
+                                <x-filament-forms::field-wrapper.label >
+                                   Kms recorridos
+                                </x-filament-forms::field-wrapper.label>
+                                <br>
+                                {{ $product["total_kilometers"]  }} 
+                                
+                             </div>
+                            
+                            
+                        </div>
+                                         
+                    @endif
+                @endforeach
+            </x-filament::section>
+            
+        @endif
     </div>
     
     <div class="col-span-10 lg:col-span-4">
@@ -419,8 +500,16 @@
 
             <div class="grid grid-cols-1 gap-2">
                 <div class="col-span-1">
+                    <label>
+                        <x-filament::input.checkbox :disabled="$order->disabled_sales"  wire:model.lazy="form.is_renting" />                    
+                        <span style="margin-left: 10px">
+                           Es un alquiler
+                        </span>
+                    </label>
+                </div>
+                <div class="col-span-1">
                     <x-filament-forms::field-wrapper.label >
-                        Fecha
+                        Fecha factura
                     </x-filament-forms::field-wrapper.label>
                     <x-filament::input.wrapper  :valid="! $errors->has('form.date')">
                         <x-filament::input
@@ -434,7 +523,40 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="col-span-1">
+                @if($form["is_renting"])
+                    <div  class="col-span-1">
+                        <x-filament-forms::field-wrapper.label >
+                            Fecha Inicial
+                        </x-filament-forms::field-wrapper.label>
+                        <x-filament::input.wrapper  :valid="! $errors->has('form.start_date')">
+                            <x-filament::input
+                            :disabled="$order->disabled_sales"
+                                type="datetime-local"
+                                wire:model="form.start_date"
+
+                            />
+                        </x-filament::input.wrapper>
+                        @error('form.start_date')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="col-span-1">
+                        <x-filament-forms::field-wrapper.label >
+                            Fecha Final
+                        </x-filament-forms::field-wrapper.label>
+                        <x-filament::input.wrapper  :valid="! $errors->has('form.end_date')">
+                            <x-filament::input
+                            :disabled="$order->disabled_sales"
+                                type="datetime-local"
+                                wire:model="form.end_date"
+                            />
+                        </x-filament::input.wrapper>
+                        @error('form.end_date')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+                {{-- <div class="col-span-1">
                     <x-filament-forms::field-wrapper.label>
                         Vendedor
                     </x-filament-forms::field-wrapper.label>
@@ -449,7 +571,7 @@
                     @error('form.assigned_user_id')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> --}}
                {{-- Cliente --}}    
                 <div class="col-span-1">
                     <x-filament-forms::field-wrapper.label>
@@ -541,7 +663,7 @@
             <div class="lg:col-span-5 flex items-center mr-4 ">
                 <div class="flex items-center mr-5 p-2">
                     <div class="w-4 h-4 rounded bg-blue-500 border border-blue-700 mr-2"></div>
-                    <span class="text-sm text-gray-700 dark:text-gray-200">Productos</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-200">Vehículos</span>
                 </div>
                 <div class="flex items-center mr-5 p-2">
                     <div class="w-4 h-4 rounded bg-yellow-400 border border-yellow-600 mr-2"></div>
@@ -582,7 +704,7 @@
                                     </div>
                                     <div class="col-span-1 lg:col-span-1">
                                         <x-filament-forms::field-wrapper.label>
-                                            Precio
+                                            Importe
                                         </x-filament-forms::field-wrapper.label>
                                         <x-filament::input.wrapper :valid="! $errors->has('manualProduct.price')">
                                             <x-filament::input type="number"
@@ -673,9 +795,9 @@
                 <div class="lg:col-span-2">
                     <x-filament::input.wrapper >
                         <x-filament::input.select  wire:model="searchType" searchable  wire:change="buscarProducto">
-                            <option value="">Servicios / Productos</option>
+                            <option value="">Servicios / Vehículos</option>
                             <option value="service">Servicios</option>
-                            <option value="product">Productos</option>
+                            <option value="vehicle">Vehículos</option>
                         </x-filament::input.select>
                     </x-filament::input.wrapper>
                 </div>
@@ -700,7 +822,7 @@
                                 <th class="px-1 py-2 text-left text-black dark:text-white"></th>
                                 <th class="px-1 py-2 text-left text-black dark:text-white">Nombre</th>
                                 <th class="px-1 py-2 text-left text-black dark:text-white">Disp.</th>
-                                <th class="px-1 py-2 text-left text-black dark:text-white">Precio</th>
+                                <th class="px-1 py-2 text-left text-black dark:text-white">Importe</th>
                                 {{-- <th class="px-1 py-2 text-left text-black dark:text-white">IVA%</th> --}}
                                 {{-- <th class="px-1 py-2 text-left text-black dark:text-white">Total</th> --}}
                                 <th class="px-1 py-2 text-left text-black dark:text-white">Cantidad</th>
@@ -725,13 +847,13 @@
                                         <div class="flex items-center ">
                                             @if ($item->type == "service")
                                                 <div class="w-4 h-4 rounded bg-yellow-400 border border-yellow-600 mr-2"></div>
-                                            @elseif ($item->type == "product")
+                                            @elseif ($item->type == "vehicle")
                                                 <div class="w-4 h-4 rounded bg-blue-500 border border-blue-700 mr-2"></div>
 
-                                                @else
+                                            @else
                                                 <div class="w-4 h-4 rounded bg-fuchsia-500 border border-fuchsia-700 mr-2"></div>
                                             @endif
-                                            <span>{{ $item->name }}</span>
+                                            <span>{{ $item->full_name }}</span>
                                         </div>
                                     </td>
                                     <td class="px-2 py-2 text-black dark:text-white">{{ $item->amount }}</td>
@@ -740,14 +862,17 @@
                                     {{-- <td class="px-2 py-2 text-black dark:text-white">{{ $item->totalPrice }}</td> --}}
                                     <td class="px-2 py-2 text-black dark:text-white" style="width: 120px !important;">
                                         <x-filament::input.wrapper >
+                                            @if ($item->type != "vehicle")
+                                         
                                             <x-filament::input
-                                              :disabled="$order->disabled_sales"
-
-                                                wire:model.defer="inputValues.{{ $item->id }}"
-                                                wire:target="selectItem"
                                                 type="number"
                                                 min="1"
+                                                wire:model.defer="inputValues.{{ $item->id }}"
+                                                wire:target="selectItem"
+                                                :disabled="$order->disabled_sales"
                                             />
+                                        @endif
+                                        
                                         </x-filament::input.wrapper>
                                     </td>
                                     @if (!$order->disabled_sales)
@@ -773,9 +898,10 @@
             {{-- lISTADO PRODUCTO --}}
         </x-filament::section>
     </div>
+
     <script>
          function cancelBtnAction() {
-                window.location.href = "{{ url('/admin/sales') }}";
+                window.location.href = "{{ url('/admin/orders') }}";
             }
     </script>
   </div>

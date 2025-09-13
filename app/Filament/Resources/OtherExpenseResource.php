@@ -154,10 +154,13 @@ class OtherExpenseResource extends Resource
                                 ->columnSpan(10),*/
                             Select::make('other_expense_item_id')
                                 ->label('Items')
-                                ->options(fn() => OtherExpenseItem::active()->pluck('name', 'id'))
+                                ->options(fn() => OtherExpenseItem::active()
+                                    ->where('center_id', Auth::user()->center_id)
+                                    ->pluck('name', 'id'))
                                 ->searchable()
                                 ->required()
                                 ->columnSpan(10),
+
 
                             TextInput::make('price')
                                 ->label("Precio")
@@ -246,8 +249,13 @@ class OtherExpenseResource extends Resource
                             ->label('Items')
                             ->multiple()
                             ->searchable()
-                            ->options(OtherExpenseItem::all()->pluck('name', 'name')) // Aquí obtienes las opciones del modelo
+                            ->options(function () {
+                                $centerId = Auth::user()->center_id;
+                                return OtherExpenseItem::where('center_id', $centerId)
+                                    ->pluck('name', 'id'); // Mejor usar id como key para select
+                            })
                             ->preload(),
+
                     ])
                     ->indicateUsing(function (array $data): array {
                         $filter = [];

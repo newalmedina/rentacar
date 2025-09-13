@@ -20,11 +20,16 @@ class Order extends Model
         'subtotal',
         'impuestos',
         'total',
-        'products', // <-- aquí lo agregas
+        'products',
+        'status',
+        'status_color',
+        'invoiced_label',
+        'invoiced_color',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'is_renting' => 'boolean'
     ];
 
 
@@ -62,11 +67,21 @@ class Order extends Model
             ->map(fn($detail) => $detail->product_name_formatted)
             ->implode(', ');
     }
+    public function scopeMyCenter($query)
+    {
+        $centerId = Auth::check() ? Auth::user()->center_id : null;
 
+        if ($centerId) {
+            return $query->where('center_id', $centerId);
+        }
+
+        // Si no hay usuario autenticado, devuelve todo o vacío
+        return $query->whereRaw('1=0'); // Ningún resultado
+    }
 
     public function getDisabledSalesAttribute(): bool
     {
-        return $this->status == 'invoiced';
+        return $this->invoiced == 1;
     }
     private static function generateCode($order)
     {
@@ -74,7 +89,7 @@ class Order extends Model
             return null;
         }
 
-        $prefix = 'VEN';
+        $prefix = 'ORD';
         $datePart = Carbon::now()->format('ymd');
 
         // Obtener el último código creado (incluyendo soft deleted)
@@ -185,12 +200,59 @@ class Order extends Model
     }
     public function scopeInvoiced($query)
     {
-        return $query->where('status', "invoiced");
+        return $query->where('invoiced', 1);
     }
-    public function scopePending($query)
+
+    public function getStatusAttribute(): ?string
     {
-        return $query->where('status', "pending");
+        if (!$this->is_renting) {
+            return null;
+        }
+
+        $now = now();
+
+        if (!$this->start_date || !$this->end_date) {
+            return 'Pendiente';
+        }
+
+        if ($now->lt($this->start_date)) {
+            return 'Pendiente';
+        }
+
+        if ($now->between($this->start_date, $this->end_date)) {
+            return 'En curso';
+        }
+
+        return 'Completado';
     }
+
+    public function getStatusColorAttribute(): ?string
+    {
+        if (!$this->is_renting || is_null($this->status)) {
+            return null;
+        }
+
+        return match ($this->status) {
+            'Pendiente' => '#adb5bd',  // Gris claro (secondary)
+            'En curso'  => '#0dcaf0',  // Info
+            'Completado' => '#198754', // Success
+            default => null,
+        };
+    }
+
+    public function getInvoicedLabelAttribute(): string
+    {
+        return $this->invoiced ? 'Facturado' : 'Pendiente de facturar';
+    }
+
+    public function getInvoicedColorAttribute(): string
+    {
+        return $this->invoiced
+            ? '#198754'   // Bootstrap "success" (verde)
+            : '#ffc107';  // Bootstrap "warning" (amarillo)
+    }
+
+
 
     // Boot method para asignar center_id automáticamente
     protected static function boot(): void

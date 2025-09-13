@@ -29,6 +29,8 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->default();
             $table->decimal('taxes', 10, 2)->default();
             $table->integer('quantity')->nullable();
+            $table->decimal('start_kilometers', 10, 2)->nullable();
+            $table->decimal('end_kilometers', 10, 2)->nullable();
             $table->timestamps();
         });
     }

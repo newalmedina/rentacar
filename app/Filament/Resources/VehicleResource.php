@@ -149,7 +149,12 @@ class VehicleResource extends Resource
                                         ->preload()
                                         ->columnSpan(4),
 
-
+                                    // Fila 2
+                                    Forms\Components\TextInput::make('year')
+                                        ->label("Año")
+                                        ->numeric()
+                                        ->reactive()
+                                        ->columnSpan(4),
                                     // Fila 4
                                     Forms\Components\Toggle::make('gestion')
                                         ->inline(false)
@@ -233,6 +238,10 @@ class VehicleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('modelVersion.name')
                     ->label("Versión")
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('year')
+                    ->label("Año")
                     ->searchable()
                     ->sortable(),
 

@@ -23,7 +23,7 @@ class OtherExpensesStats extends BaseWidget
         $endOfLastMonth = $startOfMonth->copy()->subDay();
 
         // Función para obtener suma total de gastos entre fechas
-        $getExpenses = fn($start, $end = null) => OtherExpense::query()
+        $getExpenses = fn($start, $end = null) => OtherExpense::query()->myCenter()
             ->when($end, fn($q) => $q->whereBetween('date', [$start, $end]))
             ->when(!$end, fn($q) => $q->whereDate('date', $start))
             ->get()

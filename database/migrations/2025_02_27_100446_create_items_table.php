@@ -17,6 +17,7 @@ class CreateItemsTable extends Migration
             $table->foreignId('owner_id')->nullable()->constrained('owners')->onUpdate('cascade')->onDelete('set null'); // Relación con owners
             $table->boolean('gestion')->default(true);
 
+            $table->integer('year')->nullable();
             $table->text('description')->nullable();
             $table->boolean('active')->default(true);
             // Product-specific fields

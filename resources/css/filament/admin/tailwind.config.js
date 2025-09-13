@@ -207,7 +207,19 @@ export default {
         'xl:col-span-5', 'xl:col-span-6', 'xl:col-span-7', 'xl:col-span-8',
         'xl:col-span-9', 'xl:col-span-10', 'xl:col-span-11', 'xl:col-span-12',
 
+        // Flexbox y Layout
+        'flex', 'flex-col', 'md:flex-row', 'md:items-center', 'md:justify-between',
+        'items-center', 'justify-center', 'md:justify-end',
 
+        // Espaciados y tamaño
+        'h-[50px]', 'h-[70px]', 'text-[18px]', 'text-[28px]', 'leading-snug',
+
+        // Gap (ya tenías algunos, añado más por si acaso)
+        'gap-1', 'gap-2', 'gap-6', 'gap-8', 'gap-10',
+
+        // Texto
+        'font-semibold', 'font-bold',
+        'text-center',
     ]
 
 

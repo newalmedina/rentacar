@@ -235,18 +235,14 @@ class CenterResource extends Resource
                                         'email' => $customer->email,
                                     ],
                                     [
+                                        'name' => $customer->name,
                                         'phone' => $customer->phone,
                                         'address' => $customer->address,
                                         'postal_code' => $customer->postal_code,
                                         'country_id' => $customer->country_id,
                                         'state_id' => $customer->state_id,
                                         'city_id' => $customer->city_id,
-                                        'allow_appointment' => $customer->allow_appointment,
-                                        'has_home' => $customer->has_home,
-                                        'bank_name' => $customer->bank_name,
-                                        'bank_number' => $customer->bank_number,
-                                        'nif' => $customer->nif,
-                                        'active' => $customer->active,
+                                        'active' => $customer->active ?? 1, // Si no viene, por defecto activo
                                     ]
                                 );
                             }
@@ -281,8 +277,9 @@ class CenterResource extends Resource
 
                         // Importar categorías
                         if (in_array('category', $data['import_options'])) {
-                            $defaultCategories = \App\Models\Category::where('default', 1)->get();
 
+                            $defaultCategories = \App\Models\Category::where('default', 1)->get();
+                            // dd($defaultCategories);
                             foreach ($defaultCategories as $category) {
                                 \App\Models\Category::firstOrCreate(
                                     [

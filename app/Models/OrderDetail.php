@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class OrderDetail extends Model
 {
@@ -19,7 +20,9 @@ class OrderDetail extends Model
     protected $appends = [
         'total_base_price',
         'taxes_amount',
-        'total_with_taxes'
+        'total_with_taxes',
+
+        'total_kilometers',
     ];
 
     public function order(): BelongsTo
@@ -29,10 +32,19 @@ class OrderDetail extends Model
 
     public function getProductNameFormattedAttribute(): string
     {
-        return $this->item_id && $this->item
-            ? $this->item->name
-            : ($this->product_name ?? 'Sin nombre');
+        $name = 'Sin nombre';
+
+        if ($this->item_id && $this->item) {
+            $name = $this->item->type === 'vehicle'
+                ? $this->item->full_name
+                : $this->item->name;
+        } elseif (!empty($this->product_name)) {
+            $name = $this->product_name;
+        }
+
+        return Str::limit($name, 200, '...');
     }
+
 
     public function item(): BelongsTo
     {
@@ -53,5 +65,16 @@ class OrderDetail extends Model
     public function getTotalWithTaxesAttribute(): float
     {
         return round($this->total_base_price + $this->taxes_amount, 2);
+    }
+    public function getTotalKilometersAttribute(): ?float
+    {
+        if (
+            is_numeric($this->start_kilometers) &&
+            is_numeric($this->end_kilometers)
+        ) {
+            return round($this->end_kilometers - $this->start_kilometers, 2);
+        }
+
+        return null; // o 0 si prefieres devolver cero
     }
 }

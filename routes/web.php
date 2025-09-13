@@ -31,16 +31,15 @@ Route::get('/', function () {
 // Route::get('/booking', [FrontBookingController::class, 'index'])->name('booking');
 
 
-// Route::get('/factura', function () {
-//     $settings = Setting::first();
-//     $generalSettings = $settings?->general;
+Route::get('/factura', function () {
+    $settings = Setting::first();
+    $generalSettings = $settings?->general;
 
 
-//     $order = Order::find(3);
-//     // dd($generalSettings);
+    $order = Order::find(1);
 
-//     return view('pdf.factura', compact('generalSettings', 'order'));
-// });
+    return view('pdf.factura', compact('generalSettings', 'order'));
+});
 
 
 

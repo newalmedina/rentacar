@@ -40,7 +40,17 @@ class OtherExpense extends Model
             return $detail->item->name; // Obtener el nombre del item desde la relación
         })->implode(', '); // Unir los nombres con coma
     }
+    public function scopeMyCenter($query)
+    {
+        $centerId = Auth::check() ? Auth::user()->center_id : null;
 
+        if ($centerId) {
+            return $query->where('center_id', $centerId);
+        }
+
+        // Si no hay usuario autenticado, devuelve todo o vacío
+        return $query->whereRaw('1=0'); // Ningún resultado
+    }
     // Boot method para asignar center_id automáticamente
     protected static function boot(): void
     {
