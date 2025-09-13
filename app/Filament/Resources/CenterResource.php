@@ -209,9 +209,9 @@ class CenterResource extends Resource
                                 ->columnSpanFull(),
                         ]),
                     ])
-                    ->action(function (array $data) {
+                    ->action(function ($record, array $data) {
                         $user = auth()->user();
-                        $centerId = $user?->center?->id;
+                        $centerId = $record->id;
 
                         if (!$centerId) {
                             Notification::make()
