@@ -24,6 +24,18 @@ class Item extends Model
     {
         return $this->belongsTo(UnitOfMeasure::class);  // An item belongs to one unit of measure
     }
+
+
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+    public function canDelete(): bool
+    {
+        return !$this->orderDetails()->exists();
+    }
+
+
     public function owner()
     {
         return $this->belongsTo(Owner::class);

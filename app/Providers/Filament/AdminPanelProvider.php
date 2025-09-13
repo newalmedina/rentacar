@@ -225,6 +225,10 @@ class AdminPanelProvider extends PanelProvider
                 ->brandName("Car sharingg");
 
             if ($user && $user->center) {
+                Filament::getCurrentPanel()
+                    ->brandLogo(asset('img/logo.png'))
+                    ->brandLogoHeight('3rem')
+                    ->brandName("Car sharingg");
                 $center = $user->center;
 
                 if (!empty($center->image)) {

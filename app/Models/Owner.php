@@ -32,7 +32,29 @@ class Owner extends Model
     {
         return $this->belongsTo(Center::class);
     }
+    // Relación inversa: un Owner tiene muchos Items
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
 
+    // Método para saber si puede eliminarse
+    public function canDelete(): bool
+    {
+        // Si tiene items relacionados, no puede eliminarse
+        return !$this->items()->exists();
+    }
+    public function scopeMyCenter($query)
+    {
+        $centerId = Auth::check() ? Auth::user()->center_id : null;
+
+        if ($centerId) {
+            return $query->where('center_id', $centerId);
+        }
+
+        // Si no hay usuario autenticado, devuelve todo o vacío
+        return $query->whereRaw('1=0'); // Ningún resultado
+    }
     public function getFullAddressAttribute()
     {
         $parts = [

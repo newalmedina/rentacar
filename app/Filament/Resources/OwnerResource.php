@@ -121,7 +121,7 @@ class OwnerResource extends Resource
                                     ]),
 
                                 Forms\Components\TextInput::make('identification')
-                                ->label('NIF/CIF')
+                                    ->label('NIF/CIF')
                                     ->columnSpan([
                                         'default' => 1,
                                         'md' => 2,
@@ -262,7 +262,7 @@ class OwnerResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()->label('')->tooltip('Editar'),
 
-                Tables\Actions\DeleteAction::make()->label('')->tooltip('Eliminar')
+                Tables\Actions\DeleteAction::make()->label('')->tooltip('Eliminar')->visible(fn($record) => $record->canDelete()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

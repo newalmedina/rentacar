@@ -27,6 +27,10 @@ class Customer extends Model
     {
         return $query->where('active', true);
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
     // Relación con Center
     public function center()
     {
@@ -58,6 +62,11 @@ class Customer extends Model
         // Si no hay usuario autenticado, devuelve todo o vacío
         return $query->whereRaw('1=0'); // Ningún resultado
     }
+    public function canDelete(): bool
+    {
+        return !$this->orders()->exists();
+    }
+
     protected static function boot(): void
     {
         parent::boot();

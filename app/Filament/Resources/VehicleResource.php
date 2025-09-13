@@ -168,6 +168,8 @@ class VehicleResource extends Resource
                                         ->options(function () {
                                             return \App\Models\Owner::query()
                                                 ->where('active', true)
+                                                ->where('center_id', Auth::user()->center_id)
+
                                                 ->get()
                                                 ->mapWithKeys(fn($owner) => [
                                                     $owner->id => $owner->name . ' (' . $owner->identification . ')'
