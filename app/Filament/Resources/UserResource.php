@@ -104,13 +104,13 @@ class UserResource extends Resource
                                                 ? new HtmlString('<span style="color:#00B5D8">El campo solo se actualizará si ingresas un nuevo valor.</span>')
                                                 : null) // Muestra la leyenda en modo edición
                                         ,
-                                        Select::make('center_id')
-                                            ->label('Centro')
-                                            ->options(function () {
-                                                return Center::all()->pluck('display_name', 'id');
-                                            })
-                                            ->searchable()
-                                            ->preload(),
+                                        // Select::make('center_id')
+                                        //     ->label('Centro')
+                                        //     ->options(function () {
+                                        //         return Center::all()->pluck('display_name', 'id');
+                                        //     })
+                                        //     ->searchable()
+                                        //     ->preload(),
 
                                         Forms\Components\Select::make('center_id')
                                             ->relationship('center', 'name', function ($query) {

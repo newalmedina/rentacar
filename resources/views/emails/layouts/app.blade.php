@@ -1,11 +1,15 @@
 @php
-    use App\Models\Setting;
+   use Illuminate\Support\Facades\Auth;
 
-    $settings = Setting::first();
-    $generalSettings = $settings?->general;
+$user = Auth::user();
 
-    $brandName = $generalSettings?->brand_name ?? config('app.name', 'Mi Empresa');
-    $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
+$center = $user?->center;
+
+$generalSettings = $center?->general;
+
+$brandName = $generalSettings?->name ?? config('app.name', 'Mi Empresa');
+$brandLogoBase64 = $generalSettings?->image_base64 ?? null;
+
 @endphp
 
 <!DOCTYPE html>
