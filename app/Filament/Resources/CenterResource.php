@@ -222,29 +222,29 @@ class CenterResource extends Resource
                             return;
                         }
 
-
                         // Importar clientes
                         if (in_array('clients', $data['import_options'])) {
                             $defaultCustomers = \App\Models\Customer::where('default', 1)->get();
 
                             foreach ($defaultCustomers as $customer) {
-                                \App\Models\Customer::firstOrCreate(
-                                    [
-                                        'center_id' => $centerId,
-                                        'name' => $customer->name, // O el campo que quieras que sea único
-                                        'email' => $customer->email,
-                                    ],
-                                    [
-                                        'name' => $customer->name,
-                                        'phone' => $customer->phone,
-                                        'address' => $customer->address,
-                                        'postal_code' => $customer->postal_code,
-                                        'country_id' => $customer->country_id,
-                                        'state_id' => $customer->state_id,
-                                        'city_id' => $customer->city_id,
-                                        'active' => $customer->active ?? 1, // Si no viene, por defecto activo
-                                    ]
-                                );
+                                $exists = \App\Models\Customer::where('center_id', $centerId)
+                                    ->where('email', $customer->email)
+                                    ->first();
+
+                                if (!$exists) {
+                                    $newCustomer = new \App\Models\Customer();
+                                    $newCustomer->center_id = $centerId;
+                                    $newCustomer->name = $customer->name;
+                                    $newCustomer->email = $customer->email;
+                                    $newCustomer->phone = $customer->phone;
+                                    $newCustomer->address = $customer->address;
+                                    $newCustomer->postal_code = $customer->postal_code;
+                                    $newCustomer->country_id = $customer->country_id;
+                                    $newCustomer->state_id = $customer->state_id;
+                                    $newCustomer->city_id = $customer->city_id;
+                                    $newCustomer->active = $customer->active ?? 1;
+                                    $newCustomer->save();
+                                }
                             }
 
                             Notification::make()
@@ -258,15 +258,17 @@ class CenterResource extends Resource
                             $defaultItems = \App\Models\OtherExpenseItem::where('default', 1)->get();
 
                             foreach ($defaultItems as $item) {
-                                \App\Models\OtherExpenseItem::firstOrCreate(
-                                    [
-                                        'center_id' => $centerId,
-                                        'name' => $item->name,
-                                    ],
-                                    [
-                                        'default' => $item->default,
-                                    ]
-                                );
+                                $exists = \App\Models\OtherExpenseItem::where('center_id', $centerId)
+                                    ->where('name', $item->name)
+                                    ->first();
+
+                                if (!$exists) {
+                                    $newItem = new \App\Models\OtherExpenseItem();
+                                    $newItem->center_id = $centerId;
+                                    $newItem->name = $item->name;
+                                    $newItem->default = $item->default;
+                                    $newItem->save();
+                                }
                             }
 
                             Notification::make()
@@ -277,19 +279,20 @@ class CenterResource extends Resource
 
                         // Importar categorías
                         if (in_array('category', $data['import_options'])) {
-
                             $defaultCategories = \App\Models\Category::where('default', 1)->get();
-                            // dd($defaultCategories);
+
                             foreach ($defaultCategories as $category) {
-                                \App\Models\Category::firstOrCreate(
-                                    [
-                                        'center_id' => $centerId,
-                                        'name' => $category->name,
-                                    ],
-                                    [
-                                        'description' => $category->description,
-                                    ]
-                                );
+                                $exists = \App\Models\Category::where('center_id', $centerId)
+                                    ->where('name', $category->name)
+                                    ->first();
+
+                                if (!$exists) {
+                                    $newCategory = new \App\Models\Category();
+                                    $newCategory->center_id = $centerId;
+                                    $newCategory->name = $category->name;
+                                    $newCategory->description = $category->description;
+                                    $newCategory->save();
+                                }
                             }
 
                             Notification::make()
@@ -297,6 +300,7 @@ class CenterResource extends Resource
                                 ->success()
                                 ->send();
                         }
+
 
                         Notification::make()
                             ->title('Importación completada')
