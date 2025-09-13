@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Administrador',
             'email' => 'el.solitions@gmail.com',
             'can_admin_panel' => true,
-            'can_show_general_resource' => false,
+            'can_show_general_resource' => true,
             'center_id' =>  $center->id,
             'password' => Hash::make("EithanSteven15*"),
         ]);
