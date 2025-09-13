@@ -220,6 +220,14 @@ export default {
         // Texto
         'font-semibold', 'font-bold',
         'text-center',
+        // Forzar ancho mínimo útil para inputs en tablas responsivas
+        'min-w-[100px]',
+        'min-w-[140px]',
+
+        // (opcional) si en algún punto usas más tamaños...
+        'min-w-[120px]',
+        'min-w-[160px]',
+        'min-w-[200px]',
     ]
 
 

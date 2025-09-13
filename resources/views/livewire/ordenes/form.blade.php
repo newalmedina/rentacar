@@ -245,7 +245,7 @@
                 </div>
             </div>
             <div class="grid grid-cols-4 gap-4 mt-4">
-                <div class="col-span-2 mb-2">
+                <div class="col-span-4 md:col-span-2 mb-2">
                     <x-filament-forms::field-wrapper.label>
                         Email
                     </x-filament-forms::field-wrapper.label>
@@ -254,17 +254,17 @@
                             :disabled="$order->disabled_sales" 
                             type="text" 
                             wire:model.live.debounce.750ms="form.billing_email" 
-                            placeholder="Correo de faturación"
+                            placeholder="Correo de facturación"
                         />
                     </x-filament::input.wrapper>
                     @error('form.billing_email')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
-        
-                <div class="col-span-2 mb-2">
+            
+                <div class="col-span-4 md:col-span-2 mb-2">
                     <x-filament-forms::field-wrapper.label>
-                       Teléfono
+                        Teléfono
                     </x-filament-forms::field-wrapper.label>
                     <x-filament::input.wrapper :valid="! $errors->has('form.billing_phone')">
                         <x-filament::input 
@@ -279,6 +279,7 @@
                     @enderror
                 </div>
             </div>
+            
             <div class="grid grid-cols-4 gap-4 mt-4">
                 <div class="col-span-4 mb-2">
                     <x-filament-forms::field-wrapper.label>
@@ -426,70 +427,70 @@
             </div>
         </x-filament::section>
 
-        @if ($form["is_renting"])
-            <x-filament::section collapsible class="mb-4">
-                <x-slot name="heading">
-                    Información Vehículos
-                </x-slot>
-                @foreach ($selectedProducts as $key => $product)
-                    @if ($product["item_type"] == "vehicle")
-                  
-                        <div class="grid grid-cols-4 gap-4 mt-4">
-                            <div class="col-span-1   mb-2">
-                                <x-filament-forms::field-wrapper.label >
-                                    Vehículo
-                                 </x-filament-forms::field-wrapper.label> <br>
-                               {{ $product["item_name"]  }} 
-                               
-                            </div>
-                            <div class="col-span-1 mb-2">
-                                <x-filament-forms::field-wrapper.label >
-                                   Kms inicial
-                                </x-filament-forms::field-wrapper.label>
-                                <x-filament::input.wrapper>
-                                    <x-filament::input
-                                        type="number"
-                                        min="1"
-                                        step="0.1"
-                                        wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.start_kilometers"
-                                        :disabled="$order->disabled_sales"
-                                        placeholder="Kilometraje inicial (ej. 123456.7)"
-                                    />
-                                </x-filament::input.wrapper>
-                            </div>
-                            
-                            <div class="col-span-1 mb-2">
-                                <x-filament-forms::field-wrapper.label >
-                                    Kms final
-                                 </x-filament-forms::field-wrapper.label>
-                                <x-filament::input.wrapper>
-                                    <x-filament::input
-                                        type="number"
-                                        min="1"
-                                        step="0.1"
-                                        wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.end_kilometers"
-                                        :disabled="$order->disabled_sales"
-                                        placeholder="Kilometraje final (ej. 123789.0)"
-                                    />
-                                </x-filament::input.wrapper>
-                            </div>
-                            <div class="col-span-1   mb-2" style="text-align:right">
-                                <x-filament-forms::field-wrapper.label >
-                                   Kms recorridos
-                                </x-filament-forms::field-wrapper.label>
-                                <br>
-                                {{ $product["total_kilometers"]  }} 
+        @php
+        $vehicles = collect($selectedProducts)->filter(fn($product) => $product['item_type'] === 'vehicle');
+    @endphp
+    
+    @if ($form['is_renting'] && $vehicles->count())
+        <x-filament::section collapsible class="mb-4">
+            <x-slot name="heading">
+                Información Vehículos
+            </x-slot>
+    
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 font-medium text-gray-700">Vehículo</th>
+                            <th class="px-4 py-2 font-medium text-gray-700">Kms inicial</th>
+                            <th class="px-4 py-2 font-medium text-gray-700">Kms final</th>
+                            <th class="px-4 py-2 font-medium text-gray-700 text-right">Kms recorridos</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($vehicles as $key => $product)
+                            <tr>
+                                <td class="px-4 py-2">
+                                    {{ $product['item_name'] }}
+                                </td>
+                                <td class="px-4 py-2 min-w-[140px]">
+                                    <x-filament::input.wrapper>
+                                        <x-filament::input
+                                            type="number"
+                                            min="1"
+                                            step="0.1"
+                                            wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.start_kilometers"
+                                            :disabled="$order->disabled_sales"
+                                            placeholder="Ej. 123456.7"
+                                        />
+                                    </x-filament::input.wrapper>
+                                </td>
                                 
-                             </div>
-                            
-                            
-                        </div>
-                                         
-                    @endif
-                @endforeach
-            </x-filament::section>
-            
-        @endif
+                                <td class="px-4 py-2 min-w-[140px]">
+                                    <x-filament::input.wrapper>
+                                        <x-filament::input
+                                            type="number"
+                                            min="1"
+                                            step="0.1"
+                                            wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.end_kilometers"
+                                            :disabled="$order->disabled_sales"
+                                            placeholder="Ej. 123789.0"
+                                        />
+                                    </x-filament::input.wrapper>
+                                </td>
+                                
+                                <td class="px-4 py-2 text-right min-w-[100px] whitespace-nowrap">
+                                    {{ $product['total_kilometers'] }}
+                                </td>
+                                
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </x-filament::section>
+    @endif
+    
     </div>
     
     <div class="col-span-10 lg:col-span-4">
