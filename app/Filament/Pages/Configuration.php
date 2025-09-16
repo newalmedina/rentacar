@@ -69,7 +69,10 @@ class Configuration extends Page
                 Grid::make(12)
                     ->schema([
                         Section::make('Imagen')
-                            ->columnSpan(3)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
                             ->schema([
                                 FileUpload::make('image')
                                     ->label('Imagen')
@@ -80,7 +83,10 @@ class Configuration extends Page
                             ]),
 
                         Section::make('Información general')
-                            ->columnSpan(9)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
                             ->schema([
                                 Grid::make(2)
                                     ->schema([

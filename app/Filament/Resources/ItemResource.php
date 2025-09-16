@@ -63,7 +63,10 @@ class ItemResource extends Resource
                 Grid::make(12) // Definimos un Grid con 12 columnas en total
                     ->schema([
                         Section::make()
-                            ->columnSpan(3) // Ocupa 2 columnas de las 12 disponibles
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 3,       // escritorio
+                            ])
                             ->schema([
                                 FileUpload::make('image')
                                     ->image()
@@ -80,7 +83,10 @@ class ItemResource extends Resource
                             ]),
 
                         Section::make('Información general')
-                            ->columnSpan(9)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
                             ->schema([
                                 Grid::make(12)->schema([
                                     // Fila 1
@@ -88,12 +94,18 @@ class ItemResource extends Resource
                                         ->label("Nombre")
                                         ->required()
                                         ->maxLength(255)
-                                        ->columnSpan(6), // mitad del ancho
+                                         ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]), // mitad del ancho
                                     Forms\Components\Toggle::make('active')
                                         ->inline(false)
                                         ->label("¿Activo?")
                                         ->required()
-                                        ->columnSpan(6), // mitad del ancho
+                                         ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]), // mitad del ancho
 
                                     // Fila 2
                                     Select::make('category_id')
@@ -104,7 +116,10 @@ class ItemResource extends Resource
                                             return \App\Models\Category::myCenter()->pluck('name', 'id')->toArray();
                                         })
                                         ->required()
-                                        ->columnSpan(6),
+                                         ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]),
                                     Forms\Components\TextInput::make('price')
                                         ->label("Precio")
                                         ->numeric()
@@ -112,12 +127,15 @@ class ItemResource extends Resource
                                         ->reactive()
                                         ->debounce(750)
                                         ->afterStateUpdated(fn($state, $get, $set) => self::updateCalculatedFields($get, $set))
-                                        ->columnSpan(6),
+                                         ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]),
 
                                     // Fila 3
                                     Forms\Components\Textarea::make('description')
                                         ->label("Descripción")
-                                        ->columnSpanFull(), // ocupa todo el ancho
+                                        ->columnSpan(12),
                                 ])
                             ])
 

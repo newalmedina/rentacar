@@ -65,24 +65,30 @@ class VehicleResource extends Resource
                 Grid::make(12) // Definimos un Grid con 12 columnas en total
                     ->schema([
                         Section::make()
-                            ->columnSpan(3) // Ocupa 2 columnas de las 12 disponibles
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 3,       // escritorio
+                            ])
                             ->schema([
                                 FileUpload::make('image')
                                     ->image()
                                     ->directory('vehicles')
                                     ->visibility('public')
                                     ->label('Imagen')
-                                    ->helperText('Resolución recomendada: 1000 × 667 píxeles')
+                                    ->helperText('Resolución recomendada: 1536 × 1024 píxeles')
 
                                     ->imageEditor()                        // habilita editor
                                     ->imageResizeMode('cover')              // recorta para llenar el tamaño
                                     ->imageCropAspectRatio('3:2')          // relación 1000x667 ≈ 3:2
-                                    ->imageResizeTargetWidth(1000)         // ancho final
-                                    ->imageResizeTargetHeight(667),      // alto final
+                                    ->imageResizeTargetWidth(1536)         // ancho final
+                                    ->imageResizeTargetHeight(1024),    // alto final
                             ]),
 
                         Section::make('Información general')
-                            ->columnSpan(9)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
                             ->schema([
                                 Grid::make(12)->schema([
                                     // Fila 1
@@ -90,13 +96,19 @@ class VehicleResource extends Resource
                                         ->label("Matricula")
                                         ->required()
                                         ->maxLength(255)
-                                        ->columnSpan(6), // mitad del ancho
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]), // mitad del ancho
 
                                     Forms\Components\Toggle::make('active')
                                         ->inline(false)
                                         ->label("¿Activo?")
                                         ->required()
-                                        ->columnSpan(6), // mitad del ancho
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]), // mitad del ancho
 
                                     // Fila 2
                                     Forms\Components\TextInput::make('price')
@@ -106,13 +118,19 @@ class VehicleResource extends Resource
                                         ->reactive()
                                         ->debounce(750)
                                         ->afterStateUpdated(fn($state, $get, $set) => self::updateCalculatedFields($get, $set))
-                                        ->columnSpan(6),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]),
 
                                     Forms\Components\TextInput::make('kilometros')
                                         ->label("Kilómetros")
                                         ->numeric()
                                         ->nullable()
-                                        ->columnSpan(6),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]),
 
                                     // Fila 3
                                     Select::make('brand_id')
@@ -123,7 +141,10 @@ class VehicleResource extends Resource
                                         ->searchable()
                                         ->reactive() // Permite que el siguiente select se actualice
                                         ->afterStateUpdated(fn($set) => $set('model_id', null))
-                                        ->columnSpan(4),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 4,       // escritorio
+                                        ]),
 
                                     // Selección de Modelo filtrado por marca
                                     Select::make('model_id')
@@ -136,7 +157,10 @@ class VehicleResource extends Resource
                                         ->required()
                                         ->preload()
                                         ->searchable()
-                                        ->columnSpan(4),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 4,       // escritorio
+                                        ]),
 
                                     Forms\Components\Select::make('car_version_id')
                                         ->label("Versión")
@@ -147,21 +171,30 @@ class VehicleResource extends Resource
                                         })
                                         ->searchable()
                                         ->preload()
-                                        ->columnSpan(4),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 4,       // escritorio
+                                        ]),
 
                                     // Fila 2
                                     Forms\Components\TextInput::make('year')
                                         ->label("Año")
                                         ->numeric()
                                         ->reactive()
-                                        ->columnSpan(4),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 4,       // escritorio
+                                        ]),
                                     // Fila 4
                                     Forms\Components\Toggle::make('gestion')
                                         ->inline(false)
                                         ->label("¿Coche gestión?")
                                         ->default(false) // Valor por defecto
                                         ->reactive() // <--- Esto es clave
-                                        ->columnSpan(6),
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ]),
 
                                     Forms\Components\Select::make('owner_id')
                                         ->label("Propietario")
@@ -179,7 +212,10 @@ class VehicleResource extends Resource
                                         ->searchable()
                                         ->preload()
                                         ->nullable()
-                                        ->columnSpan(6)
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 6,       // escritorio
+                                        ])
                                         ->visible(fn($get) => $get('gestion')) // visible solo si no soy propietario
                                         ->required(fn($get) => $get('gestion')), // obligatorio solo si no soy propietario
 
@@ -187,7 +223,10 @@ class VehicleResource extends Resource
 
                                     Forms\Components\Textarea::make('description')
                                         ->label("Descripción")
-                                        ->columnSpanFull(), // ocupa todo el ancho
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 12,       // escritorio
+                                        ]), // ocupa todo el ancho
                                 ])
                             ])
 

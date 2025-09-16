@@ -67,7 +67,10 @@ class OwnerResource extends Resource
                 Grid::make(12) // Definimos un Grid con 12 columnas en total
                     ->schema([
                         Section::make()
-                            ->columnSpan(3) // Ocupa 2 columnas de las 12 disponibles
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 3,       // escritorio
+                            ]) // Ocupa 2 columnas de las 12 disponibles
                             ->schema([
                                 FileUpload::make('image')
                                     ->image()
@@ -81,7 +84,10 @@ class OwnerResource extends Resource
 
                             ]),
                         Section::make('Información general')
-                            ->columnSpan(9)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
                             ->columns([
                                 'default' => 1,
                                 'md' => 4,

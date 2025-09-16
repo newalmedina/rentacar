@@ -58,14 +58,23 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->label("Nombre")
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)->columnSpan([
+                        'default' => 12, // móvil
+                        'md' => 12,       // escritorio
+                    ]),
                 Forms\Components\Textarea::make('description')
                     ->label("Descripción")
-                    ->columnSpanFull(),
+                    ->columnSpan([
+                        'default' => 12, // móvil
+                        'md' => 12,       // escritorio
+                    ]),
                 Forms\Components\Toggle::make('active')
                     ->label("¿Activo?")
                     ->inline(false)
-                    ->required(),
+                    ->required()->columnSpan([
+                        'default' => 12, // móvil
+                        'md' => 6,       // escritorio
+                    ]),
             ]);
     }
 
