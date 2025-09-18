@@ -228,6 +228,10 @@ export default {
         'min-w-[120px]',
         'min-w-[160px]',
         'min-w-[200px]',
+        'items-stretch',  // hace que las columnas se estiren a la misma altura
+        'h-full',         // fuerza a que el div ocupe todo el alto disponible
+        'flex',
+        'flex-col',
     ]
 
 
