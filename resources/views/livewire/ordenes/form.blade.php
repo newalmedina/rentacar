@@ -456,7 +456,7 @@
               <div style="text-align: right">
                 <x-filament::modal  id="product-modal" width="7xl" :close-by-clicking-away="false">
                     <x-slot name="trigger">
-                        <x-filament::button size="sm" color="success"   >
+                        <x-filament::button size="sm" color="success" class="mb-2"  >
                             Seleccionar productos
                         </x-filament::button>
                     </x-slot>
@@ -610,7 +610,7 @@
                 
                 <x-filament::modal  id="manual-product-modal" width="5xl" :close-by-clicking-away="false">
                     <x-slot name="trigger">
-                        <x-filament::button size="sm" color="info"   >
+                        <x-filament::button size="sm" color="info" class="mb-2"   >
                             Añadir producto manual
                         </x-filament::button>
                     </x-slot>
