@@ -48,4 +48,21 @@ class Center extends Model
 
         return implode(', ', array_filter($parts));
     }
+    public function getImageBase64Attribute(): ?string
+    {
+        if (empty($this->image)) {
+            return null;
+        }
+
+        $imagePath = storage_path('app/public/' . $this->image);
+
+        if (is_file($imagePath)) {
+            $imageData = base64_encode(file_get_contents($imagePath));
+            $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
+
+            return 'data:image/' . $extension . ';base64,' . $imageData;
+        }
+
+        return null;
+    }
 }
