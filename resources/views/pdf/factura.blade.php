@@ -70,19 +70,20 @@
     <tr>
       <td style="width: 50%; vertical-align: top; border-right: 2px solid #b462e2; padding-right: 20px;">
         <strong>Datos del Cliente</strong><br>
-        Nombre: <b>{{ $order->billing_name ?? '-' }} </b><br>
+          Nombre: <b>{{ $order->billing_name ?? '-' }} </b><br>
+          NIF/CIF: <b>{{$order->billing_nif ?? '-' }}  </b><br>
           Email: <b>{{$order->billing_email ?? '-' }}  </b><br>
           Teléfono: <b>{{ $order->billing_phone ?? '-' }} </b><br>
-          Dirección: <b>{{ $order->billing_address ?? 'Dirección' }} </b><br>
+          Dirección: <b>{{ $order->billing_address ?? '-' }} </b><br>
       </td>
       <td style="width: 50%; vertical-align: top; padding-left: 20px;">
        
         <strong>Datos de la Empresa</strong><br>
-          Nombre: <b>{{ $generalSettings->brand_name ?? 'Nombre Marca' }} </b><br>
-          NIF/CIF: <b>{{ $generalSettings->nif ?? 'Nombre Marca' }} </b><br>
+          Nombre: <b>{{ $generalSettings->name ?? '-' }} </b><br>
+          NIF/CIF: <b>{{ $generalSettings->nif ?? '-' }} </b><br>
           Email: <b>{{$generalSettings->email ?? '-' }}  </b><br>
           Teléfono: <b>{{ $generalSettings->phone ?? '-' }} </b><br>
-          Dirección: <b>{{ $generalSettings->full_address ?? 'Dirección' }} </b><br>
+          Dirección: <b>{{ $generalSettings->full_address ?? '-' }} </b><br>
       </td>
     </tr>
   </table>

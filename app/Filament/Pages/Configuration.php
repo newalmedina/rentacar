@@ -71,7 +71,7 @@ class Configuration extends Page
                         Section::make('Imagen')
                             ->columnSpan([
                                 'default' => 12, // móvil
-                                'md' => 9,       // escritorio
+                                'md' => 3,       // escritorio
                             ])
                             ->schema([
                                 FileUpload::make('image')
