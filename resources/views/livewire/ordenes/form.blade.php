@@ -883,7 +883,7 @@
                                                 type="number"
                                                 min="1"
                                                 step="0.1"
-                                                wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.start_kilometers"
+                                                wire:model.lazy="selectedProducts.{{ $key }}.start_kilometers"
                                                 :disabled="$order->disabled_sales"
                                                 placeholder="Ej. 123456.7"
                                             />
@@ -896,7 +896,7 @@
                                                 type="number"
                                                 min="1"
                                                 step="0.1"
-                                                wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.end_kilometers"
+                                                wire:model.lazy="selectedProducts.{{ $key }}.end_kilometers"
                                                 :disabled="$order->disabled_sales"
                                                 placeholder="Ej. 123789.0"
                                             />
