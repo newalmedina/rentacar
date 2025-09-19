@@ -123,13 +123,31 @@ class VehicleResource extends Resource
                                             'md' => 6,       // escritorio
                                         ]),
 
-                                    Forms\Components\TextInput::make('kilometros')
-                                        ->label("Kilómetros")
-                                        ->numeric()
-                                        ->nullable()
+                                    Grid::make(12)
                                         ->columnSpan([
                                             'default' => 12, // móvil
-                                            'md' => 6,       // escritorio
+                                        ])->schema([
+                                            Forms\Components\TextInput::make('kilometros')
+                                                ->label("Kilómetros")
+                                                ->numeric()
+                                                ->nullable()
+                                                ->columnSpan([
+                                                    'default' => 12, // móvil
+                                                    'md' => 6,       // escritorio
+                                                ]),
+                                            Forms\Components\TextInput::make('kilometros_recorridos')
+                                                ->label('Kilómetros recorridos en alquileres')
+                                                ->disabled() // Solo lectura
+                                                ->columnSpan([
+                                                    'default' => 12,
+                                                    'md' => 6,       // mitad de ancho en escritorio
+                                                ])
+                                                ->afterStateHydrated(function ($component, $state, $record) {
+                                                    $value = $record?->total_kilometros_recorridos;
+                                                    // Si hay valor, formatea con 2 decimales y añade ' km', si no, muestra '-'
+                                                    $component->state($value !== null ? number_format($value, 2) . ' km' : '-');
+                                                })
+
                                         ]),
 
                                     // Fila 3
@@ -267,7 +285,10 @@ class VehicleResource extends Resource
                     ->label("Precio Total")
                     ->formatStateUsing(fn($state) => $state ? number_format($state, 2) . '€' : '-')
                     ->sortable(),
-
+                Tables\Columns\TextColumn::make('total_kilometros_recorridos')
+                    ->label('Kilómetros recorridos')
+                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 2) . ' km' : '-')
+                    ->sortable(),
                 // Marca, Modelo y Versión
                 Tables\Columns\TextColumn::make('brand.name')
                     ->label("Marca")

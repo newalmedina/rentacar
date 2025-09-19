@@ -12,6 +12,7 @@ class Item extends Model
     use HasFactory;
 
     protected $guarded = [];  // Guarded to allow mass assignment
+    protected $appends = ['total_kilometros_recorridos'];
 
     // Relationship with Category
     public function category()
@@ -30,6 +31,22 @@ class Item extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+
+    public function getTotalKilometrosRecorridosAttribute(): ?float
+    {
+        // Solo aplica si el tipo es 'vehicle'
+        if ($this->type !== 'vehicle') {
+            return null;
+        }
+
+        // Suma el total de kilómetros de cada orderDetail
+        return $this->orderDetails
+            ->sum(function ($orderDetail) {
+                return $orderDetail->total_kilometers ?? 0;
+            });
+    }
+
+
     public function canDelete(): bool
     {
         return !$this->orderDetails()->exists();
