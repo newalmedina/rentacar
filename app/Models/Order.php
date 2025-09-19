@@ -231,7 +231,7 @@ class Order extends Model
     public function getDurationAttribute(): ?string
     {
         if (!$this->start_date || !$this->end_date) {
-            return null;
+            return '-';
         }
 
         $start = Carbon::parse($this->start_date);

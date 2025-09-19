@@ -116,6 +116,13 @@ class OrderResource extends Resource
                     })
 
                     ->sortable(),
+                Tables\Columns\TextColumn::make('duration')
+                    ->label('Duración')
+                    ->formatStateUsing(function ($state, $record) {
+                        // $record es la fila del modelo
+                        return $record->duration ?? '-';
+                    })
+                    ->sortable(),
                 //Tables\Columns\TextColumn::make('type'),
                 // Tables\Columns\TextColumn::make('assignedUser.name')
                 //     ->numeric()
