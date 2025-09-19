@@ -32,6 +32,7 @@ class Form extends Component
     public array $detail_id_delete = [];
     public string $recipientType = 'same';
     public string $recipientEmail = '';
+    public string $duration = '';
     public array $form = [
         'date' => '',
         'is_renting' => true,
@@ -66,6 +67,7 @@ class Form extends Component
             $order->end_date =  $this->form["end_date"];
             $order->is_renting =  $this->form["is_renting"];
         }
+
 
 
         $this->resetManualProduct();
@@ -711,7 +713,7 @@ class Form extends Component
     {
         $this->recalculateProducts();
         $this->getGeneralTotal();
-
+        $this->duration =  $this->order->duration;
         // dd($this->form);
         return view('livewire.ordenes.form', [
             'items' => $this->consultaItems->paginate($this->perPage),

@@ -1,27 +1,27 @@
 <div class="grid grid-cols-12 gap-4">
     @if(!empty($order->code))
-        <div class="col-span-12 w-full mb-3">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full">
-                <h2 class="text-2xl font-semibold mb-2 lg:mb-0">
-                    Código: <b>{{ $order->code }}</b>
-                </h2>
-        
-                @if (!empty($order->id))
-                    <div class="flex gap-4 items-center">
-                        {{-- Badge de facturación --}}
-                        <x-filament::badge
-                            :color="$order->invoiced ? 'success' : 'warning'"
-                            class="text-[18px] font-bold px-6 py-3 text-center leading-snug h-[50px] flex items-center justify-center"
-                        >
-                            <b>{{ $order->invoiced ? 'Facturado' : 'Pendiente Facturar' }}</b>
-                        </x-filament::badge>
-        
-                        {{-- Badge de estado si aplica --}}
-                 
-                    </div>
-                @endif
+       <div class="col-span-12 w-full mb-3">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full">
+                    
+                    {{-- Título a la izquierda --}}
+                    <h2 class="text-2xl font-semibold mb-2 lg:mb-0">
+                        Código: <b>{{ $order->code }}</b>
+                    </h2>
+
+                    {{-- Badges a la derecha --}}
+                    @if (!empty($order->id))
+                        <div class="flex gap-4 items-center">
+                            <x-filament::badge
+                                :color="$order->invoiced ? 'success' : 'warning'"
+                                class="text-[18px] font-bold px-6 py-3 text-center leading-snug h-[50px] flex items-center justify-center"
+                            >
+                                <b>{{ $order->invoiced ? 'Facturado' : 'Pendiente Facturar' }}</b>
+                            </x-filament::badge>
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
+
              
     @endif
 
@@ -241,6 +241,18 @@
                                 @error('form.end_date')
                                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                                 @enderror
+                        </div>
+                        <div class="col-span-12 lg:col-span-6">
+                             <x-filament-forms::field-wrapper.label >
+                                    Tiempo total
+                                </x-filament-forms::field-wrapper.label>
+                                <x-filament::input.wrapper  >
+                                    <x-filament::input
+                                    disabled
+                                        wire:model.defer="duration"
+                                    />
+                                </x-filament::input.wrapper>
+                             
                         </div>
                     @endif
                     <div class="col-span-12 lg:col-span-6">

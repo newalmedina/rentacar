@@ -52,6 +52,7 @@
         @if ($order->is_renting)
         <p>Fecha inicio alquiler: {{ \Carbon\Carbon::parse($order->start_date)->format('d/m/Y H:i') }}</p>
         <p>Fecha fin alquiler: {{ \Carbon\Carbon::parse($order->end_date)->format('d/m/Y H:i') }}</p>
+        <p>Tiempo total: {{ $order->duration }}</p>
         
         @endif
       </td>

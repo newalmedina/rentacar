@@ -232,6 +232,12 @@ export default {
         'h-full',         // fuerza a que el div ocupe todo el alto disponible
         'flex',
         'flex-col',
+        'justify-between',
+        'lg:justify-between',
+        'md:justify-between',
+        'flex-row',
+        'lg:flex-row',
+        'md:flex-row',
     ]
 
 
