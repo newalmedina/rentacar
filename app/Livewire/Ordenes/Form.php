@@ -33,6 +33,7 @@ class Form extends Component
     public string $recipientType = 'same';
     public string $recipientEmail = '';
     public string $duration = '';
+    public ?string $customerPhone = null;
     public array $form = [
         'date' => '',
         'is_renting' => true,
@@ -50,6 +51,7 @@ class Form extends Component
         'billing_address' => "",
         'payment_method' => "",
     ];
+
 
     public function mount($order = null): void
     {
@@ -69,9 +71,9 @@ class Form extends Component
         }
 
 
-
         $this->resetManualProduct();
         $this->order = $order;
+        $this->customerPhone = $this->order->customer?->phone;
         // Al cargar, establecer el email del cliente por defecto
         if ($this->order->customer?->email) {
             $this->recipientEmail = $this->order->customer->email;
@@ -245,7 +247,12 @@ class Form extends Component
     }
 
 
+    public function updatedFormCustomerId($value)
+    {
+        $customer = Customer::find($value);
 
+        $this->customerPhone = $customer?->phone; // guarda el teléfono si existe
+    }
     protected function isManualProductComplete(): bool
     {
         return !is_null($this->manualProduct['quantity'])

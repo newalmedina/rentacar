@@ -257,24 +257,49 @@
                     @endif
                     <div class="col-span-12 lg:col-span-6">
                         <x-filament-forms::field-wrapper.label>
-                        Cliente
+                            Cliente
                         </x-filament-forms::field-wrapper.label>
-                        <x-filament::input.wrapper :valid="! $errors->has('form.customer_id')">
-                            <x-filament::input.select 
-                                :disabled="$order->disabled_sales" 
-                                wire:model.live.debounce.750ms="form.customer_id" 
-                                searchable
-                            >
-                                <option value="">Seleccione cliente</option>
-                                @foreach ($customerList as $customer)
-                                    <option value="{{$customer->id}}">{{$customer->name}}</option>
-                                @endforeach
-                            </x-filament::input.select>
-                        </x-filament::input.wrapper>
-                        @error('form.customer_id')
-                        <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+
+                        <div class="grid grid-cols-12 gap-2">
+                            {{-- Columna principal: Select --}}
+                            <div class="col-span-11">
+                                <x-filament::input.wrapper :valid="! $errors->has('form.customer_id')">
+                                    <x-filament::input.select 
+                                        :disabled="$order->disabled_sales" 
+                                        wire:model.live.debounce.750ms="form.customer_id" 
+                                        searchable
+                                    >
+                                        <option value="">Seleccione cliente</option>
+                                        @foreach ($customerList as $customer)
+                                            <option value="{{$customer->id}}">{{$customer->name}}</option>
+                                        @endforeach
+                                    </x-filament::input.select>
+                                </x-filament::input.wrapper>
+                                @error('form.customer_id')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Columna secundaria: WhatsApp --}}
+                          <div class="col-span-1 flex items-center">
+                                <a 
+                                @if(!$customerPhone)
+                                    disabled
+                                @else
+                                    href="{{ $customerPhone ? 'https://wa.me/' . preg_replace('/\D/', '', $customerPhone) : '#' }}" 
+                                 @endif
+                                    target="_blank"
+                                    class="{{ $customerPhone ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 cursor-not-allowed' }} 
+                                        text-white p-2 rounded flex items-center justify-center"
+                                    title="{{ $customerPhone ? 'Abrir WhatsApp' : 'No tiene teléfono' }}"
+                                >
+                                    <x-heroicon-o-chat-bubble-left-right class="w-5 h-5"/>
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
+
                     <div class="col-span-12 lg:col-span-6">
                          <x-filament-forms::field-wrapper.label>
                                 IVA%

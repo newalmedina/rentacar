@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Support\Enums\ActionSize;
 
 class CustomerResource extends Resource
 {
@@ -117,7 +119,13 @@ class CustomerResource extends Resource
                                     ->columnSpan([
                                         'default' => 1,
                                         'md' => 2,
-                                    ]),
+                                    ])->prefixAction(
+                                        Action::make('whatsapp')
+                                            ->icon('heroicon-o-chat-bubble-left-ellipsis') // Usa un ícono (puedes cambiarlo por uno de WhatsApp si lo tienes)
+                                            ->size(ActionSize::Small) // opcional: tamaño del botón
+                                            ->url(fn($state) => $state ? "https://wa.me/{$state}" : null, true)
+                                            ->visible(fn($state) => filled($state)) // solo mostrar si hay teléfono
+                                    ),
 
                                 Forms\Components\DatePicker::make('birth_date')
                                     ->label('Fecha nacimiento')
