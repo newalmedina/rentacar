@@ -86,7 +86,7 @@ class GananciasMensualesChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => "Ventas en $year",
+                    'label' => "Ordenes en$year",
                     'data' => $dataVenta,
                     'backgroundColor' => '#3b82f6',
                 ],

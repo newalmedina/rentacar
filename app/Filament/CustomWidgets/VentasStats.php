@@ -47,20 +47,20 @@ class VentasStats extends BaseWidget
 
 
         return [
-            Stat::make('Ventas (facturadas) en el día de hoy', '€' . number_format($ventasHoy, 2))
-                ->description("Ventas ayer €" . number_format($ventasAyer, 2))
+            Stat::make('Ordenes (facturadas) en el día de hoy', '€' . number_format($ventasHoy, 2))
+                ->description("Ordenes ayer €" . number_format($ventasAyer, 2))
                 ->descriptionIcon($ventasHoy - $ventasAyer > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($ventasHoy - $ventasAyer > 0 ? 'success' : 'danger')
                 ->chart($this->getDailySales($yesterday)),
 
-            Stat::make('Ventas (facturadas) en esta semana', '€' . number_format($ventasSemana, 2))
-                ->description("Ventas semana pasada €" . number_format($ventasSemanaPasada, 2))
+            Stat::make('Ordenes (facturadas) en esta semana', '€' . number_format($ventasSemana, 2))
+                ->description("Ordenes semana pasada €" . number_format($ventasSemanaPasada, 2))
                 ->descriptionIcon($ventasSemana - $ventasSemanaPasada > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($ventasSemana - $ventasSemanaPasada > 0 ? 'success' : 'danger')
                 ->chart($this->getDailySales($startOfWeek)),
 
-            Stat::make('Ventas (facturadas) en este mes', '€' . number_format($ventasMes, 2))
-                ->description("Ventas mes pasado €" . number_format($ventasMesPasado, 2))
+            Stat::make('Ordenes (facturadas) en este mes', '€' . number_format($ventasMes, 2))
+                ->description("Ordenes mes pasado €" . number_format($ventasMesPasado, 2))
                 ->descriptionIcon($ventasMes - $ventasMesPasado > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($ventasMes - $ventasMesPasado > 0 ? 'success' : 'danger')
                 ->chart($this->getDailySales($startOfMonth)),
