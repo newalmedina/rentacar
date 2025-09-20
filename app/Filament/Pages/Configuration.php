@@ -6,7 +6,7 @@ use App\Mail\TestMail;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\{Actions, TextInput, FileUpload, Toggle, DatePicker, Radio, Select, Section, Grid};
+use Filament\Forms\Components\{Actions, ColorPicker, TextInput, FileUpload, Toggle, DatePicker, Radio, Select, Section, Grid};
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Get;
@@ -58,6 +58,8 @@ class Configuration extends Page
                 'bank_number' => $center->bank_number,
                 'active' => $center->active,
                 'image' => $center->image,
+                'primary_color' => $center->primary_color,
+                'primary_color_soft' => $center->primary_color_soft,
             ]);
         }
     }
@@ -164,7 +166,15 @@ class Configuration extends Page
 
                                         TextInput::make('bank_name')->label('Entidad bancaria')->maxLength(255),
                                         TextInput::make('bank_number')->label('Número de cuenta')->maxLength(255),
+                                        // Color Picker
+                                        ColorPicker::make('primary_color')
+                                            ->label('Color Primario'),
+                                        ColorPicker::make('primary_color_soft')
+                                            ->label('Color Primario suave'),
 
+                                        // ColorPicker::make('secondary')
+                                        //     ->label('Color Secundario')
+                                        //     ->nullable(),
                                         // Toggle::make('active')->label('¿Activo?')->required()->columnSpanFull(),
                                     ]),
                             ]),
@@ -187,8 +197,9 @@ class Configuration extends Page
         }
 
         $data = $this->form->getState();
-
+        // dd($data);
         $center->update($data);
+
 
         Notification::make()
             ->title('Centro actualizado correctamente')
