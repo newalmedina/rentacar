@@ -130,6 +130,7 @@ export default {
         'text-white',
         'hover:text-green-200',
 
+
         // Efectos de hover y transición
         'transform',
         'hover:scale-105',
@@ -238,6 +239,10 @@ export default {
         'flex-row',
         'lg:flex-row',
         'md:flex-row',
+        {
+            // Agrega todos los text colors de Tailwind
+            pattern: /text-(red|green|blue|yellow|purple|pink|indigo|gray)-(100|200|300|400|500|600|700|800|900)/,
+        },
     ]
 
 

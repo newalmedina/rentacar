@@ -2,20 +2,20 @@
 
 namespace App\Filament\Resources\OrderResource\Widgets;
 
-
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Filament\Resources\OrderResource\Pages\ListSales;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class SalesStats extends StatsOverviewWidget
+class OrdersStats extends StatsOverviewWidget
 {
     use InteractsWithPageTable;
     protected static ?string $pollingInterval = null;
 
     protected function getTablePage(): string
     {
-        return ListSales::class;
+        return ListOrders::class;
     }
     protected function getColumns(): int
     {
@@ -30,10 +30,15 @@ class SalesStats extends StatsOverviewWidget
         });
 
         return [
-            Stat::make('Total ventas', '€ ' . number_format($totalAmount, 2))
+            Stat::make('Total ordenes', '€ ' . number_format($totalAmount, 2))
                 ->extraAttributes(['class' => 'flex flex-col justify-center items-center text-center h-full text-green-500']),
             Stat::make('Núm. transacciones', $totalTransactions)
                 ->extraAttributes(['class' => 'flex flex-col justify-center items-center text-center h-full text-green-500']),
         ];
+    }
+    public static function canView(): bool
+    {
+        // Mostrar en cualquier página excepto en /admin
+        return !request()->is('admin');
     }
 }

@@ -33,8 +33,11 @@ use App\Filament\Resources\CustomerResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ModelVersionResource;
 use App\Filament\Resources\OrderResource;
+use App\Filament\Resources\OrderResource\Widgets\OrdersExpensesStats;
+use App\Filament\Resources\OrderResource\Widgets\OrdersStats;
 use App\Filament\Resources\OtherExpenseItemResource;
 use App\Filament\Resources\OtherExpenseResource;
+use App\Filament\Resources\OtherExpenseResource\Widgets\OtherExpenseStats;
 use App\Filament\Resources\OwnerResource;
 use App\Filament\Resources\SaleResource;
 use App\Filament\Resources\StateResource;
@@ -77,7 +80,6 @@ class AdminPanelProvider extends PanelProvider
 
     public function panel(Panel $panel): Panel
     {
-
         $panel
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->default()
@@ -145,11 +147,14 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
+                OrdersExpensesStats::class,
                 VentasStats::class,
                 OtherExpensesStats::class,
                 VentasMensualesChart::class,
                 OtherExpensesChart::class,
                 GananciasMensualesChart::class,
+                OrdersStats::class,
+                OtherExpenseStats::class,
                 // VentasPorVendedorPieChart::class,
                 // VentasPorVendedorPercentPieChart::class,
                 // GastosPieChart::class,

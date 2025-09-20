@@ -4,7 +4,7 @@ namespace App\Filament\Resources\OrderResource\Pages;
 
 
 use App\Filament\Resources\OrderResource;
-use App\Filament\Resources\OrderResource\Widgets\SalesStats;
+use App\Filament\Resources\OrderResource\Widgets\OrdersStats;
 use Filament\Actions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
@@ -17,7 +17,7 @@ class ListOrders extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            //   SalesStats::class,
+            OrdersStats::class,
         ];
     }
 
