@@ -6,6 +6,7 @@ use App\Filament\Resources\OtherExpenseResource\Pages\ListOtherExpenses;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class OtherExpenseStats extends StatsOverviewWidget
 {
@@ -24,8 +25,8 @@ class OtherExpenseStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $totalTransactions = $this->getPageTableQuery()->count();
-        $totalAmount = $this->getPageTableQuery()->get()->sum(function ($expense) {
+        $totalTransactions = $this->getPageTableQuery()->where('center_id', Auth::user()->center_id)->count();
+        $totalAmount = $this->getPageTableQuery()->where('center_id', Auth::user()->center_id)->get()->sum(function ($expense) {
             return $expense->total; // Usa el accesor
         });
 

@@ -4,9 +4,12 @@ namespace App\Filament\Resources\OrderResource\Widgets;
 
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Filament\Resources\OrderResource\Pages\ListSales;
+use App\Models\Order;
+use App\Models\OtherExpense;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class OrdersExpensesStats extends StatsOverviewWidget
 {
@@ -24,17 +27,18 @@ class OrdersExpensesStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $totalTransactions = $this->getPageTableQuery()
-            ->where('invoiced', 1)
+
+        $totalTransactions = Order::where('invoiced', 1)
+            ->where('center_id', Auth::user()->center_id)
             ->count();
 
-        $totalAmount = $this->getPageTableQuery()
-            ->where('invoiced', 1)
+        $totalAmount = Order::where('invoiced', 1)
+            ->where('center_id', Auth::user()->center_id)
             ->get()
             ->sum(fn($expense) => $expense->total);
 
-        $totalTransactionsGastos = $this->getPageTableQuery()->count();
-        $totalAmountGastos = $this->getPageTableQuery()->get()->sum(function ($expense) {
+        $totalTransactionsGastos = OtherExpense::where('center_id', Auth::user()->center_id)->count();
+        $totalAmountGastos = OtherExpense::where('center_id', Auth::user()->center_id)->get()->sum(function ($expense) {
             return $expense->total; // Usa el accesor
         });
 
