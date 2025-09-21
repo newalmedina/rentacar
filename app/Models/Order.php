@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,7 +30,7 @@ class Order extends Model
 
     protected $casts = [
         'date' => 'date',
-        'is_renting' => 'boolean'
+        'is_renting' => 'boolean',
     ];
 
 
@@ -239,6 +240,51 @@ class Order extends Model
             default => null,
         };
     }
+    public function getDurationAttribute(): ?string
+    {
+        if (!$this->start_date || !$this->end_date) {
+            return '-';
+        }
+
+        $start = Carbon::parse($this->start_date);
+        $end   = Carbon::parse($this->end_date);
+
+        // Asegurarse que end >= start; si no, intercambiamos (opcional)
+        if ($end->lt($start)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        // DateInterval con días totales, horas, minutos, segundos
+        $diff = $start->diff($end);
+
+        $days    = (int) $diff->days; // días totales
+        $hours   = (int) $diff->h;
+        $minutes = (int) $diff->i;
+        $seconds = (int) $diff->s;
+
+        $parts = [];
+
+        if ($days > 0) {
+            $parts[] = $days . ' ' . Str::plural('día', $days);
+        }
+        if ($hours > 0) {
+            $parts[] = $hours . ' ' . Str::plural('hora', $hours);
+        }
+        if ($minutes > 0) {
+            $parts[] = $minutes . ' ' . Str::plural('minuto', $minutes);
+        }
+
+        // Si no hay días/horas/minutos, mostramos segundos
+        if (empty($parts) && $seconds > 0) {
+            $parts[] = $seconds . ' ' . Str::plural('segundo', $seconds);
+        }
+
+        return implode(' ', $parts);
+    }
+
+
+
+
 
     public function getInvoicedLabelAttribute(): string
     {
@@ -252,7 +298,12 @@ class Order extends Model
             : '#ffc107';  // Bootstrap "warning" (amarillo)
     }
 
-
+    public function scopeWithVehicles($query)
+    {
+        return $query->whereHas('orderDetails.item', function ($q) {
+            $q->where('type', 'vehicle');
+        });
+    }
 
     // Boot method para asignar center_id automáticamente
     protected static function boot(): void

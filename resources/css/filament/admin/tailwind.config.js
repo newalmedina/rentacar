@@ -78,6 +78,12 @@ export default {
     ],
 
     safelist: [
+        'w-full',
+        'sm:w-1/2',
+        'lg:w-1/4',
+        'mb-2',
+        'lg:mb-0',
+        'px-2',
         'justify-self-start',
         'justify-self-end',
         'justify-self-center',
@@ -129,6 +135,7 @@ export default {
         'hover:border-green-600',
         'text-white',
         'hover:text-green-200',
+
 
         // Efectos de hover y transición
         'transform',
@@ -228,6 +235,20 @@ export default {
         'min-w-[120px]',
         'min-w-[160px]',
         'min-w-[200px]',
+        'items-stretch',  // hace que las columnas se estiren a la misma altura
+        'h-full',         // fuerza a que el div ocupe todo el alto disponible
+        'flex',
+        'flex-col',
+        'justify-between',
+        'lg:justify-between',
+        'md:justify-between',
+        'flex-row',
+        'lg:flex-row',
+        'md:flex-row',
+        {
+            // Agrega todos los text colors de Tailwind
+            pattern: /text-(red|green|blue|yellow|purple|pink|indigo|gray)-(100|200|300|400|500|600|700|800|900)/,
+        },
     ]
 
 

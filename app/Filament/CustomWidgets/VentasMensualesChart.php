@@ -10,7 +10,7 @@ class VentasMensualesChart extends ChartWidget
 {
 
 
-    protected static ?string $heading = 'Ventas Mensuales por Año';
+    protected static ?string $heading = 'Ordenes Mensuales por Año';
     protected static ?string $maxHeight = '400px';
     protected function getType(): string
     {

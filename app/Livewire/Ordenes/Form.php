@@ -32,6 +32,8 @@ class Form extends Component
     public array $detail_id_delete = [];
     public string $recipientType = 'same';
     public string $recipientEmail = '';
+    public string $duration = '';
+    public ?string $customerPhone = null;
     public array $form = [
         'date' => '',
         'is_renting' => true,
@@ -49,6 +51,7 @@ class Form extends Component
         'billing_address' => "",
         'payment_method' => "",
     ];
+
 
     public function mount($order = null): void
     {
@@ -70,6 +73,7 @@ class Form extends Component
 
         $this->resetManualProduct();
         $this->order = $order;
+        $this->customerPhone = $this->order->customer?->phone;
         // Al cargar, establecer el email del cliente por defecto
         if ($this->order->customer?->email) {
             $this->recipientEmail = $this->order->customer->email;
@@ -227,14 +231,14 @@ class Form extends Component
             !is_numeric($price) ||
             !is_numeric($tax)
         ) {
-            $this->manualProduct['taxes_amount'] = null;
-            $this->manualProduct['price_with_taxes'] = null;
-            $this->manualProduct['total'] = null;
+            $this->manualProduct['taxes_amount'] = 0;
+            $this->manualProduct['price_with_taxes'] = 0;
+            $this->manualProduct['total'] = 0;
             return;
         }
 
-        $subtotal = (float)$quantity * (float)$price;
-        $taxes_percent = (float)$tax / 100;
+        $subtotal = (float)$quantity ?? 0 * (float)$price ?? 0;
+        $taxes_percent = (float)$tax ?? 0 / 100;
         $taxesAmount = round($subtotal * $taxes_percent, 2);
 
         $this->manualProduct['taxes_amount'] = $taxesAmount;
@@ -243,7 +247,12 @@ class Form extends Component
     }
 
 
+    public function updatedFormCustomerId($value)
+    {
+        $customer = Customer::find($value);
 
+        $this->customerPhone = $customer?->phone; // guarda el teléfono si existe
+    }
     protected function isManualProductComplete(): bool
     {
         return !is_null($this->manualProduct['quantity'])
@@ -306,6 +315,10 @@ class Form extends Component
     public function closeModalManual(): void
     {
         $this->dispatch('close-modal', id: 'manual-product-modal');
+    }
+    public function closeModalProducto(): void
+    {
+        $this->dispatch('close-modal', id: 'product-modal');
     }
     public function closeModalsendInvoiceEmail(): void
     {
@@ -440,9 +453,9 @@ class Form extends Component
 
             $detail->product_name = empty($product["item_id"]) ? $product["item_name"] : null;
             $detail->item_id = $product["item_id"];
-            $detail->price = $product["price_unit"];
-            $detail->taxes = $product["taxes"];
-            $detail->quantity = $product["quantity"];
+            $detail->price = $product["price_unit"] ?? 0;
+            $detail->taxes = $product["taxes"] ?? 0;
+            $detail->quantity = $product["quantity"] ?? 0;
             $detail->start_kilometers = $product["start_kilometers"];
             $detail->end_kilometers = $product["end_kilometers"];
 
@@ -570,27 +583,26 @@ class Form extends Component
             "total" => round($subtotal + $taxesAmount, 2),
 
         ];
-
+        $this->closeModalProducto();
         $this->notify('Producto añadido correctamente', 'Producto añadido', 'success');
     }
     protected function recalculateProducts()
     {
         foreach ($this->selectedProducts as $key => $product) {
+            // ⚠️ Solo convertir a float si hay valor, sino null
+            $quantity   = isset($product['quantity']) && $product['quantity'] !== '' ? (float) $product['quantity'] : null;
+            $priceUnit  = isset($product['price_unit']) && $product['price_unit'] !== '' ? (float) $product['price_unit'] : null;
+            $taxRate    = isset($this->form['iva']) && $this->form['iva'] !== '' ? (float) $this->form['iva'] : null;
 
-            // ⚠️ Convertir a float antes de operar
-            $quantity = (float) ($product['quantity'] ?? 0);
-            $priceUnit = (float) ($product['price_unit'] ?? 0);
-            // $taxRate = (float) ($product['taxes'] ?? 0); // porcentaje (ej: 21)
-            $taxRate = (float) ($this->form['iva'] ?? 0); // porcentaje (ej: 21)
-
-            $subtotal = $priceUnit * $quantity;
-            $taxesAmount = $subtotal * ($taxRate / 100);
+            // Cálculos: si alguna variable es null => se usa 0
+            $subtotal       = ($priceUnit ?? 0) * ($quantity ?? 0);
+            $taxesAmount    = $subtotal * (($taxRate ?? 0) / 100);
             $priceWithTaxes = $subtotal + $taxesAmount;
 
-            // ✅ Guardar valores redondeados (2 decimales para precios)
-            $totalKilometers = 0;
+            // Kilómetros → si faltan datos = null
+            $totalKilometers = null;
             if (is_numeric($product['start_kilometers'] ?? null) && is_numeric($product['end_kilometers'] ?? null)) {
-                $totalKilometers = $product['end_kilometers'] - $product['start_kilometers'];
+                $totalKilometers = (float)$product['end_kilometers'] - (float)$product['start_kilometers'];
             }
 
             $this->selectedProducts[$key] = [
@@ -598,21 +610,65 @@ class Form extends Component
                 "detail_id"         => $product['detail_id'] ?? null,
                 "image_url"         => $product['image_url'] ?? null,
                 "item_id"           => $product['item_id'] ?? null,
-                "item_name"         => $product['item_name'] ?? '',
-                "item_type"         => $product['item_type'] ?? '',
+                "item_name"         => $product['item_name'] ?? null,
+                "item_type"         => $product['item_type'] ?? null,
+
                 "price_unit"        => $priceUnit,
                 "quantity"          => $quantity,
-                "price"             => round($subtotal, 2),
-                "taxes"             => $taxRate,
-                "taxes_amount"      => round($taxesAmount, 2),
-                "price_with_taxes"  => round($priceWithTaxes, 2),
-                "total"             => round($priceWithTaxes, 2),
-                "start_kilometers" => $product["start_kilometers"] ?? 0,
-                "end_kilometers" => $product["end_kilometers"] ?? 0,
-                "total_kilometers" => $totalKilometers,
+
+                "price"             => $quantity !== null && $priceUnit !== null ? round($subtotal, 2) : 0,
+                "taxes"             => $taxRate ?? 0,
+                "taxes_amount"      => $taxRate !== null ? round($taxesAmount, 2) : null,
+                "price_with_taxes"  => $quantity !== null && $priceUnit !== null ? round($priceWithTaxes, 2) : 0,
+                "total"             => $quantity !== null && $priceUnit !== null ? round($priceWithTaxes, 2) : null,
+
+                "start_kilometers"  => $product["start_kilometers"] ?? null,
+                "end_kilometers"    => $product["end_kilometers"] ?? null,
+                "total_kilometers"  => $totalKilometers,
             ];
         }
     }
+
+    // protected function recalculateProducts()
+    // {
+    //     foreach ($this->selectedProducts as $key => $product) {
+
+    //         // ⚠️ Convertir a float antes de operar
+    //         $quantity = (float) ($product['quantity'] ?? 0);
+    //         $priceUnit = (float) ($product['price_unit'] ?? 0);
+    //         // $taxRate = (float) ($product['taxes'] ?? 0); // porcentaje (ej: 21)
+    //         $taxRate = (float) ($this->form['iva'] ?? 0); // porcentaje (ej: 21)
+
+    //         $subtotal = $priceUnit * $quantity;
+    //         $taxesAmount = $subtotal * ($taxRate / 100);
+    //         $priceWithTaxes = $subtotal + $taxesAmount;
+
+    //         // ✅ Guardar valores redondeados (2 decimales para precios)
+    //         $totalKilometers = 0;
+    //         if (is_numeric($product['start_kilometers'] ?? null) && is_numeric($product['end_kilometers'] ?? null)) {
+    //             $totalKilometers = $product['end_kilometers'] - $product['start_kilometers'];
+    //         }
+
+    //         $this->selectedProducts[$key] = [
+    //             "aleatory_id"       => $product['aleatory_id'] ?? null,
+    //             "detail_id"         => $product['detail_id'] ?? null,
+    //             "image_url"         => $product['image_url'] ?? null,
+    //             "item_id"           => $product['item_id'] ?? null,
+    //             "item_name"         => $product['item_name'] ?? '',
+    //             "item_type"         => $product['item_type'] ?? '',
+    //             "price_unit"        => $priceUnit,
+    //             "quantity"          => $quantity,
+    //             "price"             => round($subtotal, 2),
+    //             "taxes"             => $taxRate,
+    //             "taxes_amount"      => round($taxesAmount, 2),
+    //             "price_with_taxes"  => round($priceWithTaxes, 2),
+    //             "total"             => round($priceWithTaxes, 2),
+    //             "start_kilometers" => $product["start_kilometers"] ?? 0,
+    //             "end_kilometers" => $product["end_kilometers"] ?? 0,
+    //             "total_kilometers" => $totalKilometers,
+    //         ];
+    //     }
+    // }
 
     public function deleteItem($id): void
     {
@@ -664,7 +720,7 @@ class Form extends Component
     {
         $this->recalculateProducts();
         $this->getGeneralTotal();
-
+        $this->duration =  $this->order->duration;
         // dd($this->form);
         return view('livewire.ordenes.form', [
             'items' => $this->consultaItems->paginate($this->perPage),

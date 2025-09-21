@@ -52,6 +52,7 @@
         @if ($order->is_renting)
         <p>Fecha inicio alquiler: {{ \Carbon\Carbon::parse($order->start_date)->format('d/m/Y H:i') }}</p>
         <p>Fecha fin alquiler: {{ \Carbon\Carbon::parse($order->end_date)->format('d/m/Y H:i') }}</p>
+        <p>Tiempo total: {{ $order->duration }}</p>
         
         @endif
       </td>
@@ -68,21 +69,22 @@
   <!-- Datos del cliente y empresa -->
   <table class="info-table" width="100%" cellspacing="0" cellpadding="10" style="border-collapse: collapse;">
     <tr>
-      <td style="width: 50%; vertical-align: top; border-right: 2px solid #b462e2; padding-right: 20px;">
+      <td style="width: 50%; vertical-align: top; border-right: 2px solid {{ $generalSettings->primary_color }}; padding-right: 20px;">
         <strong>Datos del Cliente</strong><br>
-        Nombre: <b>{{ $order->billing_name ?? '-' }} </b><br>
+          Nombre: <b>{{ $order->billing_name ?? '-' }} </b><br>
+          NIF/CIF: <b>{{$order->billing_nif ?? '-' }}  </b><br>
           Email: <b>{{$order->billing_email ?? '-' }}  </b><br>
           Teléfono: <b>{{ $order->billing_phone ?? '-' }} </b><br>
-          Dirección: <b>{{ $order->billing_address ?? 'Dirección' }} </b><br>
+          Dirección: <b>{{ $order->billing_address ?? '-' }} </b><br>
       </td>
       <td style="width: 50%; vertical-align: top; padding-left: 20px;">
        
         <strong>Datos de la Empresa</strong><br>
-          Nombre: <b>{{ $generalSettings->brand_name ?? 'Nombre Marca' }} </b><br>
-          NIF/CIF: <b>{{ $generalSettings->nif ?? 'Nombre Marca' }} </b><br>
+          Nombre: <b>{{ $generalSettings->name ?? '-' }} </b><br>
+          NIF/CIF: <b>{{ $generalSettings->nif ?? '-' }} </b><br>
           Email: <b>{{$generalSettings->email ?? '-' }}  </b><br>
           Teléfono: <b>{{ $generalSettings->phone ?? '-' }} </b><br>
-          Dirección: <b>{{ $generalSettings->full_address ?? 'Dirección' }} </b><br>
+          Dirección: <b>{{ $generalSettings->full_address ?? '-' }} </b><br>
       </td>
     </tr>
   </table>
@@ -99,7 +101,7 @@
         <th>IVA</th>
         <th>Importe</th>
       </tr>
-      <tr style="border-top: 3px solid #b462e2; height: 30px;">
+      <tr style="border-top: 3px solid {{ $generalSettings->primary_color }}; height: 30px;">
         <th colspan="6"></th>
           
       </tr>
@@ -141,7 +143,7 @@
         <td colspan="6" style="height: 5px;"></td>
       </tr>
       <tr>
-        <td colspan="6" style="border-top: 3px solid #b462e2;"></td>
+        <td colspan="6" style="border-top: 3px solid {{ $generalSettings->primary_color }};"></td>
       </tr>
 
       <tr>
@@ -163,8 +165,8 @@
 
       <tr>
         <td colspan="3"  style=""></td>
-        <td colspan="2" style="border: 2px solid #b462e2; text-align: center; font-weight: bold;">Total</td>
-        <td style="border: 2px solid #b462e2; font-weight: bold;">{{ number_format($total , 2) }} €</td>
+        <td colspan="2" style="border: 2px solid {{ $generalSettings->primary_color }}; text-align: center; font-weight: bold;">Total</td>
+        <td style="border: 2px solid {{ $generalSettings->primary_color }}; font-weight: bold;">{{ number_format($total , 2) }} €</td>
       </tr>
       
       
@@ -172,7 +174,7 @@
   </table>
 
   <!-- Información de pago -->
-  <div style="width:45%; border: 2px solid #b462e2; border-radius: 12px; padding: 15px; width: fit-content; background-color: #f8e6fc; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 30px;">
+  <div style="width:45%; border: 2px solid {{ $generalSettings->primary_color }}; border-radius: 12px; padding: 15px; width: fit-content; background-color: {{ $generalSettings->primary_color_soft }}; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 30px;">
     <strong>Información de Pago</strong><br>
     Método de pago: <b>{{ $order->payment_method }}</b><br>
 
@@ -184,7 +186,7 @@
   </div>
 
   <!-- Mensaje de agradecimiento -->
-  <div style="text-align: center; margin-top: 50px; font-size: 24px; font-weight: bold; color: #581177;">
+  <div style="text-align: center; margin-top: 50px; font-size: 24px; font-weight: bold; color: {{ $generalSettings->primary_color }};">
     ¡Gracias por preferirnos!
   </div>
   

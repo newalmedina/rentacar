@@ -116,6 +116,12 @@ class OrderResource extends Resource
                     })
 
                     ->sortable(),
+                Tables\Columns\TextColumn::make('duration')
+                    ->label('Duración')
+                    ->formatStateUsing(function ($state, $record) {
+                        // $record es la fila del modelo
+                        return $record->duration ?? '-';
+                    }),
                 //Tables\Columns\TextColumn::make('type'),
                 // Tables\Columns\TextColumn::make('assignedUser.name')
                 //     ->numeric()
@@ -310,11 +316,14 @@ class OrderResource extends Resource
                         if (!empty($data['assigned_user_ids']) && is_array($data['assigned_user_ids'])) {
                             $names = User::whereIn('id', $data['assigned_user_ids'])->pluck('name')->toArray();
                         }
-                        if (isset($data['date_from']) && !empty($data['date_from'])) {
-                            $query->where('date', '>=', $data['date_from']);
+                        if (!empty($data['date_from'])) {
+                            $from = Carbon::parse($data['date_from'])->startOfDay()->format('Y-m-d');
+                            $query->where('date', '>=', $from);
                         }
-                        if (isset($data['date_until']) && !empty($data['date_until'])) {
-                            $query->where('date', '<=', $data['date_until']);
+
+                        if (!empty($data['date_until'])) {
+                            $until = Carbon::parse($data['date_until'])->endOfDay()->format('Y-m-d');
+                            $query->where('date', '<=', $until);
                         }
                         if (isset($data['observations']) && !empty($data['observations'])) {
                             $query->where('observations', 'like', '%' . $data['observations'] . '%');
@@ -475,7 +484,7 @@ class OrderResource extends Resource
                     ->modalHeading('Confirmar reversión de facturación')
                     ->action(function ($record) {
 
-                        $record->status = "pending";
+                        $record->invoiced = 0;
                         $record->save();
                         Notification::make()
                             ->title('Facturación revertida')
