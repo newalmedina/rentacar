@@ -78,6 +78,12 @@ export default {
     ],
 
     safelist: [
+        'w-full',
+        'sm:w-1/2',
+        'lg:w-1/4',
+        'mb-2',
+        'lg:mb-0',
+        'px-2',
         'justify-self-start',
         'justify-self-end',
         'justify-self-center',

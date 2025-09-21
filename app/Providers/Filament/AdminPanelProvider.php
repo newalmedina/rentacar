@@ -45,6 +45,7 @@ use App\Filament\Resources\SupplierResource;
 use App\Filament\Resources\UnitOfMeasureResource;
 use App\Filament\Resources\UserResource;
 use App\Filament\Resources\VehicleResource;
+use App\Filament\Widgets\CalendarWidget;
 use App\Http\Middleware\AuthenticateAndCheckActive;
 use App\Models\ModelVersion;
 use App\Models\OtherExpenseItem;
@@ -134,13 +135,22 @@ class AdminPanelProvider extends PanelProvider
                 // FilamentAuthenticationLogPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make()
                     ->usingPage(Backups::class)->authorize(fn(): bool => auth()->user()?->can_show_general_resource == true),
-                FilamentFullCalendarPlugin::make()->config(
-                    []
-                ),
+                FilamentFullCalendarPlugin::make()->config([
+                    'initialView' => 'dayGridMonth', // 👈 Vista por defecto: semana
+                    'headerToolbar' => [
+                        'left'   => 'prev,next today',
+                        'center' => 'title',
+                        'right'  => 'dayGridMonth,timeGridWeek,timeGridDay', // 👈 Botones para cambiar vista
+                    ],
+                    'slotMinTime' => '00:00:00', // Opcional: hora de inicio
+                    'slotMaxTime' => '23:59:59', // Opcional: hora de fin
+                    'allDaySlot'  => false,      // Opcional: oculta "Todo el día"
+                ])
             ])
             ->pages([
                 Pages\Dashboard::class,
                 Profile::class,
+                CalendarPage::class,
                 \App\Filament\Pages\Configuration::class, // <-- aquí tu página
             ])
             // ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
@@ -155,6 +165,7 @@ class AdminPanelProvider extends PanelProvider
                 GananciasMensualesChart::class,
                 OrdersStats::class,
                 OtherExpenseStats::class,
+                CalendarWidget::class,
                 // VentasPorVendedorPieChart::class,
                 // VentasPorVendedorPercentPieChart::class,
                 // GastosPieChart::class,

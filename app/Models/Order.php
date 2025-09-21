@@ -227,7 +227,19 @@ class Order extends Model
         return 'Completado';
     }
 
+    public function getStatusColorAttribute(): ?string
+    {
+        if (!$this->is_renting || is_null($this->status)) {
+            return null;
+        }
 
+        return match ($this->status) {
+            'Pendiente' => '#adb5bd',  // Gris claro (secondary)
+            'En curso'  => '#0dcaf0',  // Info
+            'Completado' => '#198754', // Success
+            default => null,
+        };
+    }
     public function getDurationAttribute(): ?string
     {
         if (!$this->start_date || !$this->end_date) {
@@ -272,19 +284,7 @@ class Order extends Model
 
 
 
-    public function getStatusColorAttribute(): ?string
-    {
-        if (!$this->is_renting || is_null($this->status)) {
-            return null;
-        }
 
-        return match ($this->status) {
-            'Pendiente' => '#adb5bd',  // Gris claro (secondary)
-            'En curso'  => '#0dcaf0',  // Info
-            'Completado' => '#198754', // Success
-            default => null,
-        };
-    }
 
     public function getInvoicedLabelAttribute(): string
     {
@@ -298,7 +298,12 @@ class Order extends Model
             : '#ffc107';  // Bootstrap "warning" (amarillo)
     }
 
-
+    public function scopeWithVehicles($query)
+    {
+        return $query->whereHas('orderDetails.item', function ($q) {
+            $q->where('type', 'vehicle');
+        });
+    }
 
     // Boot method para asignar center_id automáticamente
     protected static function boot(): void

@@ -119,6 +119,10 @@ class Item extends Model
     {
         return $query->where('active', true);
     }
+    public function scopeVehicle($query)
+    {
+        return $query->where('type', "vehicle");
+    }
     // Scope para show_booking = true
     public function scopeShowBooking($query)
     {
