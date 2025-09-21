@@ -41,7 +41,7 @@ class CalendarPage extends Page
         // Trabajadores
         $this->customerList = Customer::active()->myCenter()->pluck('name', 'id')->toArray();
         $this->itemsList = Item::active()
-            // ->vehicle()
+            ->vehicle()
             ->myCenter()->get();
 
         $this->selectedStatus = '';
