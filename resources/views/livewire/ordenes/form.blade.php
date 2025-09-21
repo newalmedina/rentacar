@@ -821,7 +821,7 @@
                                     @if($editPrices && !$order->disabled_sales)
                                         <x-filament::input.wrapper>
                                             <x-filament::input
-                                                wire:model.live.debounce.750ms="selectedProducts.{{ $key }}.price_unit"
+                                                wire:model.live.debounce.1000ms="selectedProducts.{{ $key }}.price_unit"
                                                 type="number"
                                                 min="0"
                                             />
