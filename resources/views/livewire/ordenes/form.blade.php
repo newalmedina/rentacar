@@ -355,7 +355,7 @@
                                     </div>
                                 </td>
     
-                                <td class="px-2 py-2 text-black dark:text-white">
+                                <td class="px-2 py-2 text-black dark:text-white min-w-[140px]">
                                     
                                     @if($editPrices && !$order->disabled_sales)
                                         <x-filament::input.wrapper>
@@ -370,7 +370,7 @@
                                     @endif
                                 </td>
     
-                                <td class="px-2 py-2 text-black dark:text-white" style="width: 120px !important;">
+                                <td class="px-2 py-2 text-black dark:text-white min-w-[140px]" style="">
                                     <x-filament::input.wrapper>
                                         @if ($product["item_type"] === 'vehicle')
                                             <x-filament::input
