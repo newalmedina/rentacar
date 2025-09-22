@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BackupDownloadController;
 use App\Http\Controllers\FrontBookingController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WelcomeController;
 use App\Models\Order;
 use App\Models\Setting;
@@ -42,6 +43,7 @@ Route::get('/factura', function () {
 });
 
 
+Route::post('orders/{order}/toggle-invoice', [OrderController::class, 'toggleInvoice'])->name('orders.toggleInvoice');
 
 
 Route::middleware('auth')->get('/admin/backups/download/{filepath}', [BackupDownloadController::class, 'download'])
