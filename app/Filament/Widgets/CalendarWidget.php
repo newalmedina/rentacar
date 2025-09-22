@@ -21,7 +21,8 @@ use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\Action;
 use Filament\Forms\Components\ButtonAction;
 use Filament\Notifications\Notification;
-
+use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\Actions\ActionSize;
 
 class CalendarWidget extends FullCalendarWidget
 {
@@ -156,7 +157,15 @@ class CalendarWidget extends FullCalendarWidget
                     ->columnSpan([
                         'default' => 12,
                         'md' => 6,
-                    ]),
+                    ])->prefixAction(
+                        FormAction::make('whatsapp')
+                            ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                            ->url(fn() => $this->record?->customer?->phone ? "https://wa.me/{$this->record->customer->phone}" : null, true)
+                            ->visible(fn() => filled($this->record?->customer?->phone))
+                            ->tooltip('Enviar WhatsApp')
+                            ->openUrlInNewTab()
+                    ),
+
                 Grid::make(12)->schema([
 
                     TextInput::make('sub_total')
