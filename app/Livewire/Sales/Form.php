@@ -518,13 +518,13 @@ class Form extends Component
         foreach ($this->selectedProducts as $key => $product) {
 
             // ⚠️ Convertir a float antes de operar
-            $quantity = (float) ($product['quantity'] ?? 0);
-            $priceUnit = (float) ($product['price_unit'] ?? 0);
-            // $taxRate = (float) ($product['taxes'] ?? 0); // porcentaje (ej: 21)
-            $taxRate = (float) ($this->form['iva'] ?? 0); // porcentaje (ej: 21)
+            $quantity = (float) ($product['quantity'] ?? null);
+            $priceUnit = (float) ($product['price_unit'] ?? null);
+            // $taxRate = (float) ($product['taxes'] ?? null); // porcentaje (ej: 21)
+            $taxRate = (float) ($this->form['iva'] ?? null); // porcentaje (ej: 21)
 
-            $subtotal = $priceUnit * $quantity;
-            $taxesAmount = $subtotal * ($taxRate / 100);
+            $subtotal = $priceUnit ?? 0 * $quantity ?? 0;
+            $taxesAmount = $subtotal * ($taxRate ?? 0 / 100);
             $priceWithTaxes = $subtotal + $taxesAmount;
 
             // ✅ Guardar valores redondeados (2 decimales para precios)
