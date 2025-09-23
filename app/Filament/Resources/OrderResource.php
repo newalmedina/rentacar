@@ -94,6 +94,9 @@ class OrderResource extends Resource
                 Tables\Columns\IconColumn::make('invoiced')
                     ->boolean()
                     ->label('Facturado'),
+                Tables\Columns\IconColumn::make('invoiced_automatic')
+                    ->boolean()
+                    ->label('Factu. Automatica'),
                 Tables\Columns\TextColumn::make('date')
                     ->date()
                     ->label("Fecha factura")
