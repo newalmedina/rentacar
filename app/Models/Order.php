@@ -31,6 +31,7 @@ class Order extends Model
     protected $casts = [
         'date' => 'date',
         'is_renting' => 'boolean',
+        'invoiced_automatic' => 'boolean',
     ];
 
 

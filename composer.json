@@ -12,6 +12,7 @@
         "altwaireb/laravel-world": "^1.0",
         "barryvdh/laravel-dompdf": "*",
         "filament/filament": "^3.2",
+        "google/apiclient": "2.15",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^3.11",
         "laravel-lang/lang": "^15.2",

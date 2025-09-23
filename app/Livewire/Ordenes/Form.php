@@ -37,6 +37,7 @@ class Form extends Component
     public array $form = [
         'date' => '',
         'is_renting' => true,
+        'invoiced_automatic' => false,
         'start_date' => '',
         'end_date' => '',
         'iva' => '',
@@ -63,11 +64,12 @@ class Form extends Component
             $order->assigned_user_id = auth()->user()->id;
             $this->form["assigned_user_id"] = auth()->user()->id;
             $this->form["is_renting"] = true;
+            $this->form["invoiced_automatic"] = true;
             $this->form["start_date"] = Carbon::now()->format("Y-m-d H:i");
             $this->form["end_date"] = Carbon::now()->addHours(1)->format("Y-m-d H:i");
             $order->start_date =  $this->form["start_date"];
             $order->end_date =  $this->form["end_date"];
-            $order->is_renting =  $this->form["is_renting"];
+            $order->invoiced_automatic =  $this->form["invoiced_automatic"];
         }
 
 
@@ -333,6 +335,7 @@ class Form extends Component
             'form.assigned_user_id' => ['required'],
             'form.date' => ['required'],
             'form.is_renting' => ['boolean'], // <-- Aquí
+            'form.invoiced_automatic' => ['boolean'], // <-- Aquí
         ];
 
         $messages = [
@@ -402,6 +405,7 @@ class Form extends Component
         $this->order->observations = $this->form["observations"];
         $this->order->date = $this->form["date"];
         $this->order->is_renting = $this->form["is_renting"];
+        $this->order->invoiced_automatic = $this->form["invoiced_automatic"] ?? 0;
         if ($this->form["is_renting"]) {
 
             $this->order->start_date = $this->form["start_date"];

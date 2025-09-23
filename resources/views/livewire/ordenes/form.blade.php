@@ -184,14 +184,27 @@
             
             <div class="grid grid-cols-1 gap-2">
                 <div class="col-span-1">
-                    <label>
-                        <x-filament::input.checkbox :disabled="$order->disabled_sales"  wire:model.lazy="form.is_renting" />                    
-                        <span style="margin-left: 10px">
-                        Es un alquiler
-                        </span>
-                    </label>
                 </div>
-               <div class="grid grid-cols-12 gap-4">
+                <div class="grid grid-cols-12 gap-4">
+                    <div class="col-span-12 lg:col-span-6">
+                        
+                        <label>
+                            <x-filament::input.checkbox :disabled="$order->disabled_sales"  wire:model.lazy="form.is_renting" />                    
+                            <span style="margin-left: 10px">
+                            Es un alquiler
+                            </span>
+                        </label>
+                    </div>
+                    <div class="col-span-12 lg:col-span-6">
+                        
+                      <label style="margin-top: 80px">
+                                <x-filament::input.checkbox :disabled="$order->disabled_sales"  wire:model.lazy="form.invoiced_automatic" />                    
+                                <span style="margin-left: 10px; ">
+                               Facturación Automatica
+                                </span>
+                            </label>
+                    </div>
+                 
                     <div class="col-span-12 lg:col-span-6">
                             <x-filament-forms::field-wrapper.label >
                             Fecha factura
@@ -208,8 +221,9 @@
                         <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="col-span-12 lg:col-span-6">
+                      <div class="col-span-12 lg:col-span-6">
                     </div>
+                 
                     @if($form["is_renting"])
                         <div class="col-span-12 lg:col-span-6">
                             <x-filament-forms::field-wrapper.label >
