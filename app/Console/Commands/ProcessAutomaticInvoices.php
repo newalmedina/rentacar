@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\AutomaticInvoicedMail;
 use Illuminate\Console\Command;
 use App\Models\Order;
+use App\Services\ReceiptService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class ProcessAutomaticInvoices extends Command
 {
@@ -32,6 +35,16 @@ class ProcessAutomaticInvoices extends Command
             // Ejemplo: marcar como facturado
             $order->invoiced = 1;
             $order->save();
+            if ($order->center && !empty($order->center->email)) {
+
+                $receiptService = new ReceiptService();
+                $pdf = $receiptService->generate($order, $order->center); // Centro pasado manualmente
+
+                Mail::to($order->center->email)
+                    ->send(new AutomaticInvoicedMail($pdf, $order, $order->center));
+            } else {
+                $this->warn("La orden ID {$order->id} no tiene un centro o email definido, no se envió el correo.");
+            }
         }
 
         $this->info('Facturación automática completada.');

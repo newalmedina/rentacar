@@ -182,9 +182,9 @@ class OrderResource extends Resource
                         return Carbon::parse($state)->format('d-m-Y h:i');
                     })
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
 
-            ])
+            ])->defaultSort('start_date', 'desc')
             ->filters([
                 Filter::make('created_at')
                     ->form([
