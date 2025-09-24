@@ -24,6 +24,7 @@ use Filament\Tables\Actions\Action as TableAction;
 use Filament\Forms\Components\Markdown;
 use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Tabs;
 
 class CenterResource extends Resource
 {
@@ -50,7 +51,10 @@ class CenterResource extends Resource
                     ->schema([
                         // Columna para la imagen
                         Section::make('Imagen')
-                            ->columnSpan(3)
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 3,       // escritorio
+                            ])
                             ->schema([
                                 Forms\Components\FileUpload::make('image')
                                     ->label('Imagen')
@@ -61,77 +65,169 @@ class CenterResource extends Resource
                             ]),
 
                         // Columna para los demás campos
-                        Section::make('Información general')
-                            ->columnSpan(9)
-                            ->schema([
-                                Grid::make(2) // aquí definimos que todo adentro tendrá 2 columnas
+                        Tabs::make('Datos de empresa')
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 9,       // escritorio
+                            ])
+                            ->tabs([
+                                Tabs\Tab::make('Información general')
                                     ->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->label('Nombre')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('nif')
-                                            ->label('NIF/CIF')->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('email')
-                                            ->label('Correo')->required()
-                                            ->email()
-                                            ->maxLength(255),
+                                        Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\TextInput::make('name')
+                                                    ->label('Nombre')
+                                                    ->required()
+                                                    ->maxLength(255),
 
-                                        Forms\Components\TextInput::make('phone')
-                                            ->label('Teléfono')
-                                            ->tel()
-                                            ->maxLength(255),
+                                                Forms\Components\TextInput::make('nif')
+                                                    ->label('NIF/CIF')
+                                                    ->required()
+                                                    ->maxLength(255),
 
-                                        Forms\Components\TextInput::make('address')
-                                            ->label('Dirección')
-                                            ->maxLength(255),
+                                                Forms\Components\TextInput::make('email')
+                                                    ->label('Correo')
+                                                    ->required()
+                                                    ->email()
+                                                    ->maxLength(255),
 
-                                        Forms\Components\TextInput::make('postal_code')
-                                            ->label('Código postal')
-                                            ->maxLength(255),
+                                                Forms\Components\TextInput::make('phone')
+                                                    ->label('Teléfono')
+                                                    ->tel()
+                                                    ->maxLength(255),
 
-                                        Forms\Components\Select::make('country_id')
-                                            ->label('País')
-                                            ->options(fn(): Collection => Country::where('is_active', 1)->pluck('name', 'id'))
-                                            ->searchable()
-                                            ->preload()
-                                            ->live()
-                                            ->afterStateUpdated(function (Set $set) {
-                                                $set('state_id', null);
-                                                $set('city_id', null);
-                                            }),
+                                                Forms\Components\TextInput::make('address')
+                                                    ->label('Dirección')
+                                                    ->maxLength(255),
 
-                                        Forms\Components\Select::make('state_id')
-                                            ->label('Estado')
-                                            ->options(fn(Get $get): Collection => State::where('country_id', $get('country_id'))->pluck('name', 'id'))
-                                            ->searchable()
-                                            ->preload()
-                                            ->live()
-                                            ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
+                                                Forms\Components\TextInput::make('postal_code')
+                                                    ->label('Código postal')
+                                                    ->maxLength(255),
 
-                                        Forms\Components\Select::make('city_id')
-                                            ->label('Ciudad')
-                                            ->options(fn(Get $get): Collection => City::where('state_id', $get('state_id'))->pluck('name', 'id'))
-                                            ->searchable()
-                                            ->preload(),
+                                                Forms\Components\Select::make('country_id')
+                                                    ->label('País')
+                                                    ->options(fn(): Collection => Country::where('is_active', 1)->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->live()
+                                                    ->afterStateUpdated(function (Set $set) {
+                                                        $set('state_id', null);
+                                                        $set('city_id', null);
+                                                    }),
 
-                                        Forms\Components\TextInput::make('bank_name')
-                                            ->label('Entidad bancaria')
-                                            ->maxLength(255),
+                                                Forms\Components\Select::make('state_id')
+                                                    ->label('Estado')
+                                                    ->options(fn(Get $get): Collection => State::where('country_id', $get('country_id'))->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->live()
+                                                    ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
 
-                                        Forms\Components\TextInput::make('bank_number')
-                                            ->label('Número de cuenta')
-                                            ->maxLength(255),
+                                                Forms\Components\Select::make('city_id')
+                                                    ->label('Ciudad')
+                                                    ->options(fn(Get $get): Collection => City::where('state_id', $get('state_id'))->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload(),
 
+                                                Forms\Components\TextInput::make('bank_name')
+                                                    ->label('Entidad bancaria')
+                                                    ->maxLength(255),
 
+                                                Forms\Components\TextInput::make('bank_number')
+                                                    ->label('Número de cuenta')
+                                                    ->maxLength(255),
 
-                                        Forms\Components\Toggle::make('active')
-                                            ->label('¿Activo?')
-                                            ->required()
-                                            ->columnSpanFull(), // este ocupa toda la fila
+                                                Forms\Components\Toggle::make('active')
+                                                    ->label('¿Activo?')
+                                                    ->inline(false)
+                                                    ->required()
+                                                    ->columnSpanFull(),
+                                            ]),
+
                                     ]),
-                            ]),
+
+                                Tabs\Tab::make('Configuración Amovens Mail')
+                                    ->schema([
+                                        Grid::make(2)
+                                            ->schema([
+                                                Forms\Components\Select::make('mail_source')
+                                                    ->label('Origen del correo')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+                                                        'md' => 1,       // escritorio
+                                                    ])
+                                                    ->options([
+                                                        'Gmail' => 'Gmail',
+                                                        'Outlook' => 'Outlook',
+                                                    ])
+                                                    ->default('Gmail')
+                                                    ->required()
+                                                    ->reactive(), // ⚡ importante: hace que los cambios se reflejen dinámicamente
+
+
+
+                                                Forms\Components\Toggle::make('mail_enable_integration')
+                                                    ->label('¿Habilitar integración de correo?')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+                                                        'md' => 6,       // escritorio
+                                                    ])
+                                                    ->inline(false)
+                                                    ->default(false),
+
+                                                Forms\Components\TextInput::make('mail_client_id')
+                                                    ->label('Mail Client ID')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+
+                                                    ])
+                                                    ->maxLength(255),
+
+                                                Forms\Components\TextInput::make('mail_client_secret')
+                                                    ->label('Mail Client Secret')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+
+                                                    ])
+                                                    ->maxLength(255),
+
+                                                Forms\Components\TextInput::make('mail_tenant_id')
+                                                    ->label('Mail Tenant ID (solo Outlook)')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+                                                    ])
+                                                    ->maxLength(255)
+                                                    ->visible(fn($get) => $get('mail_source') === 'Outlook'), // ahora sí funcionará
+                                                Forms\Components\TextInput::make('mail_access_token')
+                                                    ->label('Mail Access Token')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+
+                                                    ])
+                                                    ->maxLength(65535)
+                                                    ->disabled(), // normalmente no editable directamente
+
+                                                Forms\Components\TextInput::make('mail_refresh_token')
+                                                    ->label('Mail Refresh Token')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+
+                                                    ])
+                                                    ->maxLength(65535)
+                                                    ->disabled(), // normalmente no editable directamente
+
+                                                Forms\Components\DateTimePicker::make('mail_token_expires_at')
+                                                    ->label('Expiración del Access Token')
+                                                    ->columnSpan([
+                                                        'default' => 12, // móvil
+
+                                                    ])
+                                                    ->disabled(), // generado automáticamente
+
+                                            ])
+                                    ]),
+                            ])
+
 
                     ]),
             ]);
