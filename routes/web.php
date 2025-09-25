@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BackupDownloadController;
 use App\Http\Controllers\FrontBookingController;
+use App\Http\Controllers\GmailController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\WelcomeController;
 use App\Models\Order;
@@ -44,7 +45,8 @@ Route::get('/factura', function () {
 
 
 Route::post('orders/{order}/toggle-invoice', [OrderController::class, 'toggleInvoice'])->name('orders.toggleInvoice');
-
+Route::get('/oauth2/authorize/google/{center}', [GmailController::class, 'redirectToGoogle'])->name('google.authorize');
+Route::get('/oauth2/callback/google', [GmailController::class, 'handleGoogleCallback'])->name('google.callback');
 
 Route::middleware('auth')->get('/admin/backups/download/{filepath}', [BackupDownloadController::class, 'download'])
     ->where('filepath', '.*')
