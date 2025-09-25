@@ -10,6 +10,9 @@ use App\Models\City;
 use App\Models\Customer;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\Actions;
+
+use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -150,6 +153,18 @@ class CenterResource extends Resource
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
+                                                Actions::make([
+                                                    FormAction::make('generateGoogleToken')
+                                                        ->label('Generar Token')
+                                                        ->icon('heroicon-o-key')
+                                                        ->color('primary')
+                                                        ->visible(fn($record) => $record && $record->mail_source === 'Gmail')
+                                                        ->url(fn($record) => route('google.authorize', ['center' => $record->id]))
+                                                        ->openUrlInNewTab() // ⚡ esto abre en otra pestaña
+                                                ])->columnSpan([
+                                                    'default' => 12, // móvil
+                                                ]),
+
                                                 Forms\Components\Select::make('mail_source')
                                                     ->label('Origen del correo')
                                                     ->columnSpan([
