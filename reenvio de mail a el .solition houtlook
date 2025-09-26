@@ -1,0 +1,38 @@
+🚀 Pasos para configurarlo en Gmail
+1. Autorizar la dirección de reenvío
+
+Inicia sesión en ing.newal.medina@gmail.com.
+
+Ve a ⚙️ Configuración (arriba a la derecha) → Ver toda la configuración.
+
+Entra en la pestaña Reenvío y correo POP/IMAP.
+
+En Reenvío, haz clic en Añadir una dirección de reenvío.
+
+Escribe el.solitions@gmail.com.
+
+Google enviará un correo de verificación a el.solitions@gmail.com.
+
+Abre ese correo, copia el código de confirmación y pégalo en la configuración de ing.newal.medina@gmail.com para autorizar el reenvío.
+
+2. Crear un filtro para solo reenviar correos de noreply@amovens.com
+
+En ing.newal.medina@gmail.com, haz clic en la barra de búsqueda (arriba).
+
+Pulsa en la flecha hacia abajo para abrir las opciones avanzadas.
+
+En el campo De, escribe:
+
+noreply@amovens.com
+
+
+Haz clic en Crear filtro.
+
+Marca la casilla Reenviar a y selecciona el.solitions@gmail.com.
+(Si no aparece, revisa que ya hayas completado la verificación del paso anterior).
+
+Guarda los cambios.
+
+✅ Listo: a partir de ahora, todo correo que llegue de noreply@amovens.com a ing.newal.medina@gmail.com será reenviado automáticamente a el.solitions@gmail.com.
+
+¿Quieres que te prepare una guía con capturas paso a paso para que la sigas más fácil?

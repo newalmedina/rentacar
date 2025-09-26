@@ -3,39 +3,29 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Center;
 use App\Services\GmailService;
 
 class FetchGmailMessagesCommand extends Command
 {
     protected $signature = 'mail:fetch-gmail';
-    protected $description = 'Obtiene los correos de Gmail de los centros con integración habilitada';
+    protected $description = 'Obtiene los correos recientes de Gmail';
 
-    public function handle(): int
+    public function handle()
     {
-        $centers = Center::active()
-            ->where('mail_enable_integration', true)
-            ->where('mail_source', 'Gmail')
-            ->get();
+        try {
+            $gmailService = new GmailService();
+            $messages = $gmailService->fetchRecentMessages();
 
-        if ($centers->isEmpty()) {
-            $this->info('No hay centros con integración de Gmail habilitada.');
-            return self::SUCCESS;
-        }
+            $this->info("Se encontraron " . count($messages) . " mensajes recientes:");
 
-        foreach ($centers as $center) {
-            try {
-                $gmailService = new GmailService($center);
-
-                $messages = $gmailService->getMessagesLastMinutes(20);
-
-                $this->info("{$center->name}: Se obtuvieron " . count($messages) . " mensajes");
-            } catch (\Throwable $e) {
-                $this->error("{$center->name}: " . $e->getMessage());
+            foreach ($messages as $msg) {
+                $this->line("{$msg['id']}: {$msg['snippet']}");
             }
+
+            $this->info("-------");
+            $this->info("Proceso terminado.");
+        } catch (\Exception $e) {
+            $this->error("Error: " . $e->getMessage());
         }
-
-
-        return self::SUCCESS;
     }
 }

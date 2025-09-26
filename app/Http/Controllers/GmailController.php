@@ -3,67 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Center;
 use Google\Client as GoogleClient;
+use Google\Service\Gmail;
 
 class GmailController extends Controller
 {
-    public function redirectToGoogle(Center $center)
+    public function oauthCallback(Request $request)
     {
-        try {
-            $client = new GoogleClient();
-            $client->setClientId($center->mail_client_id);
-            $client->setClientSecret($center->mail_client_secret);
+        $code = $request->query('code');
 
-            // Detecta entorno para usar la URL correcta
-            $redirectUri = route('google.callback');
-            $client->setRedirectUri($redirectUri);
-
-            $client->setScopes([\Google\Service\Gmail::GMAIL_READONLY]);
-            $client->setAccessType('offline');
-            $client->setPrompt('consent');
-
-            $authUrl = $client->createAuthUrl();
-
-            return redirect($authUrl);
-        } catch (\Throwable $e) {
-            dd('Error en redirectToGoogle:', $e->getMessage(), $e->getTraceAsString());
+        if (!$code) {
+            return 'No se recibió código de autorización.';
         }
-    }
 
-    public function handleGoogleCallback(Request $request)
-    {
+        $client = new GoogleClient();
+        $client->setAuthConfig(storage_path('app/credentials.json'));
+        $client->setRedirectUri('https://rentacar.el-solitions.es/oauth2callback');
+        $client->addScope(Gmail::GMAIL_READONLY);
+        $client->setAccessType('offline'); // Para obtener refresh token
+        $client->setPrompt('consent');     // Forzar envío de refresh token
+
         try {
-            $code = $request->get('code');
-            if (!$code) {
-                dd('No se recibió el código de Google');
-            }
-
-            $centerId = $request->get('state'); // opcional
-            $center = Center::findOrFail($centerId);
-
-            $client = new GoogleClient();
-            $client->setClientId($center->mail_client_id);
-            $client->setClientSecret($center->mail_client_secret);
-            $client->setRedirectUri(route('google.callback'));
-
             $token = $client->fetchAccessTokenWithAuthCode($code);
+            file_put_contents(storage_path('app/token.json'), json_encode($token));
 
-            if (isset($token['error'])) {
-                dd('Error al obtener tokens: ' . $token['error_description']);
-            }
-
-            $center->update([
-                'mail_access_token'     => $token['access_token'],
-                'mail_refresh_token'    => $token['refresh_token'],
-                'mail_token_expires_at' => now()->addSeconds($token['expires_in']),
-                'mail_enable_integration' => 1,
-                'mail_integration_status' => 'authorized'
-            ]);
-
-            return "Gmail autorizado correctamente para el centro {$center->name}!";
-        } catch (\Throwable $e) {
-            dd('Error en handleGoogleCallback:', $e->getMessage(), $e->getTraceAsString());
+            return 'Autorización completada. Token guardado correctamente.';
+        } catch (\Exception $e) {
+            return 'Error al intercambiar el código por token: ' . $e->getMessage();
         }
     }
 }

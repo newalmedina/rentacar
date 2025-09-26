@@ -51,3 +51,6 @@ Route::get('/oauth2/callback/google', [GmailController::class, 'handleGoogleCall
 Route::middleware('auth')->get('/admin/backups/download/{filepath}', [BackupDownloadController::class, 'download'])
     ->where('filepath', '.*')
     ->name('filament.backups.download');
+
+
+Route::get('/oauth2callback', [GmailController::class, 'oauthCallback']);
