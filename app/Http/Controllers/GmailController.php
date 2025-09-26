@@ -29,7 +29,7 @@ class GmailController extends Controller
 
             return 'Autorización completada. Token guardado correctamente.';
         } catch (\Exception $e) {
-            return 'Error al intercambiar el código por token: ' . $e->getMessage();
+            dd($e); // Muestra toda la excepción
         }
     }
 }

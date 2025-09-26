@@ -25,6 +25,7 @@ class FetchGmailMessagesCommand extends Command
             $this->info("-------");
             $this->info("Proceso terminado.");
         } catch (\Exception $e) {
+            dd($e);
             $this->error("Error: " . $e->getMessage());
         }
     }
