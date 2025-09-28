@@ -26,6 +26,7 @@ class FetchGmailMessagesCommand extends Command
             $this->info("Se encontraron " . count($messages) . " mensajes recientes:");
 
             foreach ($messages as $msg) {
+                $data = $this->getInfo($msg);
 
                 if (empty($data['matricula_coche'] ?? null)) {
                     $this->info("No se encontró matrícula en el mensaje, se omite.");
