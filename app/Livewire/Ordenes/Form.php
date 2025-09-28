@@ -613,6 +613,7 @@ class Form extends Component
 
             // Kilómetros → si faltan datos = null
             $totalKilometers = null;
+            $totalFuel = null;
             if (is_numeric($product['start_kilometers'] ?? null) && is_numeric($product['end_kilometers'] ?? null)) {
                 $totalKilometers = (float)$product['end_kilometers'] - (float)$product['start_kilometers'];
             }
