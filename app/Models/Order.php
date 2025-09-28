@@ -49,6 +49,14 @@ class Order extends Model
         return $this->belongsTo(Center::class);
     }
 
+    public function onlineStatuses()
+    {
+        return $this->hasMany(OrderOnlineStatus::class);
+    }
+    public function latestOnlineStatus()
+    {
+        return $this->hasOne(OrderOnlineStatus::class)->latestOfMany('date');
+    }
 
     public function orderDetails(): HasMany
     {
@@ -132,9 +140,12 @@ class Order extends Model
     {
         // Asigna automáticamente el usuario autenticado al crear
         static::creating(function ($order) {
+
+            if (empty($order->code)) {
+                $order->code = self::generateCode($order);
+            }
             if (Auth::check()) {
                 $order->created_by = Auth::id();
-                $order->code = self::generateCode($order);
             }
         });
 

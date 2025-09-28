@@ -23,6 +23,7 @@ class OrderDetail extends Model
         'total_with_taxes',
 
         'total_kilometers',
+        'gasoil_deficit',
     ];
 
     public function order(): BelongsTo
@@ -76,5 +77,13 @@ class OrderDetail extends Model
         }
 
         return null; // o 0 si prefieres devolver cero
+    }
+    public function getGasoilDeficitAttribute(): ?float
+    {
+        if (is_numeric($this->fuel_delivery) && is_numeric($this->fuel_return)) {
+            return round($this->fuel_delivery - $this->fuel_return, 2);
+        }
+
+        return null;
     }
 }

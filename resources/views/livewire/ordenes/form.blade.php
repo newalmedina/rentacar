@@ -285,7 +285,7 @@
                                     >
                                         <option value="">Seleccione cliente</option>
                                         @foreach ($customerList as $customer)
-                                            <option value="{{$customer->id}}">{{$customer->name}}</option>
+                                            <option value="{{$customer->id}}">{{$customer->name}} - {{$customer->identification}}</option>
                                         @endforeach
                                     </x-filament::input.select>
                                 </x-filament::input.wrapper>
@@ -920,6 +920,10 @@
                                 <th class="px-4 py-2 font-medium text-gray-700">Kms inicial</th>
                                 <th class="px-4 py-2 font-medium text-gray-700">Kms final</th>
                                 <th class="px-4 py-2 font-medium text-gray-700 text-right">Kms recorridos</th>
+                                <th class="px-4 py-2 font-medium text-gray-700">⛽ Inicial %</th>
+                                <th class="px-4 py-2 font-medium text-gray-700">⛽ Final %</th>
+                                <th class="px-4 py-2 font-medium text-gray-700 text-right">⛽  Déficit %</th>
+
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -957,9 +961,86 @@
                                     <td class="px-4 py-2 text-right min-w-[100px] whitespace-nowrap">
                                         {{ $product['total_kilometers'] }}
                                     </td>
+                                    <td class="px-4 py-2 min-w-[160px]">
+                                        <x-filament::input.wrapper>
+                                            <x-filament::input
+                                                type="number"
+                                                min="1"
+                                                step="0.1"
+                                                wire:model.lazy="selectedProducts.{{ $key }}.fuel_delivery"
+                                                :disabled="$order->disabled_sales"
+                                                placeholder="Ej. 100%"
+                                            />
+                                        </x-filament::input.wrapper>
+                                    </td>
+                                    
+                                    <td class="px-4 py-2 min-w-[160px]">
+                                        <x-filament::input.wrapper>
+                                            <x-filament::input
+                                                type="number"
+                                                min="1"
+                                                step="0.1"
+                                                wire:model.lazy="selectedProducts.{{ $key }}.fuel_return"
+                                                :disabled="$order->disabled_sales"
+                                                placeholder="Ej. 100%"
+                                            />
+                                        </x-filament::input.wrapper>
+                                    </td>
+                                    
+                                    <td class="px-4 py-2 text-right min-w-[100px] whitespace-nowrap">
+                                        {{ $product['gasoil_deficit'] }}
+                                    </td>
                                     
                                 </tr>
                             @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </x-filament::section>
+        @endif
+        @if (!empty($order->reserva_id))
+            <x-filament::section collapsible  collapsed  class="mb-4">
+           <x-slot name="heading">
+                    Historial estado Amovens. 
+                    <br>
+                   Estado Actual: 
+                    @php
+                        $lastStatus = $order->latestOnlineStatus;
+                    @endphp
+
+                    @if($lastStatus)
+                        <span class="text-green-600 font-semibold">
+                            {{ ucfirst($lastStatus->status) }} - 
+                            {{ $lastStatus->date ? \Carbon\Carbon::parse($lastStatus->date)->format('d-m-Y H:i') : '-' }}
+                        </span>
+                    @else
+                        <span class="text-gray-500">Sin estado registrado</span>
+                    @endif
+
+                </x-slot>
+
+        
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 font-medium text-gray-700">Estado </th>
+                                <th class="px-4 py-2 font-medium text-gray-700">Fecha</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                          @foreach ($order->onlineStatuses as $status)
+                                <tr>
+                                    <td class="px-4 py-2 text-left min-w-[100px] ">
+                                        {{ ucfirst($status->status) }}
+                                    </td>
+                                    <td class="px-4 py-2 text-left min-w-[100px] ">
+                                        {{ $status->date ? \Carbon\Carbon::parse($status->date)->format('d-m-Y H:i') : '' }}
+                                    </td>      
+                                </tr>
+                            @endforeach
+
                         </tbody>
                     </table>
                 </div>

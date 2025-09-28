@@ -104,6 +104,9 @@ class Form extends Component
                 "taxes" => $detail->taxes,
                 "taxes_amount" =>    $detail->taxes_amount * $detail->quantity,
                 "quantity" => $detail->quantity,
+                "fuel_return" => $detail->fuel_return,
+                "fuel_delivery" => $detail->fuel_delivery,
+                "gasoil_deficit" => $detail->gasoil_deficit,
                 "start_kilometers" => $detail->start_kilometers,
                 "end_kilometers" => $detail->end_kilometers,
                 "total_kilometers" => $detail->total_kilometers,
@@ -462,6 +465,8 @@ class Form extends Component
             $detail->quantity = $product["quantity"] ?? 0;
             $detail->start_kilometers = $product["start_kilometers"];
             $detail->end_kilometers = $product["end_kilometers"];
+            $detail->fuel_delivery = $product["fuel_delivery"];
+            $detail->fuel_return = $product["fuel_return"];
 
             $item = Item::find($product["item_id"]);
             if ($item) {
@@ -580,6 +585,9 @@ class Form extends Component
             "start_kilometers" => 0,
             "end_kilometers" => 0,
             "total_kilometers" => 0,
+            "fuel_return" => 0,
+            "fuel_delivery" => 0,
+            "gasoil_deficit" => 0,
 
             "price_with_taxes" => round($subtotal + $taxesAmount, 2),
 
@@ -608,6 +616,9 @@ class Form extends Component
             if (is_numeric($product['start_kilometers'] ?? null) && is_numeric($product['end_kilometers'] ?? null)) {
                 $totalKilometers = (float)$product['end_kilometers'] - (float)$product['start_kilometers'];
             }
+            if (is_numeric($product['fuel_return'] ?? null) && is_numeric($product['fuel_delivery'] ?? null)) {
+                $totalFuel = (float)$product['fuel_delivery'] - (float)$product['fuel_return'];
+            }
 
             $this->selectedProducts[$key] = [
                 "aleatory_id"       => $product['aleatory_id'] ?? null,
@@ -629,6 +640,10 @@ class Form extends Component
                 "start_kilometers"  => $product["start_kilometers"] ?? null,
                 "end_kilometers"    => $product["end_kilometers"] ?? null,
                 "total_kilometers"  => $totalKilometers,
+
+                "fuel_delivery"  => $product["fuel_delivery"] ?? null,
+                "fuel_return"    => $product["fuel_return"] ?? null,
+                "gasoil_deficit"  => $totalFuel,
             ];
         }
     }

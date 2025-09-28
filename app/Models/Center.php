@@ -69,4 +69,8 @@ class Center extends Model
     {
         return $query->where('active', true);
     }
+    public function scopeMailIntegration($query)
+    {
+        return $query->where('mail_enable_integration', true);
+    }
 }
