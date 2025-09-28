@@ -160,6 +160,7 @@ class FetchGmailMessagesCommand extends Command
                 $orderDetail = $order->orderDetails()->where('item_id', $car->id)->first();
                 if ($orderDetail) {
                     $orderDetail->start_kilometers = $data['km_entrega'] ?? $orderDetail->start_kilometers;
+                    $orderDetail->end_kilometers = $data['km_entrega'] ?? $orderDetail->end_kilometers;
                     $orderDetail->fuel_delivery = $this->parseFuel($data['combustible_entrega'] ?? null);
                     $orderDetail->save();
                 }
