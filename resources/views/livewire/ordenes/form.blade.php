@@ -1001,7 +1001,7 @@
         @if (!empty($order->reserva_id))
             <x-filament::section collapsible  collapsed  class="mb-4">
            <x-slot name="heading">
-                    Historial estado Amovens. 
+                    Historial estado Amovens.  ({{ $order->reserva_id }})
                     <br>
                    Estado Actual: 
                     @php

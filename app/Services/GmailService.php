@@ -13,7 +13,9 @@ class GmailService
 
     // Tiempo en minutos para filtrar correos recientes
     // public int $minutesAgo = 9000;
-    public int $minutesAgo = 20;
+    // public int $minutesAgo = 20;
+    public int $minutesAgo = 240; // 4 horas * 60 minutos
+
 
     public function __construct()
     {

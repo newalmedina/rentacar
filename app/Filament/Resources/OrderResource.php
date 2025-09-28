@@ -88,6 +88,11 @@ class OrderResource extends Resource
                     ->searchable()
                     ->label("Código")
                     ->sortable(),
+                Tables\Columns\TextColumn::make('reserva_id')
+                    ->searchable()
+                    ->label("Id reserva")
+                    ->toggleable()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_renting')
                     ->boolean()
                     ->label('Alquiler'),
