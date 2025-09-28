@@ -27,12 +27,12 @@ class FetchGmailMessagesCommand extends Command
 
             foreach ($messages as $msg) {
                 $data = $this->getInfo($msg);
-                dd($data);
+                // dd($data);
 
-                if (empty($data['matricula_coche'] ?? null)) {
-                    $this->info("No se encontró matrícula en el mensaje, se omite.");
-                    continue; // Solo saltar este mensaje, no cortar todo
-                }
+                // if (empty($data['matricula_coche'] ?? null)) {
+                //     $this->info("No se encontró matrícula en el mensaje, se omite.");
+                //     continue; // Solo saltar este mensaje, no cortar todo
+                // }
 
                 $cars = Item::with('center')->vehicle()
                     ->where('matricula', $data['matricula_coche'])
