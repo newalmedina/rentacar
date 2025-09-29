@@ -323,7 +323,12 @@ class FetchGmailMessagesCommand extends Command
 
             // Envía el mail usando el Mailable que creamos
             \Mail::to($order->customer->email)
-                ->send(new \App\Mail\OrderExtraCostNotification($order));
+                ->cc($order->center->email) // copia al centro
+                ->send(
+                    (new \App\Mail\OrderExtraCostNotification($order))
+                        ->from($order->center->email, $order->center->name) // desde el centro
+                );
+
 
             $this->info("Notificación de coste extra enviada para la orden {$order->code}");
         } catch (\Exception $e) {
