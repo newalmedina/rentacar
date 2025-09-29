@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Filament\Resources\CenterResource\Pages;
 use App\Models\Center;
 use App\Models\Country;
@@ -28,6 +29,7 @@ use Filament\Forms\Components\Markdown;
 use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Toggle;
 
 class CenterResource extends Resource
 {
@@ -153,31 +155,31 @@ class CenterResource extends Resource
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
-                                                Actions::make([
-                                                    FormAction::make('generateGoogleToken')
-                                                        ->label('Generar Token')
-                                                        ->icon('heroicon-o-key')
-                                                        ->color('primary')
-                                                        ->visible(fn($record) => $record && $record->mail_source === 'Gmail')
-                                                        ->url(fn($record) => route('google.authorize', ['center' => $record->id]))
-                                                        ->openUrlInNewTab() // ⚡ esto abre en otra pestaña
-                                                ])->columnSpan([
-                                                    'default' => 12, // móvil
-                                                ]),
+                                                // Actions::make([
+                                                //     FormAction::make('generateGoogleToken')
+                                                //         ->label('Generar Token')
+                                                //         ->icon('heroicon-o-key')
+                                                //         ->color('primary')
+                                                //         ->visible(fn($record) => $record && $record->mail_source === 'Gmail')
+                                                //         ->url(fn($record) => route('google.authorize', ['center' => $record->id]))
+                                                //         ->openUrlInNewTab() // ⚡ esto abre en otra pestaña
+                                                // ])->columnSpan([
+                                                //     'default' => 12, // móvil
+                                                // ]),
 
-                                                Forms\Components\Select::make('mail_source')
-                                                    ->label('Origen del correo')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
-                                                        'md' => 1,       // escritorio
-                                                    ])
-                                                    ->options([
-                                                        'Gmail' => 'Gmail',
-                                                        'Outlook' => 'Outlook',
-                                                    ])
-                                                    ->default('Gmail')
-                                                    ->required()
-                                                    ->reactive(), // ⚡ importante: hace que los cambios se reflejen dinámicamente
+                                                // Forms\Components\Select::make('mail_source')
+                                                //     ->label('Origen del correo')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
+                                                //         'md' => 1,       // escritorio
+                                                //     ])
+                                                //     ->options([
+                                                //         'Gmail' => 'Gmail',
+                                                //         'Outlook' => 'Outlook',
+                                                //     ])
+                                                //     ->default('Gmail')
+                                                //     ->required()
+                                                //     ->reactive(), // ⚡ importante: hace que los cambios se reflejen dinámicamente
 
 
 
@@ -189,55 +191,84 @@ class CenterResource extends Resource
                                                     ])
                                                     ->inline(false)
                                                     ->default(false),
+                                                TinyEditor::make('start_message')
+                                                    ->label("Mensaje antes alquiler")
+                                                    ->fileAttachmentsDisk('public')
+                                                    ->fileAttachmentsVisibility('public')
+                                                    ->fileAttachmentsDirectory('uploads')
+                                                    ->profile('default')
+                                                    ->columnSpan('full')
+                                                    ->required(fn($get) => $get('enable_start_message')) // obligatorio solo si toggle es true
+                                                    ->reactive(), // <-- importante para que muestre validación en tiempo real
 
-                                                Forms\Components\TextInput::make('mail_client_id')
-                                                    ->label('Mail Client ID')
+                                                Toggle::make('enable_end_message')
+                                                    ->label('¿Activar mensaje fin alquiler?')
                                                     ->columnSpan([
-                                                        'default' => 12, // móvil
-
+                                                        'default' => 12,
+                                                        'md' => 6,
                                                     ])
-                                                    ->maxLength(255),
+                                                    ->inline(false)
+                                                    ->default(false)
+                                                    ->reactive(),
 
-                                                Forms\Components\TextInput::make('mail_client_secret')
-                                                    ->label('Mail Client Secret')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
+                                                TinyEditor::make('end_message')
+                                                    ->label("Mensaje después alquiler")
+                                                    ->fileAttachmentsDisk('public')
+                                                    ->fileAttachmentsVisibility('public')
+                                                    ->fileAttachmentsDirectory('uploads')
+                                                    ->profile('full')
+                                                    ->columnSpan('full')
+                                                    ->required(fn($get) => $get('enable_end_message'))
+                                                    ->reactive(),
 
-                                                    ])
-                                                    ->maxLength(255),
+                                                // Forms\Components\TextInput::make('mail_client_id')
+                                                //     ->label('Mail Client ID')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
 
-                                                Forms\Components\TextInput::make('mail_tenant_id')
-                                                    ->label('Mail Tenant ID (solo Outlook)')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
-                                                    ])
-                                                    ->maxLength(255)
-                                                    ->visible(fn($get) => $get('mail_source') === 'Outlook'), // ahora sí funcionará
-                                                Forms\Components\TextInput::make('mail_access_token')
-                                                    ->label('Mail Access Token')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
+                                                //     ])
+                                                //     ->maxLength(255),
 
-                                                    ])
-                                                    ->maxLength(65535)
-                                                    ->disabled(), // normalmente no editable directamente
+                                                // Forms\Components\TextInput::make('mail_client_secret')
+                                                //     ->label('Mail Client Secret')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
 
-                                                Forms\Components\TextInput::make('mail_refresh_token')
-                                                    ->label('Mail Refresh Token')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
+                                                //     ])
+                                                //     ->maxLength(255),
 
-                                                    ])
-                                                    ->maxLength(65535)
-                                                    ->disabled(), // normalmente no editable directamente
+                                                // Forms\Components\TextInput::make('mail_tenant_id')
+                                                //     ->label('Mail Tenant ID (solo Outlook)')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
+                                                //     ])
+                                                //     ->maxLength(255)
+                                                //     ->visible(fn($get) => $get('mail_source') === 'Outlook'), // ahora sí funcionará
+                                                // Forms\Components\TextInput::make('mail_access_token')
+                                                //     ->label('Mail Access Token')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
 
-                                                Forms\Components\DateTimePicker::make('mail_token_expires_at')
-                                                    ->label('Expiración del Access Token')
-                                                    ->columnSpan([
-                                                        'default' => 12, // móvil
+                                                //     ])
+                                                //     ->maxLength(65535)
+                                                //     ->disabled(), // normalmente no editable directamente
 
-                                                    ])
-                                                    ->disabled(), // generado automáticamente
+                                                // Forms\Components\TextInput::make('mail_refresh_token')
+                                                //     ->label('Mail Refresh Token')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
+
+                                                //     ])
+                                                //     ->maxLength(65535)
+                                                //     ->disabled(), // normalmente no editable directamente
+
+                                                // Forms\Components\DateTimePicker::make('mail_token_expires_at')
+                                                //     ->label('Expiración del Access Token')
+                                                //     ->columnSpan([
+                                                //         'default' => 12, // móvil
+
+                                                //     ])
+                                                //     ->disabled(), // generado automáticamente
 
                                             ])
                                     ]),

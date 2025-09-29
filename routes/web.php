@@ -33,15 +33,33 @@ Route::get('/', function () {
 // Route::get('/booking', [FrontBookingController::class, 'index'])->name('booking');
 
 
-Route::get('/factura', function () {
-    $settings = Setting::first();
-    $generalSettings = $settings?->general;
+// Route::get('/factura', function () {
+//     $settings = Setting::first();
+//     $generalSettings = $settings?->general;
 
 
-    $order = Order::find(1);
+//     $order = Order::find(1);
 
-    return view('pdf.factura', compact('generalSettings', 'order'));
-});
+//     // Verifica si el centro tiene habilitado el mensaje
+//     if (!$order->center->enable_start_message) {
+//         //  $this->info("El centro {$order->center->name} no tiene habilitado el start message.");
+//         return;
+//     }
+
+//     try {
+//         // Envía el mail usando el Mailable que creamos
+//         \Mail::to($order->customer->email)
+//             ->cc($order->center->email) // copia al centro
+//             ->send(new \App\Mail\StartMessageNotification($order));
+
+//         // $this->info("Notificación start message enviada para la reserva {$order->code}");
+//     } catch (\Exception $e) {
+//         // Loguea el error sin romper la ejecución
+//         //$this->error("Error al enviar notificación start message: " . $e->getMessage());
+//     }
+//     // return view('pdf.factura', compact('generalSettings', 'order'));
+// });
+
 
 
 Route::post('orders/{order}/toggle-invoice', [OrderController::class, 'toggleInvoice'])->name('orders.toggleInvoice');

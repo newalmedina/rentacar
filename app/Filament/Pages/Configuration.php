@@ -6,13 +6,15 @@ use App\Mail\TestMail;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\{Actions, ColorPicker, TextInput, FileUpload, Toggle, DatePicker, Radio, Select, Section, Grid};
+use Filament\Forms\Components\{Actions, ColorPicker, TextInput, FileUpload, Toggle, DatePicker, Radio, Select, Section, Grid, Tabs};
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\Tabs\Tab;
 use Illuminate\Support\Facades\Mail;
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 
 class Configuration extends Page
 {
@@ -60,6 +62,10 @@ class Configuration extends Page
                 'image' => $center->image,
                 'primary_color' => $center->primary_color,
                 'primary_color_soft' => $center->primary_color_soft,
+                'start_message' => $center->start_message,
+                'end_message' => $center->end_message,
+                'enable_start_message' => $center->enable_start_message,
+                'enable_end_message' => $center->enable_end_message,
             ]);
         }
     }
@@ -84,100 +90,151 @@ class Configuration extends Page
                                     ->columnSpanFull(),
                             ]),
 
-                        Section::make('Información general')
+
+                        Tabs::make('Configuraciones')
                             ->columnSpan([
-                                'default' => 12, // móvil
-                                'md' => 9,       // escritorio
+                                'default' => 12,
+                                'md' => 9,
                             ])
-                            ->schema([
-                                Grid::make(2)
+                            ->tabs([
+                                // --- Pestaña de Información General ---
+                                Tab::make('Información general')
                                     ->schema([
-                                        Actions::make([
-                                            FormAction::make('sendTestEmail')
-                                                ->label('Enviar correo de prueba')
-                                                ->icon('heroicon-o-envelope')
-                                                ->color('warning') // azul
-                                                ->action(function (): void {
-                                                    $email = Auth()->user()->email;
+                                        Grid::make(2)
+                                            ->schema([
 
-                                                    Mail::to(Auth()->user()->email)->send(new TestMail(Auth()->user()));
+                                                Actions::make([
+                                                    FormAction::make('sendTestEmail')
+                                                        ->label('Enviar correo de prueba')
+                                                        ->icon('heroicon-o-envelope')
+                                                        ->color('warning')
+                                                        ->action(function (): void {
+                                                            $email = Auth()->user()->email;
 
-                                                    Notification::make()
-                                                        ->title('Correo de prueba enviado a ' . $email)
-                                                        ->success()
-                                                        ->send();
-                                                }),
-                                            FormAction::make('downloadOldBackup')
-                                                ->label('Descargar BBDD Antigua')
-                                                ->icon('heroicon-o-arrow-down')
-                                                ->extraAttributes([
-                                                    'style' => 'background-color: #6B21A8; color: white;' // púrpura y texto blanco
-                                                ])
-                                                ->visible(fn() => auth()->check() && auth()->user()?->can_show_general_resource == true)
-                                                //  ->visible(false)
+                                                            Mail::to($email)->send(new TestMail(Auth()->user()));
 
-                                                ->form([
-                                                    TextInput::make('filename')
-                                                        ->label('Nombre del archivo')
-                                                        ->required()
-                                                        ->placeholder('Ejemplo: laravel-backup/2025-07-22-19-54-30.zip'),
-                                                ])
-                                                ->action(function (array $data, $livewire) {
-                                                    $filename = $data['filename'];
+                                                            Notification::make()
+                                                                ->title('Correo de prueba enviado a ' . $email)
+                                                                ->success()
+                                                                ->send();
+                                                        }),
 
-                                                    // Validar o sanitizar filename si quieres
+                                                    FormAction::make('downloadOldBackup')
+                                                        ->label('Descargar BBDD Antigua')
+                                                        ->icon('heroicon-o-arrow-down')
+                                                        ->extraAttributes([
+                                                            'style' => 'background-color: #6B21A8; color: white;'
+                                                        ])
+                                                        ->visible(fn() => auth()->check() && auth()->user()?->can_show_general_resource == true)
+                                                        ->form([
+                                                            TextInput::make('filename')
+                                                                ->label('Nombre del archivo')
+                                                                ->required()
+                                                                ->placeholder('Ejemplo: laravel-backup/2025-07-22-19-54-30.zip'),
+                                                        ])
+                                                        ->action(function (array $data, $livewire) {
+                                                            $filename = $data['filename'];
+                                                            $url = route('filament.backups.download', ['filepath' => $filename]);
+                                                            $livewire->redirect($url);
+                                                        }),
+                                                ]),
 
-                                                    // Ruta de descarga generada
-                                                    $url = route('filament.backups.download', ['filepath' => $filename]);
+                                                TextInput::make('name')->label('Nombre')->required()->maxLength(255),
+                                                TextInput::make('nif')->label('NIF/CIF')->required()->maxLength(255),
+                                                TextInput::make('email')->label('Correo')->required()->email()->maxLength(255),
+                                                TextInput::make('phone')->label('Teléfono')->tel()->maxLength(255),
+                                                TextInput::make('address')->label('Dirección')->maxLength(255),
+                                                TextInput::make('postal_code')->label('Código postal')->maxLength(255),
 
-                                                    // Redirigir usando Livewire
-                                                    $livewire->redirect($url);
-                                                }),
+                                                Select::make('country_id')
+                                                    ->label('País')
+                                                    ->options(fn() => \App\Models\Country::pluck('name', 'id'))
+                                                    ->searchable(),
+
+                                                Select::make('state_id')
+                                                    ->label('Estado')
+                                                    ->options(fn(Get $get) => \App\Models\State::where('country_id', $get('country_id'))->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->live()
+                                                    ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
+
+                                                Select::make('city_id')
+                                                    ->label('Cidade')
+                                                    ->options(fn(Get $get) => \App\Models\City::where('state_id', $get('state_id'))->pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->live(),
+
+                                                TextInput::make('bank_name')->label('Entidad bancaria')->maxLength(255),
+                                                TextInput::make('bank_number')->label('Número de cuenta')->maxLength(255),
+
+                                                ColorPicker::make('primary_color')
+                                                    ->label('Color Primario'),
+                                                ColorPicker::make('primary_color_soft')
+                                                    ->label('Color Primario suave'),
+                                            ]),
+                                    ]),
+
+                                // --- Pestaña de Notificaciones ---
+                                Tab::make('Notificaciones')
+                                    ->schema([
+                                        Toggle::make('mail_enable_integration')
+                                            ->label('¿Habilitar integración de correo?')
+                                            ->columnSpan([
+                                                'default' => 12, // móvil
+                                                'md' => 6,       // escritorio
+                                            ])
+                                            ->inline(false)
+                                            ->default(false)
+                                            ->disabled(),
+                                        Toggle::make('enable_start_message')
+                                            ->label('¿Activar mensaje inicio alquiler?')
+                                            ->columnSpan([
+                                                'default' => 12,
+                                                'md' => 6,
+                                            ])
+                                            ->inline(false)
+                                            ->default(false)
+                                            ->reactive(), // <-- hace que otros campos reaccionen al cambio
+
+                                        TinyEditor::make('start_message')
+                                            ->label("Mensaje antes alquiler")
+                                            ->fileAttachmentsDisk('public')
+                                            ->fileAttachmentsVisibility('public')
+                                            ->fileAttachmentsDirectory('uploads')
+                                            ->profile('default')
+                                            ->columnSpan('full')
+                                            ->required(fn($get) => $get('enable_start_message')) // obligatorio solo si toggle es true
+                                            ->reactive(), // <-- importante para que muestre validación en tiempo real
+
+                                        Toggle::make('enable_end_message')
+                                            ->label('¿Activar mensaje fin alquiler?')
+                                            ->columnSpan([
+                                                'default' => 12,
+                                                'md' => 6,
+                                            ])
+                                            ->inline(false)
+                                            ->default(false)
+                                            ->reactive(),
+
+                                        TinyEditor::make('end_message')
+                                            ->label("Mensaje después alquiler")
+                                            ->fileAttachmentsDisk('public')
+                                            ->fileAttachmentsVisibility('public')
+                                            ->fileAttachmentsDirectory('uploads')
+                                            ->profile('full')
+                                            ->columnSpan('full')
+                                            ->required(fn($get) => $get('enable_end_message'))
+                                            ->reactive(),
 
 
 
-                                        ]),
-                                        TextInput::make('name')->label('Nombre')->required()->maxLength(255),
-                                        TextInput::make('nif')->label('NIF/CIF')->required()->maxLength(255),
-                                        TextInput::make('email')->label('Correo')->required()->email()->maxLength(255),
-                                        TextInput::make('phone')->label('Teléfono')->tel()->maxLength(255),
-                                        TextInput::make('address')->label('Dirección')->maxLength(255),
-                                        TextInput::make('postal_code')->label('Código postal')->maxLength(255),
 
-                                        Select::make('country_id')
-                                            ->label('País')
-                                            ->options(fn() => \App\Models\Country::pluck('name', 'id'))
-                                            ->searchable(),
-
-                                        Select::make('state_id')
-                                            ->label('Estado')
-                                            ->options(fn(Get $get) => \App\Models\State::where('country_id', $get('country_id'))->pluck('name', 'id'))
-                                            ->searchable()
-                                            ->preload()
-                                            ->live()
-                                            ->afterStateUpdated(fn(Set $set) => $set('city_id', null)),
-
-                                        Select::make('city_id')
-                                            ->label('Cidade')
-                                            ->options(fn(Get $get) => \App\Models\City::where('state_id', $get('state_id'))->pluck('name', 'id'))
-                                            ->searchable()
-                                            ->preload()
-                                            ->live(),
-
-                                        TextInput::make('bank_name')->label('Entidad bancaria')->maxLength(255),
-                                        TextInput::make('bank_number')->label('Número de cuenta')->maxLength(255),
-                                        // Color Picker
-                                        ColorPicker::make('primary_color')
-                                            ->label('Color Primario'),
-                                        ColorPicker::make('primary_color_soft')
-                                            ->label('Color Primario suave'),
-
-                                        // ColorPicker::make('secondary')
-                                        //     ->label('Color Secundario')
-                                        //     ->nullable(),
-                                        // Toggle::make('active')->label('¿Activo?')->required()->columnSpanFull(),
                                     ]),
                             ]),
+
+
                     ]),
             ])
             ->statePath('data');

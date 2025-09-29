@@ -168,6 +168,8 @@ class FetchGmailMessagesCommand extends Command
                 $this->addOrderStatus($order, $data['tipo_mensaje'], $msg);
 
                 $this->info("Orden actualizada (inicio): " . $data['id_reserva']);
+
+                $this->sendStartMessage($order);
             } catch (\Exception $e) {
                 $this->error("Error al actualizar orden (inicio) {$data['id_reserva']}: " . $e->getMessage());
             }
@@ -327,6 +329,30 @@ class FetchGmailMessagesCommand extends Command
         } catch (\Exception $e) {
             // En caso de error en el envío, lo loguea y no rompe la ejecución
             $this->error("Error al enviar notificación de coste extra: " . $e->getMessage());
+        }
+    }
+
+    private function sendStartMessage(Order $order)
+    {
+        // Verifica si el centro tiene habilitado el mensaje
+        if (!$order->center->enable_start_message) {
+            $this->info("El centro {$order->center->name} no tiene habilitado el start message.");
+            return;
+        }
+
+        try {
+            // Envía el mail usando el Mailable que creamos
+            \Mail::to($order->customer->email)
+                ->cc($order->center->email)
+                ->send(
+                    (new \App\Mail\StartMessageNotification($order))
+                        ->from($order->center->email, $order->center->name)
+                );
+
+            $this->info("Notificación start message enviada para la reserva {$order->code}");
+        } catch (\Exception $e) {
+            // Loguea el error sin romper la ejecución
+            $this->error("Error al enviar notificación start message: " . $e->getMessage());
         }
     }
 }

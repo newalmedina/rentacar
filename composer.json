@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "altwaireb/laravel-world": "^1.0",
+        "amidesfahani/filament-tinyeditor": "2.0",
         "barryvdh/laravel-dompdf": "*",
         "filament/filament": "^3.2",
         "google/apiclient": "2.15",

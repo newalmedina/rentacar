@@ -3,11 +3,17 @@
 
 $user = Auth::user();
 
-$center = $user?->center;
+if($user){
+    $generalSettings = $center?->general;
+    $center = $user?->center;
+    
+}else{
+    
+    $generalSettings = $center;
+    
+}
+$brandName = $generalSettings->name;
 
-$generalSettings = $center?->general;
-
-$brandName = $generalSettings?->name ?? config('app.name', 'Mi Empresa');
 $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
 
 @endphp
@@ -82,7 +88,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                 <table class="container" cellpadding="0" cellspacing="0" role="presentation">
                     <!-- Cabecera -->
                     <tr>
-                        <td style="background-color:#581177; padding:20px;">
+                        <td style="background-color:{{  $generalSettings->primary_color??'#581177' }}; padding:20px;">
                             <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                 <tr>
                                    {{-- @if($brandLogoBase64)
@@ -92,7 +98,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                                     @endif--}}
                                     <td style="vertical-align: middle;">
                                         @if(!empty($brandName))
-                                            <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">{{ $brandName }}</h1>
+                                            <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">{{ $brandName }} dsa</h1>
                                         @else
                                             <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">Mi Empresa</h1>
                                         @endif
@@ -106,7 +112,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                     @yield('content')
                     <tr>
                         <td style="padding: 30px 40px; color: #FFC107; font-size: 16px; line-height: 1.5;">
-                            @php
+                            {{-- @php
                                 $contactForm = \App\Models\CmsContent::findBySlug('contact-form');
                                 $whatsappNumber = preg_replace('/\D/', '', $contactForm->whatsapp_url);
                             @endphp
@@ -120,7 +126,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                                     style="">
                                     {{ $contactForm->whatsapp_url }}
                                 </a>. ¡Estaremos encantados de ayudarte!
-                            </p>
+                            </p> --}}
                         </td>
                     </tr>
                     
