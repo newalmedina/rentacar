@@ -10,6 +10,29 @@
             Queremos recordarte que tu alquiler finaliza próximamente ({{ \Carbon\Carbon::parse($order->end_date)->format('d/m/Y H:i') }}).
         </p>
 
+        @php
+            // Filtramos solo los items tipo 'vehicle'
+            $vehicleDetails = $order->orderDetails->filter(fn($detail) => $detail->item && $detail->item->type === 'vehicle');
+        @endphp
+
+        @if($vehicleDetails->isNotEmpty())
+            <p style="font-weight: bold; margin-top: 15px;">
+                Detalle vehículo reservado:
+            </p>
+            @foreach($vehicleDetails as $detail)
+                @php $vehicle = $detail->item; @endphp
+                <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                    <strong>{{ $vehicle->full_name }}</strong><br>
+                    Marca: {{ $vehicle->brand->name ?? 'N/A' }}<br>
+                    Modelo: {{ $vehicle->carModel->name ?? 'N/A' }}<br>
+                    Versión: {{ $vehicle->modelVersion->name ?? 'N/A' }}<br>
+                    Matrícula: {{ $vehicle->matricula ?? 'N/A' }}<br>
+                    Combustible: {{ $vehicle->fuelType->name ?? 'N/A' }}<br>
+                    Año: {{ $vehicle->year ?? 'N/A' }}
+                </div>
+            @endforeach
+        @endif
+        
         <div style="margin-top: 15px;">
             {!! $center->end_message !!}
         </div>
