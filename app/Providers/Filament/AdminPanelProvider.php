@@ -8,6 +8,7 @@ use App\Filament\CustomWidgets\GananciasMensualesChart;
 use App\Filament\CustomWidgets\GananciasStats;
 use App\Filament\CustomWidgets\GastosPercentPieChart;
 use App\Filament\CustomWidgets\GastosPieChart;
+use App\Filament\CustomWidgets\IngresosNetosStats;
 use App\Filament\CustomWidgets\OtherExpensesChart;
 use App\Filament\CustomWidgets\OtherExpensesStats;
 use App\Filament\CustomWidgets\ProductosMasVendido;
@@ -160,6 +161,7 @@ class AdminPanelProvider extends PanelProvider
                 OrdersExpensesStats::class,
                 VentasStats::class,
                 OtherExpensesStats::class,
+                IngresosNetosStats::class,
                 VentasMensualesChart::class,
                 OtherExpensesChart::class,
                 GananciasMensualesChart::class,
