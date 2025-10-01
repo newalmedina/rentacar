@@ -183,14 +183,25 @@ class CenterResource extends Resource
 
 
 
-                                                Forms\Components\Toggle::make('mail_enable_integration')
+                                                Toggle::make('mail_enable_integration')
                                                     ->label('¿Habilitar integración de correo?')
                                                     ->columnSpan([
                                                         'default' => 12, // móvil
                                                         'md' => 6,       // escritorio
                                                     ])
                                                     ->inline(false)
-                                                    ->default(false),
+                                                    ->default(false)
+                                                    ->disabled(),
+                                                Toggle::make('enable_start_message')
+                                                    ->label('¿Activar mensaje inicio alquiler?')
+                                                    ->columnSpan([
+                                                        'default' => 12,
+                                                        'md' => 6,
+                                                    ])
+                                                    ->inline(false)
+                                                    ->default(false)
+                                                    ->reactive(), // <-- hace que otros campos reaccionen al cambio
+
                                                 TinyEditor::make('start_message')
                                                     ->label("Mensaje antes alquiler")
                                                     ->fileAttachmentsDisk('public')
@@ -220,6 +231,7 @@ class CenterResource extends Resource
                                                     ->columnSpan('full')
                                                     ->required(fn($get) => $get('enable_end_message'))
                                                     ->reactive(),
+
 
                                                 // Forms\Components\TextInput::make('mail_client_id')
                                                 //     ->label('Mail Client ID')

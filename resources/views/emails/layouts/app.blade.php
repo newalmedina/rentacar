@@ -100,7 +100,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                                     @endif--}}
                                     <td style="vertical-align: middle;">
                                         @if(!empty($brandName))
-                                            <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">{{ $brandName }} dsa</h1>
+                                            <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">{{ $brandName }} </h1>
                                         @else
                                             <h1 style="color:#ffffff; font-size:24px; margin:0; font-weight:normal;">Mi Empresa</h1>
                                         @endif
