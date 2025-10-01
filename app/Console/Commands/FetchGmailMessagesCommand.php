@@ -345,8 +345,9 @@ class FetchGmailMessagesCommand extends Command
             return;
         }
         // Verifica si ya se ha enviado la notificación de fin
-        if (!empty($order->end_notification_sent_at)) {
-            $this->info("La orden {$order->id} ya tiene enviada la notificación de fin.");
+
+        if (!empty($order->start_notification_sent_at)) {
+            $this->info("La orden {$order->id} ya tiene enviada la notificación de inicio.");
             return;
         }
 
@@ -359,6 +360,9 @@ class FetchGmailMessagesCommand extends Command
                         ->from($order->center->email, $order->center->name)
                 );
 
+            $order->start_notification_sent_at = now();
+            $order->save();
+            
             $this->info("Notificación start message enviada para la reserva {$order->code}");
         } catch (\Exception $e) {
             // Loguea el error sin romper la ejecución
