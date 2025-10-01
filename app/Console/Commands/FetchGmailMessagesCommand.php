@@ -344,6 +344,11 @@ class FetchGmailMessagesCommand extends Command
             $this->info("El centro {$order->center->name} no tiene habilitado el start message.");
             return;
         }
+        // Verifica si ya se ha enviado la notificación de fin
+        if (!empty($order->end_notification_sent_at)) {
+            $this->info("La orden {$order->id} ya tiene enviada la notificación de fin.");
+            return;
+        }
 
         try {
             // Envía el mail usando el Mailable que creamos
