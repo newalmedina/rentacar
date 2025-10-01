@@ -137,7 +137,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                   
                     <tr>
                         <td class="footer">
-                            &copy; {{ date('Y') }} {{  $generalSettings ?? 'Mi Empresa' }}. Todos los derechos reservados.
+                            &copy; {{ date('Y') }} {{ $center->name ?? 'Mi Empresa' }}. Todos los derechos reservados.
                         </td>
                     </tr>
                 </table>

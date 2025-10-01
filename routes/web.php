@@ -50,7 +50,7 @@ Route::get('/factura', function () {
             \Mail::to($order->customer->email)
                 ->cc($order->center->email)
                 ->send(
-                    (new \App\Mail\EndMessageNotification($order))
+                    (new \App\Mail\StartMessageNotification($order))
                         ->from($order->center->email, $order->center->name)
                 );
             dd("enviado");
