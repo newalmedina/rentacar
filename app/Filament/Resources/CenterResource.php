@@ -190,8 +190,7 @@ class CenterResource extends Resource
                                                         'md' => 6,       // escritorio
                                                     ])
                                                     ->inline(false)
-                                                    ->default(false)
-                                                    ->disabled(),
+                                                    ->default(false),
                                                 Toggle::make('enable_start_message')
                                                     ->label('¿Activar mensaje inicio alquiler?')
                                                     ->columnSpan([

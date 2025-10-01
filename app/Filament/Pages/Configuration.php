@@ -64,6 +64,7 @@ class Configuration extends Page
                 'primary_color_soft' => $center->primary_color_soft,
                 'start_message' => $center->start_message,
                 'end_message' => $center->end_message,
+                'mail_enable_integration' => $center->mail_enable_integration,
                 'enable_start_message' => $center->enable_start_message,
                 'enable_end_message' => $center->enable_end_message,
             ]);
