@@ -193,6 +193,16 @@ class VehicleResource extends Resource
                                             'default' => 12, // móvil
                                             'md' => 4,       // escritorio
                                         ]),
+                                    Forms\Components\Select::make('fuel_type_id')
+                                        ->label('Tipo de combustible')
+                                        ->relationship('fuelType', 'name', fn($query) => $query->active())
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->columnSpan([
+                                            'default' => 12, // móvil
+                                            'md' => 4,       // escritorio
+                                        ]),
 
                                     // Fila 2
                                     Forms\Components\TextInput::make('year')
@@ -280,15 +290,15 @@ class VehicleResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                // Precio total
-                Tables\Columns\TextColumn::make('total_price')
-                    ->label("Precio Total")
-                    ->formatStateUsing(fn($state) => $state ? number_format($state, 2) . '€' : '-')
-                    ->sortable(),
+                // // Precio total
+                // Tables\Columns\TextColumn::make('total_price')
+                //     ->label("Precio Total")
+                //     ->formatStateUsing(fn($state) => $state ? number_format($state, 2) . '€' : '-')
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('total_kilometros_recorridos')
                     ->label('Kilómetros recorridos')
                     ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 2) . ' km' : '-')
-                    ->sortable(),
+                    ->toggleable(),
                 // Marca, Modelo y Versión
                 Tables\Columns\TextColumn::make('brand.name')
                     ->label("Marca")
@@ -300,6 +310,10 @@ class VehicleResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('modelVersion.name')
                     ->label("Versión")
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('fuelType.name')
+                    ->label("Tipo Combustible")
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('year')
@@ -353,6 +367,11 @@ class VehicleResource extends Resource
                 //     ->searchable()
                 //     ->label("Versión")
                 //     ->preload(),
+                SelectFilter::make('fuel_type_id')
+                    ->label('Tipo de combustible')
+                    ->relationship('fuelType', 'name', fn($query) => $query->active())
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('gestion')
                     ->label('Gestión')
                     ->options([

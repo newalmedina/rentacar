@@ -113,7 +113,10 @@ class Item extends Model
         // Retorna la URL pública del archivo
         return Storage::url($path);
     }
-
+    public function fuelType()
+    {
+        return $this->belongsTo(FuelType::class);
+    }
 
     public function scopeActive($query)
     {
