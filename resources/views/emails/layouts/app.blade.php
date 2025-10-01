@@ -4,14 +4,16 @@
 $user = Auth::user();
 
 if($user){
-    $generalSettings = $center?->general;
+    // $generalSettings = $center?->general;
     $center = $user?->center;
+    $generalSettings = $center ;
     
 }else{
     
     $generalSettings = $center;
     
 }
+
 $brandName = $generalSettings->name;
 
 $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
@@ -135,7 +137,7 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                   
                     <tr>
                         <td class="footer">
-                            &copy; {{ date('Y') }} {{ $brandName ?? 'Mi Empresa' }}. Todos los derechos reservados.
+                            &copy; {{ date('Y') }} {{  $generalSettings ?? 'Mi Empresa' }}. Todos los derechos reservados.
                         </td>
                     </tr>
                 </table>

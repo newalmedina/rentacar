@@ -22,7 +22,7 @@ class EndMessageNotification extends Mailable
 
     public function build()
     {
-        return $this->subject("Tu alquiler está por finalizar en 1 hora")
+        return $this->subject("Tu alquiler está por finalizar")
             ->view('emails.end_message');
     }
 }
