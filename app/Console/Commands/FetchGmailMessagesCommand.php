@@ -62,6 +62,10 @@ class FetchGmailMessagesCommand extends Command
                             $this->handleStart($data, $msg, $car, $centerId);
                             break;
 
+                        case 'ampliacion':
+                            $this->handleAmpliacion($data, $msg, $car, $centerId);
+                            break;
+
                         case 'devolucion':
                             $this->handleReturn($data, $msg, $car, $centerId);
                             break;
@@ -177,6 +181,33 @@ class FetchGmailMessagesCommand extends Command
             $this->info("No se encontró orden para actualizar inicio: " . $data['id_reserva']);
         }
     }
+    private function handleAmpliacion(array $data, $msg, Item $car, int $centerId)
+    {
+        $order = Order::where('reserva_id', $data['id_reserva'])
+            ->where('center_id', $centerId)
+            ->first();
+
+        if ($order) {
+            try {
+                $order->start_date = isset($data['fecha_inicio']) ? Carbon::parse($data['fecha_inicio']) : now();
+                $order->end_date = isset($data['fecha_fin']) ? Carbon::parse($data['fecha_fin']) : now();
+
+                $orderDetail = $order->orderDetails()->where('item_id', $car->id)->first();
+                if ($orderDetail) {
+
+                    $orderDetail->price = isset($data['ingresos']) ? str_replace(',', '.', $data['ingresos']) : 0;
+                    // $orderDetail->price = isset($data['ingresos']) ? str_replace(',', '.', $data['ingresos']) : 0;
+
+                    $orderDetail->save();
+                }
+                $this->info("Orden ampliada: " . $data['id_reserva']);
+            } catch (\Exception $e) {
+                $this->error("Error al registrar la ampliacion para {$data['id_reserva']}: " . $e->getMessage());
+            }
+        } else {
+            $this->info("No se encontró orden para ampliar: " . $data['id_reserva']);
+        }
+    }
 
     private function handleReturn(array $data, $msg, Item $car, int $centerId)
     {
@@ -251,6 +282,7 @@ class FetchGmailMessagesCommand extends Command
             str_contains($lower, 'contrato de alquiler - comienzo') => 'Comienzo',
             str_contains($lower, 'contrato de alquiler - devolución') => 'Devolución',
             str_contains($lower, 'ha cancelado tu reserva') => 'Cancelación',
+            str_contains($lower, 'amplió el alquiler') => 'Ampliación', // Nuevo tipo
             default => 'Desconocido',
         };
 
@@ -262,6 +294,21 @@ class FetchGmailMessagesCommand extends Command
             $data['fecha_fin'] = $fechas[0][1] ?? null;
             preg_match('/Ingresos totales\s*([\d.,]+)/', $text, $m) && $data['ingresos'] = $m[1];
             preg_match('/ID de reserva\s*(\d+)/', $text, $m) && $data['id_reserva'] = $m[1];
+            preg_match('/\b[A-Z0-9]{4,8}\b/', $text, $m) && $data['matricula_coche'] = $m[0];
+        }
+        if ($tipo === 'Ampliación') {
+            // Extraer fechas actualizadas
+            preg_match_all('/\d{1,2}\.\s*\w+.*?\d{1,2}:\d{2}/', $text, $fechas);
+            $data['fecha_inicio'] = $fechas[0][0] ?? null;
+            $data['fecha_fin'] = $fechas[0][1] ?? null;
+
+            // Extraer nuevos ingresos
+            preg_match('/Nuevos ingresos totales\s*([\d.,]+)/', $text, $m) && $data['ingresos'] = $m[1];
+
+            // Extraer ID de reserva
+            preg_match('/ID de reserva\s*(\d+)/', $text, $m) && $data['id_reserva'] = $m[1];
+
+            // Extraer matrícula
             preg_match('/\b[A-Z0-9]{4,8}\b/', $text, $m) && $data['matricula_coche'] = $m[0];
         }
 
@@ -362,7 +409,7 @@ class FetchGmailMessagesCommand extends Command
 
             $order->start_notification_sent_at = now();
             $order->save();
-            
+
             $this->info("Notificación start message enviada para la reserva {$order->code}");
         } catch (\Exception $e) {
             // Loguea el error sin romper la ejecución
