@@ -467,6 +467,16 @@ class FetchGmailMessagesCommand extends Command
             return;
         }
 
+        if (!empty($order->start_date)) {
+            $startDate = \Carbon\Carbon::parse($order->start_date);
+            $twoHoursAgo = \Carbon\Carbon::now()->subHours(2);
+
+            if ($startDate->lt($twoHoursAgo)) {
+                $this->info("La orden {$order->id} tiene start_date mayor a 2 horas, no se enviará la notificación.");
+                return;
+            }
+        }
+
         try {
             // Envía el mail usando el Mailable que creamos
             \Mail::to($order->customer->email)
