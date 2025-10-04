@@ -93,6 +93,21 @@ class OrderResource extends Resource
                     ->label("Id reserva")
                     ->toggleable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('latestOnlineStatus.status_label')
+                    ->label('Último estado Amovens')
+                    ->badge()
+                    ->color(fn(?string $state): string => match ($state) {
+                        'Confirmado'  => 'success',  // verde
+                        'En curso'    => 'info',     // azul
+                        'Cancelado'   => 'danger',   // rojo
+                        'Ampliado'    => 'warning',  // amarillo
+                        'Devolución'  => 'secondary', // gris
+                        default       => 'gray',     // fallback
+                    })
+                    ->formatStateUsing(fn(?string $state): string => $state ?? ''),
+
+
+
                 Tables\Columns\IconColumn::make('is_renting')
                     ->boolean()
                     ->label('Alquiler'),
@@ -390,7 +405,7 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-document-text')  // Ícono de recibo/factura
                     ->color('secondary')            // Azul, por ejemplo
                     ->tooltip('Generar Factura')
-                    ->visible(fn($record) => $record->invoiced == 1)
+                    ->visible(fn($record) => $record->invoiced == 1 && !$record->block_order)
                     ->action(function ($record) {
                         // Aquí va la lógica para generar la factura
                         // $record->generateInvoice();
@@ -468,7 +483,7 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-currency-dollar')
                     ->color('warning') // amarillo
                     ->tooltip('Generar factura')
-                    ->visible(fn($record) => $record->invoiced == 0)
+                    ->visible(fn($record) => $record->invoiced == 0 && !$record->block_order)
                     ->requiresConfirmation()
                     ->modalHeading('Confirmar facturación')
                     ->action(function ($record) {
@@ -487,7 +502,7 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger') // rojo
                     ->tooltip('Revertir la facturación')
-                    ->visible(fn($record) => $record->invoiced == 1)
+                    ->visible(fn($record) => $record->invoiced == 1 && !$record->block_order)
                     ->requiresConfirmation()
                     ->modalHeading('Confirmar reversión de facturación')
                     ->action(function ($record) {
@@ -502,7 +517,8 @@ class OrderResource extends Resource
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Eliminar')
-                    ->visible(fn($record) => !$record->disabled_sales)
+                    ->visible(fn($record) => !$record->disabled_sales && !$record->block_order)
+
                     ->after(function ($record) {
                         // Enviar el correo
                         $settings = Setting::first();

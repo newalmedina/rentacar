@@ -212,6 +212,7 @@ class CalendarWidget extends FullCalendarWidget
                     ->label('Detalles del pedido')
                     ->view('filament.components.order-details', [
                         'orderDetails' => $this->record?->orderDetails ?? [],
+                        'order' => $this->record,
                     ])
                     ->columnSpan(12),
 

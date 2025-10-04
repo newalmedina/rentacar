@@ -14,70 +14,83 @@ use Illuminate\Support\Str;
 
 class FetchGmailMessagesCommand extends Command
 {
-    protected $signature = 'mail:fetch-gmail';
-    protected $description = 'Obtiene los correos recientes de Gmail';
+    // protected $signature = 'actualizar_reservas {tiempo?}';
+    protected $signature = 'actualizar_reservas {tiempo?} {--error=false}';
+
+    protected $description = 'Obtiene los correos recientes de Gmail, opcionalmente filtrando por tiempo en minutos';
+    public $error = false;
+    //php artisan actualizar_reservas 9000
+    //php artisan actualizar_reservas 
 
     public function handle()
     {
         try {
-            $gmailService = new GmailService();
+            $tiempo = $this->argument('tiempo') ?? 60; // valor por defecto: 60 minutos
+            $this->error = filter_var($this->option('error'), FILTER_VALIDATE_BOOLEAN);
+
+            $gmailService = new GmailService($tiempo);
             $messages = $gmailService->fetchRecentMessages();
+
 
             $this->info("Se encontraron " . count($messages) . " mensajes recientes:");
 
             foreach ($messages as $msg) {
-                $data = $this->getInfo($msg);
-                // dd($data);
-
-                // if (empty($data['matricula_coche'] ?? null)) {
-                //     $this->info("No se encontró matrícula en el mensaje, se omite.");
-                //     continue; // Solo saltar este mensaje, no cortar todo
-                // }
-
-                $cars = Item::with('center')->vehicle()
-                    ->where('matricula', $data['matricula_coche'])
-                    ->whereHas('center', fn($q) => $q->where('active', true)
-                        ->where('mail_enable_integration', true))
-                    ->get();
-
-                if ($cars->isEmpty()) {
-                    $this->info("No se encontraron coches activos para la matrícula {$data['matricula_coche']}");
-                    continue;
-                }
-
-                foreach ($cars as $car) {
-                    if (!$car->center) {
-                        $this->info("Coche {$car->matricula} sin centro asociado activo, se omite.");
+                try {
+                    $data = $this->getInfo($msg);
+                    if ($data["tipo_mensaje"] == "desconocido") {
                         continue;
                     }
 
-                    $centerId = $car->center_id;
+                    $cars = Item::with('center')->vehicle()
+                        ->where('matricula', $data['matricula_coche'])
+                        ->whereHas('center', fn($q) => $q->where('active', true)
+                            ->where('mail_enable_integration', true))
+                        ->get();
 
-                    switch ($data['tipo_mensaje']) {
-                        case 'confirmacion':
-                            $this->handleConfirmation($data, $car, $centerId, $msg);
-                            break;
-
-                        case 'comienzo':
-                            $this->handleStart($data, $msg, $car, $centerId);
-                            break;
-
-                        case 'ampliacion':
-                            $this->handleAmpliacion($data, $msg, $car, $centerId);
-                            break;
-
-                        case 'devolucion':
-                            $this->handleReturn($data, $msg, $car, $centerId);
-                            break;
-
-                        case 'cancelacion':
-                            $this->handleCancellation($data, $centerId, $msg);
-                            break;
-
-                        default:
-                            $this->info("Tipo de mensaje desconocido: {$data['tipo_mensaje']}");
-                            break;
+                    if ($cars->isEmpty()) {
+                        $this->info("No se encontraron coches activos para la matrícula {$data['matricula_coche']}");
+                        continue;
                     }
+
+                    foreach ($cars as $car) {
+                        if (!$car->center) {
+                            $this->info("Coche {$car->matricula} sin centro asociado activo, se omite.");
+                            continue;
+                        }
+
+                        $centerId = $car->center_id;
+
+                        switch ($data['tipo_mensaje']) {
+                            case 'confirmacion':
+                                $this->handleConfirmation($data, $car, $centerId, $msg);
+                                break;
+
+                            case 'comienzo':
+                                $this->handleStart($data, $msg, $car, $centerId);
+                                break;
+
+                            case 'ampliacion':
+                                $this->handleAmpliacion($data, $msg, $car, $centerId);
+                                break;
+
+                            case 'devolucion':
+                                $this->handleReturn($data, $msg, $car, $centerId);
+                                break;
+
+                            case 'cancelacion':
+                                $this->handleCancellation($data, $centerId, $msg);
+                                break;
+
+                            default:
+                                $this->info("Tipo de mensaje desconocido: {$data['tipo_mensaje']}");
+                                break;
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    if ($this->error) {
+                        dd($th);
+                    }
+                    $this->info("Error" . $th);
                 }
             }
 
@@ -100,6 +113,7 @@ class FetchGmailMessagesCommand extends Command
         $existingOrder = Order::where('reserva_id', $data['id_reserva'])
             ->where('center_id', $centerId)
             ->first();
+
 
         if ($existingOrder) {
             $this->info("Orden ya existente: " . $data['id_reserva']);
@@ -181,31 +195,77 @@ class FetchGmailMessagesCommand extends Command
             $this->info("No se encontró orden para actualizar inicio: " . $data['id_reserva']);
         }
     }
+
     private function handleAmpliacion(array $data, $msg, Item $car, int $centerId)
     {
+        //la reserva id es nueva el cual hay que buscar el vehiculo por fecha y matricula
         $order = Order::where('reserva_id', $data['id_reserva'])
             ->where('center_id', $centerId)
             ->first();
 
+
+
+        if (!$order) {
+            $order = $this->getOrderByMatriculaDate($data, $centerId);
+            $order->reserva_id =  $data['id_reserva'];
+            $order->save();
+        }
+
         if ($order) {
             try {
-                $order->start_date = isset($data['fecha_inicio']) ? Carbon::parse($data['fecha_inicio']) : now();
-                $order->end_date = isset($data['fecha_fin']) ? Carbon::parse($data['fecha_fin']) : now();
+
+                // $order->start_date = isset($data['fecha_inicio']) ? Carbon::parse($data['fecha_inicio']) : now();
+                if (isset($data['fecha_fin'])) {
+
+                    $order->end_date = Carbon::parse($data['fecha_fin']);
+                }
 
                 $orderDetail = $order->orderDetails()->where('item_id', $car->id)->first();
                 if ($orderDetail) {
 
                     $orderDetail->price = isset($data['ingresos']) ? str_replace(',', '.', $data['ingresos']) : 0;
                     // $orderDetail->price = isset($data['ingresos']) ? str_replace(',', '.', $data['ingresos']) : 0;
-
-                    $orderDetail->save();
                 }
+                $order->save();
+                $orderDetail->save();
+
+                $this->addOrderStatus($order, $data['tipo_mensaje'], $msg);
+
                 $this->info("Orden ampliada: " . $data['id_reserva']);
             } catch (\Exception $e) {
                 $this->error("Error al registrar la ampliacion para {$data['id_reserva']}: " . $e->getMessage());
             }
         } else {
             $this->info("No se encontró orden para ampliar: " . $data['id_reserva']);
+        }
+    }
+    private function getOrderByMatriculaDate($data, $center_id)
+    {
+        // Validar que existan los índices necesarios
+
+        try {
+            $fecha_inicio = Carbon::parse($data['fecha_inicio'])
+                ->startOfSecond()
+                ->format('Y-m-d H:i:s');
+
+            $fecha_fin = Carbon::parse($data['fecha_inicio'])
+                ->endOfSecond()
+                ->format('Y-m-d H:i:s');
+            return Order::select('orders.*')
+                ->join('order_details', 'order_details.order_id', '=', 'orders.id')
+                ->join('items', 'order_details.order_id', '=', 'orders.id')
+                ->where('orders.center_id', $center_id)
+                ->where('items.matricula', $data["matricula_coche"])
+                ->where('orders.start_date', '>=', $fecha_inicio)
+                ->where('orders.start_date', '<=', $fecha_fin)
+                ->orderBy('orders.start_date', 'desc')
+                ->first();
+        } catch (\Exception $e) {
+            if ($this->error) {
+                dd($e);
+            }
+            // Retorna null si la fecha no es válida
+            return null;
         }
     }
 
@@ -215,6 +275,7 @@ class FetchGmailMessagesCommand extends Command
         $data['id_reserva'] = $matches[1] ?? null;
 
         if (!$data['id_reserva']) {
+
             $this->info("No se pudo extraer ID de reserva del mensaje de devolución para el coche {$car->matricula}");
         }
 
@@ -254,6 +315,10 @@ class FetchGmailMessagesCommand extends Command
 
         if ($order) {
             try {
+                $order->invoiced_automatic = false;
+                $order->block_order = true;
+                $order->invoiced = false;
+                $order->save();
                 $this->addOrderStatus($order, $data['tipo_mensaje'], $msg);
                 $this->info("Orden cancelada: " . $data['id_reserva']);
             } catch (\Exception $e) {
@@ -340,6 +405,7 @@ class FetchGmailMessagesCommand extends Command
 
         return $data;
     }
+
     private function addOrderStatus(Order $order, string $slug, $msg): bool
     {
         $exists = $order->onlineStatuses()
@@ -352,13 +418,16 @@ class FetchGmailMessagesCommand extends Command
             $order->onlineStatuses()->create([
                 'status' => $slug,
                 'date' => $date,
+                'reserva_id' => $order->reserva_id, // 👈 nuevo campo
             ]);
+
             $this->info("Estado '{$slug}' registrado para la orden {$order->id}");
             return true; // Nuevo status creado
         }
 
         return false; // Status ya existía
     }
+
     private function sendExtraCostNotification(Order $order)
     {
         try {

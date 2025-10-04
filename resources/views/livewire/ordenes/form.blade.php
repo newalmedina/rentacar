@@ -25,12 +25,28 @@
              
     @endif
 
+    @if ($order->block_order)
+        <div class="col-span-12 w-full">
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 shadow-sm">
+                <!-- Icono de advertencia -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 19c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7z" />
+                </svg>
+
+                <!-- Texto -->
+                <span class="font-semibold">Orden bloqueada por Amovens.</span>
+                <span class="text-sm">Verifica el estado antes de continuar con cualquier acción.</span>
+            </div>
+        </div>
+    @endif
+
 
     <div class="col-span-12 flex justify-between w-full">
 
         <div >
 
-        @if (empty($order->id) || !$order->invoiced)
+         @if ((empty($order->id) || !$order->invoiced) && !$order->block_order)
+
             <x-filament::button color="primary" class="mr-5 mb-3" wire:click="saveForm(0)">
                 Guardar
             </x-filament::button>
@@ -38,6 +54,8 @@
                 Guardar y facturar
             </x-filament::button>
         @endif
+
+         
             
         @if (!empty($order->id) && $order->invoiced)
             <!-- 1. Generar Factura -->
@@ -231,12 +249,22 @@
                             </x-filament-forms::field-wrapper.label>
                             <x-filament::input.wrapper  :valid="! $errors->has('form.start_date')">
                                 <x-filament::input
-                                :disabled="$order->disabled_sales"
+                                :disabled="$order->disabled_sales || $order->reserva_id"
                                     type="datetime-local"
                                     wire:model.defer="form.start_date"
 
                                 />
                             </x-filament::input.wrapper>
+                              {{-- Mensaje informativo si viene de reserva externa --}}
+                                @if($order->reserva_id)
+                                    <p class="text-sm text-yellow-700 mt-1 flex items-center gap-1">
+                                        <!-- Icono de advertencia -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 19c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7z" />
+                                        </svg>
+                                        Fecha de inicio no se puede modificar ya que el registro proviene de plataforma externa.
+                                    </p>
+                                @endif
                             @error('form.start_date')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
@@ -1010,7 +1038,7 @@
 
                     @if($lastStatus)
                         <span class="text-green-600 font-semibold">
-                            {{ ucfirst($lastStatus->status) }} - 
+                            {{ ucfirst($lastStatus->status_label) }} - 
                             {{ $lastStatus->date ? \Carbon\Carbon::parse($lastStatus->date)->format('d-m-Y H:i') : '-' }}
                         </span>
                     @else
@@ -1025,6 +1053,7 @@
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="px-4 py-2 font-medium text-gray-700">Estado </th>
+                                <th class="px-4 py-2 font-medium text-gray-700">Reserva id </th>
                                 <th class="px-4 py-2 font-medium text-gray-700">Fecha</th>
 
                             </tr>
@@ -1034,6 +1063,9 @@
                                 <tr>
                                     <td class="px-4 py-2 text-left min-w-[100px] ">
                                         {{ ucfirst($status->status) }}
+                                    </td>
+                                    <td class="px-4 py-2 text-left min-w-[100px] ">
+                                        {{ $status->reserva_id }}
                                     </td>
                                     <td class="px-4 py-2 text-left min-w-[100px] ">
                                         {{ $status->date ? \Carbon\Carbon::parse($status->date)->format('d-m-Y H:i') : '' }}

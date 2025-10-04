@@ -38,4 +38,19 @@
             </tr>
         </tfoot>
     </table>
+    @if ($order->block_order)
+    
+        <div class="col-span-12 w-full">
+            <div class="flex items-center gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 shadow-sm">
+                <!-- Icono de advertencia -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 19c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7z" />
+                </svg>
+
+                <!-- Texto -->
+                <span class="font-semibold">Orden bloqueada por Amovens.</span>
+                <span class="text-sm">Verifica el estado antes de continuar con cualquier acción.</span>
+            </div>
+        </div>
+    @endif
 </div>

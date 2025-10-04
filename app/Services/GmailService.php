@@ -17,8 +17,9 @@ class GmailService
     public int $minutesAgo = 60; // 4 horas * 60 minutos
 
 
-    public function __construct()
+    public function __construct($minutesAgo)
     {
+        $this->minutesAgo = $minutesAgo;
         $this->initClient();
     }
 

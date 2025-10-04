@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('invoices:process-automatic')->everyThreeHours();
         $schedule->command('notifications:send-end-messages')->hourly();
 
-        $schedule->command('mail:fetch-gmail')->everyTenMinutes();
+        $schedule->command('actualizar_reservas')->everyTenMinutes();
         // $schedule->command('backup:run')->dailyAt('05:00');
         // $schedule->command('backup:run --only-db --disable-notifications')->dailyAt('1:30')->environments(['production']);
         // $schedule->job(new SendTestEmailJob)->everyMinute();

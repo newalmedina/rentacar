@@ -25,42 +25,80 @@
            ">
             Ir a la orden
         </a>
+{{-- @dd($getRecord()->block_order) --}}
+        @if ($getRecord()->block_order)
+            <div style="
+                display: flex; 
+                gap: 0.5rem; 
+                flex: 1 1 auto; 
+                justify-content: flex-end;
+                flex-wrap: wrap; /* apilar en pantallas pequeñas */
+            ">
 
+                <!-- Badge de facturado -->
+                <span style="
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.25rem;
+                    color: {{  $getRecord()->latestOnlineStatus->status_color }};
+                    border: 2px solid {{  $getRecord()->latestOnlineStatus->status_color }};
+                    background-color: transparent;
+                    font-weight: 500;
+                ">
+                    {{ $getRecord()->invoiced_label }}
+                </span>
+
+                <!-- Badge de estado -->
+                <span style="
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.25rem;
+                    color: {{ $getRecord()->latestOnlineStatus->status_color }};
+                    border: 2px solid {{ $getRecord()->latestOnlineStatus->status_color  }};
+                    background-color: transparent;
+                    font-weight: 500;
+                ">
+                    {{ $getRecord()->latestOnlineStatus->status_label }} por Amovens
+                </span>
+
+            </div>
+        @else
+             <div style="
+                display: flex; 
+                gap: 0.5rem; 
+                flex: 1 1 auto; 
+                justify-content: flex-end;
+                flex-wrap: wrap; /* apilar en pantallas pequeñas */
+            ">
+
+                <!-- Badge de facturado -->
+                <span style="
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.25rem;
+                    color: {{ $getRecord()->invoiced_color }};
+                    border: 2px solid {{ $getRecord()->invoiced_color }};
+                    background-color: transparent;
+                    font-weight: 500;
+                ">
+                    {{ $getRecord()->invoiced_label }}
+                </span>
+
+                <!-- Badge de estado -->
+                <span style="
+                    display: inline-block;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.25rem;
+                    color: {{ $getRecord()->status_color }};
+                    border: 2px solid {{ $getRecord()->status_color }};
+                    background-color: transparent;
+                    font-weight: 500;
+                ">
+                    {{ $getRecord()->status }}
+                </span>
+
+            </div>
+        @endif
         <!-- Badges a la derecha -->
-        <div style="
-            display: flex; 
-            gap: 0.5rem; 
-            flex: 1 1 auto; 
-            justify-content: flex-end;
-            flex-wrap: wrap; /* apilar en pantallas pequeñas */
-        ">
-
-            <!-- Badge de facturado -->
-            <span style="
-                display: inline-block;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-                color: {{ $getRecord()->invoiced_color }};
-                border: 2px solid {{ $getRecord()->invoiced_color }};
-                background-color: transparent;
-                font-weight: 500;
-            ">
-                {{ $getRecord()->invoiced_label }}
-            </span>
-
-            <!-- Badge de estado -->
-            <span style="
-                display: inline-block;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-                color: {{ $getRecord()->status_color }};
-                border: 2px solid {{ $getRecord()->status_color }};
-                background-color: transparent;
-                font-weight: 500;
-            ">
-                {{ $getRecord()->status }}
-            </span>
-
-        </div>
     </div>
 @endif

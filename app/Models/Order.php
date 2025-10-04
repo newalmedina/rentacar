@@ -91,6 +91,9 @@ class Order extends Model
 
     public function getDisabledSalesAttribute(): bool
     {
+        if ($this->block_order) {
+            return 1;
+        }
         return $this->invoiced == 1;
     }
     private static function generateCode($order)
@@ -218,6 +221,10 @@ class Order extends Model
 
     public function getStatusAttribute(): ?string
     {
+
+        if ($this->block_order) {
+            return null;
+        }
         if (!$this->is_renting) {
             return null;
         }
