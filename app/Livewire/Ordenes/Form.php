@@ -335,7 +335,7 @@ class Form extends Component
     {
         $rules = [
             'form.customer_id' => ['required'],
-            'form.assigned_user_id' => ['required'],
+            // 'form.assigned_user_id' => ['required'],
             'form.date' => ['required'],
             'form.is_renting' => ['boolean'], // <-- Aquí
             'form.invoiced_automatic' => ['boolean'], // <-- Aquí
@@ -349,8 +349,9 @@ class Form extends Component
 
         // Validaciones adicionales si is_renting es true
         if ($this->form['is_renting'] ?? false) {
-            $rules['form.start_date'] = ['required', 'date'];
-            $rules['form.end_date'] = ['required', 'date', 'after_or_equal:form.start_date'];
+            $rules['form.start_date'] = ['required'];
+            // $rules['form.end_date'] = ['required', 'date', 'after_or_equal:form.start_date'];
+            $rules['form.end_date'] = ['required'];
 
             $messages['form.start_date.required'] = 'La fecha de inicio es obligatoria.';
             $messages['form.end_date.required'] = 'La fecha de finalización es obligatoria.';
@@ -363,133 +364,147 @@ class Form extends Component
 
     public function saveForm(int $action = 0)
     {
-        $this->validateForm();
-
-        if (empty($this->selectedProducts)) {
-            $this->notify('Debes seleccionar al menos 1 artículo', 'Error al guardar', 'danger');
-            return;
+        if ($this->order->reserva_id && !empty($this->order->start_date)) {
+            $this->form["start_date"] = $this->order->start_date;
         }
+        try {
 
-        $hasVehicle = false;
 
-        foreach ($this->selectedProducts as $product) {
 
-            $isVehicle = Item::where('id', $product['item_id'])
-                ->where('type', 'vehicle')
-                ->exists();
+            $this->validateForm();
 
-            if ($isVehicle) {
-                $hasVehicle = true;
-                break; // Ya encontramos un vehículo, no necesitamos seguir
+            if (empty($this->selectedProducts)) {
+                $this->notify('Debes seleccionar al menos 1 artículo', 'Error al guardar', 'danger');
+                return;
             }
-        }
-        if ($this->form['is_renting'] && !$hasVehicle) {
 
+            $hasVehicle = false;
 
-            $this->notify(
-                'No hay vehículos introducidos para realizar un alquiler.',
-                'Advertencia',
-                'warning'
-            );
-            return false;
-        } else if (!$this->form['is_renting'] && $hasVehicle) {
-            $this->notify(
-                'Estás intentando guardar una orden que no es de alquiler pero tiene un vehículo asignado.',
-                'Advertencia',
-                'warning'
-            );
-            return false;
-        }
-        // Guardar lógica del pedido pendiente
+            foreach ($this->selectedProducts as $product) {
 
-        $this->order->date = $this->form["date"] ? Carbon::parse($this->form["date"])->format('Y-m-d') : null;
-        $this->order->customer_id = $this->form["customer_id"];
-        $this->order->assigned_user_id = $this->form["assigned_user_id"];
-        $this->order->observations = $this->form["observations"];
-        $this->order->date = $this->form["date"];
-        $this->order->is_renting = $this->form["is_renting"];
-        $this->order->invoiced_automatic = $this->form["invoiced_automatic"] ?? 0;
-        if ($this->form["is_renting"]) {
+                $isVehicle = Item::where('id', $product['item_id'])
+                    ->where('type', 'vehicle')
+                    ->exists();
 
-            $this->order->start_date = $this->form["start_date"];
-            $this->order->end_date = $this->form["end_date"];
-        } else {
-            $this->order->start_date = null;
-            $this->form["start_date"] = null;
-            $this->order->end_date = null;
-            $this->form["end_date"] = null;
-        }
-        // $this->order->iva = $this->form["iva"];
-        $this->order->iva = is_numeric($this->form['iva']) ? (float) $this->form['iva'] : 0;
-
-        if ($this->order->iva == 0) {
-            (float) $this->form['iva'] = $this->order->iva;
-        }
-        $this->order->billing_name = $this->form["billing_name"];
-        $this->order->billing_nif = $this->form["billing_nif"];
-        $this->order->billing_email = $this->form["billing_email"];
-        $this->order->billing_phone = $this->form["billing_phone"];
-        $this->order->billing_address = $this->form["billing_address"];
-        $this->order->payment_method = $this->form["payment_method"];
-        if ($action) {
-            $this->order->invoiced = 1;
-        }
-        if (empty($this->order->id)) {
-            $this->order->type = "sale";
-        }
-        $this->order->save();
-
-
-        foreach ($this->selectedProducts as $product) {
-
-            if (empty($product["detail_id"])) {
-                // Buscar un detalle existente con el mismo order_id y item_id
-                $detail = OrderDetail::where('order_id', $this->order->id)
-                    ->where('item_id', $product["item_id"])
-                    ->first();
-
-                if (!$detail) {
-                    // Si no existe, crear uno nuevo
-                    $detail = new OrderDetail();
-                    $detail->order_id = $this->order->id;
+                if ($isVehicle) {
+                    $hasVehicle = true;
+                    break; // Ya encontramos un vehículo, no necesitamos seguir
                 }
+            }
+            if ($this->form['is_renting'] && !$hasVehicle) {
+
+
+                $this->notify(
+                    'No hay vehículos introducidos para realizar un alquiler.',
+                    'Advertencia',
+                    'warning'
+                );
+                return false;
+            } else if (!$this->form['is_renting'] && $hasVehicle) {
+                $this->notify(
+                    'Estás intentando guardar una orden que no es de alquiler pero tiene un vehículo asignado.',
+                    'Advertencia',
+                    'warning'
+                );
+                return false;
+            }
+            // Guardar lógica del pedido pendiente
+
+            $this->order->date = $this->form["date"] ? Carbon::parse($this->form["date"])->format('Y-m-d') : null;
+            $this->order->customer_id = $this->form["customer_id"];
+            $this->order->assigned_user_id = $this->form["assigned_user_id"];
+            $this->order->observations = $this->form["observations"];
+            $this->order->date = $this->form["date"];
+            $this->order->is_renting = $this->form["is_renting"];
+            $this->order->invoiced_automatic = $this->form["invoiced_automatic"] ?? 0;
+            if ($this->form["is_renting"]) {
+
+                $this->order->start_date = $this->form["start_date"];
+                $this->order->end_date = $this->form["end_date"];
             } else {
-                // Si detail_id existe, buscarlo directamente
-                $detail = OrderDetail::find($product["detail_id"]);
+                $this->order->start_date = null;
+                $this->form["start_date"] = null;
+                $this->order->end_date = null;
+                $this->form["end_date"] = null;
+            }
+            // $this->order->iva = $this->form["iva"];
+            $this->order->iva = is_numeric($this->form['iva']) ? (float) $this->form['iva'] : 0;
+
+            if ($this->order->iva == 0) {
+                (float) $this->form['iva'] = $this->order->iva;
+            }
+            $this->order->billing_name = $this->form["billing_name"];
+            $this->order->billing_nif = $this->form["billing_nif"];
+            $this->order->billing_email = $this->form["billing_email"];
+            $this->order->billing_phone = $this->form["billing_phone"];
+            $this->order->billing_address = $this->form["billing_address"];
+            $this->order->payment_method = $this->form["payment_method"];
+            if ($action) {
+                $this->order->invoiced = 1;
+            }
+            if (empty($this->order->id)) {
+                $this->order->type = "sale";
+            }
+            $this->order->save();
+
+
+            foreach ($this->selectedProducts as $product) {
+
+                if (empty($product["detail_id"])) {
+                    // Buscar un detalle existente con el mismo order_id y item_id
+                    $detail = OrderDetail::where('order_id', $this->order->id)
+                        ->where('item_id', $product["item_id"])
+                        ->first();
+
+                    if (!$detail) {
+                        // Si no existe, crear uno nuevo
+                        $detail = new OrderDetail();
+                        $detail->order_id = $this->order->id;
+                    }
+                } else {
+                    // Si detail_id existe, buscarlo directamente
+                    $detail = OrderDetail::find($product["detail_id"]);
+                }
+
+                $detail->product_name = empty($product["item_id"]) ? $product["item_name"] : null;
+                $detail->item_id = $product["item_id"];
+                $detail->price = $product["price_unit"] ?? 0;
+                $detail->taxes = $product["taxes"] ?? 0;
+                $detail->quantity = $product["quantity"] ?? 0;
+                $detail->start_kilometers = $product["start_kilometers"];
+                $detail->end_kilometers = $product["end_kilometers"];
+                $detail->fuel_delivery = $product["fuel_delivery"];
+                $detail->fuel_return = $product["fuel_return"];
+
+                $item = Item::find($product["item_id"]);
+                if ($item) {
+                    $detail->original_price = $item->price;
+                }
+                $detail->save();
             }
 
-            $detail->product_name = empty($product["item_id"]) ? $product["item_name"] : null;
-            $detail->item_id = $product["item_id"];
-            $detail->price = $product["price_unit"] ?? 0;
-            $detail->taxes = $product["taxes"] ?? 0;
-            $detail->quantity = $product["quantity"] ?? 0;
-            $detail->start_kilometers = $product["start_kilometers"];
-            $detail->end_kilometers = $product["end_kilometers"];
-            $detail->fuel_delivery = $product["fuel_delivery"];
-            $detail->fuel_return = $product["fuel_return"];
 
-            $item = Item::find($product["item_id"]);
-            if ($item) {
-                $detail->original_price = $item->price;
+            //eliminamo de base de datos detalles que esten quitados
+            if (count($this->detail_id_delete) > 0) {
+                OrderDetail::whereIn('id', $this->detail_id_delete)->delete();
+                $this->detail_id_delete = [];
             }
-            $detail->save();
-        }
 
+            $this->notify(
+                $action ? 'Venta facturada correctamente' : 'Venta guardada correctamente',
+                $action ? 'Facturada' : 'Guardada',
+                'success'
+            );
 
-        //eliminamo de base de datos detalles que esten quitados
-        if (count($this->detail_id_delete) > 0) {
-            OrderDetail::whereIn('id', $this->detail_id_delete)->delete();
-            $this->detail_id_delete = [];
-        }
+            if ($this->actionType == "new") {
+                return redirect("/admin/orders/{$this->order->id}/edit");
+            }
+        } catch (\Throwable $e) {
 
-        $this->notify(
-            $action ? 'Venta facturada correctamente' : 'Venta guardada correctamente',
-            $action ? 'Facturada' : 'Guardada',
-            'success'
-        );
-
-        if ($this->actionType == "new") {
-            return redirect("/admin/orders/{$this->order->id}/edit");
+            // Muestra el error completo y detiene la ejecución
+            $this->notify('A ocurrido un error...' . $e, 'Error al guardar', 'danger');
+            return;
+            return false;
         }
     }
     public function revertStatus()
