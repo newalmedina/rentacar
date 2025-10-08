@@ -112,25 +112,22 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
 
                     <!-- Contenido dinámico -->
                     @yield('content')
-                    <tr>
-                        <td style="padding: 30px 40px; color: #FFC107; font-size: 16px; line-height: 1.5;">
-                            {{-- @php
-                                $contactForm = \App\Models\CmsContent::findBySlug('contact-form');
-                                $whatsappNumber = preg_replace('/\D/', '', $contactForm->whatsapp_url);
-                            @endphp
-                            <p>
-                                Si necesitas más información, no dudes en contactarnos a través de 
-                                <a 
-                                    id="floating-whatsapp-btn" 
-                                    target="_blank" 
-                                    href="https://wa.me/{{ $whatsappNumber }}" 
-                                    title="Chatear por WhatsApp"
-                                    style="">
-                                    {{ $contactForm->whatsapp_url }}
-                                </a>. ¡Estaremos encantados de ayudarte!
-                            </p> --}}
-                        </td>
+                   <tr>
+                    <td style="padding: 30px 40px; color:  {{ $generalSettings->primary_color ?? '#581177' }}; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                        <p style="margin: 0;">
+                        Si necesitas más información, no dudes en contactarnos a través de:<br><br>
+                        📞 
+                        <a href="tel:{{ $generalSettings->phone }}" style="color:  {{ $generalSettings->primary_color ?? }}; text-decoration: none; font-weight: bold;">
+                            {{ $generalSettings->phone }}
+                        </a><br>
+                        ✉️ 
+                        <a href="mailto:{{ $generalSettings->email }}" style="color:  {{ $generalSettings->primary_color ?? }}; text-decoration: none; font-weight: bold;">
+                            {{ $generalSettings->email }}
+                        </a>
+                        </p>
+                    </td>
                     </tr>
+
                     
                     
                     <!-- Pie de página -->
