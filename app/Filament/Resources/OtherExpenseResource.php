@@ -63,10 +63,10 @@ class OtherExpenseResource extends Resource
                 Grid::make(12)
                     ->schema([
                         Placeholder::make('') // columna vacía
-                             ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 10,       // escritorio
-                                        ]),
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 10,       // escritorio
+                            ]),
                         Placeholder::make('')
                             ->label(null)
                             ->content(function (Get $get): HtmlString {
@@ -101,18 +101,18 @@ class OtherExpenseResource extends Resource
                         DatePicker::make('date')
                             ->label("Fecha")
                             ->required()
-                             ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 2,       // escritorio
-                                        ]),
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 2,       // escritorio
+                            ]),
 
                         TextInput::make('description')
                             ->label("Descripción")
                             ->maxLength(255)
-                             ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 10,       // escritorio
-                                        ]),
+                            ->columnSpan([
+                                'default' => 12, // móvil
+                                'md' => 10,       // escritorio
+                            ]),
                     ]),
 
                 Actions::make([
@@ -171,10 +171,10 @@ class OtherExpenseResource extends Resource
                                     ->pluck('name', 'id'))
                                 ->searchable()
                                 ->required()
-                                 ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 10,       // escritorio
-                                        ]),
+                                ->columnSpan([
+                                    'default' => 12, // móvil
+                                    'md' => 10,       // escritorio
+                                ]),
 
 
                             TextInput::make('price')
@@ -184,18 +184,18 @@ class OtherExpenseResource extends Resource
                                 ->prefix('€')->reactive()
                                 //->debounce(500)
                                 ->debounce(750)
-                                 ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 2,       // escritorio
-                                        ]),
+                                ->columnSpan([
+                                    'default' => 12, // móvil
+                                    'md' => 2,       // escritorio
+                                ]),
 
                             TextInput::make('observations')
                                 ->label("Observaciones")
                                 ->maxLength(255)
-                                 ->columnSpan([
-                                            'default' => 12, // móvil
-                                            'md' => 12,       // escritorio
-                                        ]),
+                                ->columnSpan([
+                                    'default' => 12, // móvil
+                                    'md' => 12,       // escritorio
+                                ]),
                         ]),
                     ])
                     ->minItems(1)
@@ -210,6 +210,7 @@ class OtherExpenseResource extends Resource
         $user = Auth::user();
         $centerId = $user?->center?->id;
         return $table
+            ->defaultSort('date', 'desc')
             ->query(
                 OtherExpense::query()
                     // Usamos 'withSum' para calcular la suma de los precios en los detalles relacionados
