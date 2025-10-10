@@ -210,6 +210,8 @@ class OtherExpenseResource extends Resource
         $user = Auth::user();
         $centerId = $user?->center?->id;
         return $table
+
+
             ->defaultSort('date', 'desc')
             ->query(
                 OtherExpense::query()
