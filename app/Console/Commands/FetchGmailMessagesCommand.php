@@ -128,6 +128,7 @@ class FetchGmailMessagesCommand extends Command
                 'start_date' => isset($data['fecha_inicio']) ? Carbon::parse($data['fecha_inicio']) : now(),
                 'end_date' => isset($data['fecha_fin']) ? Carbon::parse($data['fecha_fin']) : now(),
                 'is_renting' => 1,
+                'invoiced_automatic' => 1,
                 'type' => "sale",
             ]);
             $order->save();
