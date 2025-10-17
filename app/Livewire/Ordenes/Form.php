@@ -367,11 +367,16 @@ class Form extends Component
         if ($this->order->reserva_id && !empty($this->order->start_date)) {
             $this->form["start_date"] = $this->order->start_date;
         }
+
+        if (!isset($this->form['is_renting']) || empty($this->form['is_renting'])) {
+            $this->form['is_renting'] = false;
+        }
+
+
+        $this->validateForm();
+
         try {
 
-
-
-            $this->validateForm();
 
             if (empty($this->selectedProducts)) {
                 $this->notify('Debes seleccionar al menos 1 artículo', 'Error al guardar', 'danger');
