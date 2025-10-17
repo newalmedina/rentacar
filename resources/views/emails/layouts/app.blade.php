@@ -113,19 +113,20 @@ $brandLogoBase64 = $generalSettings?->image_base64 ?? null;
                     <!-- Contenido dinámico -->
                     @yield('content')
                    <tr>
-                    <td style="padding: 30px 40px; color:  {{ $generalSettings->primary_color ?? '#581177' }}; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
-                        <p style="margin: 0;">
-                        Si necesitas más información, no dudes en contactarnos a través de:<br><br>
-                        📞 
-                        <a href="tel:{{ $generalSettings->phone }}" style="color:  {{ $generalSettings->primary_color ?? }}; text-decoration: none; font-weight: bold;">
-                            {{ $generalSettings->phone }}
-                        </a><br>
-                        ✉️ 
-                        <a href="mailto:{{ $generalSettings->email }}" style="color:  {{ $generalSettings->primary_color ?? }}; text-decoration: none; font-weight: bold;">
-                            {{ $generalSettings->email }}
-                        </a>
-                        </p>
-                    </td>
+                    <td style="padding: 30px 40px; color: {{ $generalSettings->primary_color ?? '#581177' }}; font-size: 16px; line-height: 1.6; font-family: Arial, sans-serif;">
+                            <p style="margin: 0;">
+                                Si necesitas más información, no dudes en contactarnos a través de:<br><br>
+                                📞 
+                                <a href="tel:{{ $generalSettings->phone }}" style="color: {{ $generalSettings->primary_color ?? '#581177' }}; text-decoration: none; font-weight: bold;">
+                                    {{ $generalSettings->phone }}
+                                </a><br>
+                                ✉️ 
+                                <a href="mailto:{{ $generalSettings->email }}" style="color: {{ $generalSettings->primary_color ?? '#581177' }}; text-decoration: none; font-weight: bold;">
+                                    {{ $generalSettings->email }}
+                                </a>
+                            </p>
+                        </td>
+
                     </tr>
 
                     
